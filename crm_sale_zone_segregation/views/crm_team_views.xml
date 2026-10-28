@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit CRM Team Form View to add Zone configurations -->
+    <record id="crm_team_view_form_inherit_zone" model="ir.ui.view">
+        <field name="name">crm.team.form.inherit.zone</field>
+        <field name="model">crm.team</field>
+        <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Zone Coverage" name="zone_coverage">
+                    <group>
+                        <group string="Zone Details">
+                            <field name="is_zone"/>
+                            <field name="zone_code" placeholder="e.g. NZ, WZ, SZ, EZ"/>
+                        </group>
+                        <group string="Auto-Routing Geographic Territory">
+                            <field name="country_ids" widget="many2many_tags" placeholder="Select Countries..."/>
+                            <field name="state_ids" widget="many2many_tags" placeholder="Select States / Regions assigned to this Zone..."/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit CRM Team Tree View to show Zone Code -->
+    <record id="crm_team_view_tree_inherit_zone" model="ir.ui.view">
+        <field name="name">crm.team.tree.inherit.zone</field>
+        <field name="model">crm.team</field>
+        <field name="inherit_id" ref="sales_team.crm_team_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="zone_code" optional="show" string="Zone Code"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

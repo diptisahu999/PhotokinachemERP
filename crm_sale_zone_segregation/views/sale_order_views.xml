@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit Sales Order Search View for Zone Filters -->
+    <record id="view_sales_order_filter_inherit_zone" model="ir.ui.view">
+        <field name="name">sale.order.search.inherit.zone</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                <filter string="My Zone / Team Orders" name="my_zone_orders"
+                        domain="['|', ('team_id.member_ids', 'in', [uid]), ('team_id.user_id', '=', uid)]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Zone / Sales Team" name="group_by_zone" context="{'group_by': 'team_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Sales Order Form View to label Zone / Sales Team -->
+    <record id="view_order_form_inherit_zone" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.zone</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='team_id']" position="attributes">
+                <attribute name="string">Zone / Sales Team</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

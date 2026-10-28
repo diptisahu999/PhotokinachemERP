@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit CRM Opportunities Search View to add Zone Filters -->
+    <record id="view_crm_case_opportunities_filter_inherit_zone" model="ir.ui.view">
+        <field name="name">crm.lead.search.inherit.zone</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.view_crm_case_opportunities_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='assigned_to_me']" position="after">
+                <filter string="My Zone / Team Opportunities" name="my_zone_leads"
+                        domain="['|', ('team_id.member_ids', 'in', [uid]), ('team_id.user_id', '=', uid)]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Zone / Sales Team" name="group_by_zone" context="{'group_by': 'team_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit CRM Lead / Opportunity Form View to highlight Zone / Sales Team -->
+    <record id="crm_lead_view_form_inherit_zone" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit.zone</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='team_id']" position="attributes">
+                <attribute name="string">Zone / Sales Team</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

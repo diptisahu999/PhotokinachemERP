@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit Partner Form to show Assigned Zone / Sales Team -->
+    <record id="view_partner_form_inherit_zone" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.zone</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="team_id" string="Assigned Zone / Sales Team"
+                       placeholder="Auto-detected from State or manually select"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
