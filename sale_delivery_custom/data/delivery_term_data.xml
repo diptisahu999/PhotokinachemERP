@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="delivery_term_asap" model="delivery.term">
+            <field name="name">As soon as possible</field>
+            <field name="code">DIRECT</field>
+            <field name="sequence">1</field>
+            <field name="picking_policy">direct</field>
+        </record>
+
+        <record id="delivery_term_all_ready" model="delivery.term">
+            <field name="name">When all products are ready</field>
+            <field name="code">ONE</field>
+            <field name="sequence">2</field>
+            <field name="picking_policy">one</field>
+        </record>
+
+        <record id="delivery_term_ex_works" model="delivery.term">
+            <field name="name">Ex-Works</field>
+            <field name="code">EXW</field>
+            <field name="sequence">3</field>
+            <field name="picking_policy">direct</field>
+        </record>
+
+        <record id="delivery_term_door" model="delivery.term">
+            <field name="name">Door Delivery</field>
+            <field name="code">DOOR</field>
+            <field name="sequence">4</field>
+            <field name="picking_policy">direct</field>
+        </record>
+
+        <record id="delivery_term_immediate" model="delivery.term">
+            <field name="name">Immediate Delivery</field>
+            <field name="code">IMM</field>
+            <field name="sequence">5</field>
+            <field name="picking_policy">direct</field>
+        </record>
+
+        <record id="delivery_term_freight_to_pay" model="delivery.term">
+            <field name="name">Freight to Pay (To-Pay)</field>
+            <field name="code">TOPAY</field>
+            <field name="sequence">6</field>
+            <field name="picking_policy">direct</field>
+        </record>
+    </data>
+</odoo>
+

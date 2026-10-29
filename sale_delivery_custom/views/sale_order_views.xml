@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_inherit_delivery_custom" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.delivery.custom</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <!-- 1. Remove partner_shipping_id from its default position -->
+            <xpath expr="//field[@name='partner_shipping_id']" position="replace"/>
+
+            <!-- 2. Place Delivery Address directly below Customer field with strict sub-contact domain -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="partner_shipping_id"
+                       string="Delivery Address"
+                       groups=""
+                       domain="['|', ('id', '=', partner_id), ('parent_id', '=', partner_id)]"
+                       options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"
+                       context="{'default_type': 'delivery', 'show_address': False, 'show_vat': False, 'default_parent_id': partner_id}"
+                       readonly="not partner_id or state == 'cancel' or locked"
+                       placeholder="Select customer delivery address..."/>
+            </xpath>
+
+            <!-- 3. Place Delivery Term directly below Payment Terms on the main page -->
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="delivery_term_id"
+                       string="Delivery Term"
+                       placeholder="Select or type to create..."
+                       options="{'no_open': True}"/>
+            </xpath>
+
+            <!-- 4. Update 'Other Info' tab -> Delivery section: replace Shipping Policy with Delivery Term -->
+            <xpath expr="//field[@name='picking_policy']" position="replace">
+                <field name="delivery_term_id"
+                       string="Delivery Term"
+                       options="{'no_open': True}"/>
+                <field name="picking_policy" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
