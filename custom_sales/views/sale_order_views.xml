@@ -18,5 +18,34 @@
         </field>
     </record>
 
-</odoo>
+    <!-- Inherit Sale Order Form to add On Hand & Forecasted columns in Order Lines -->
+    <record id="view_sale_order_form_inherit_availability" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.availability</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Add On Hand and Forecasted columns after Quantity in the order lines list -->
+            <xpath expr="//field[@name='order_line']//list//field[@name='product_uom_qty']" position="after">
+                <field
+                    name="product_qty_on_hand"
+                    string="On Hand"
+                    readonly="1"
+                    optional="show"
+                    decoration-danger="product_qty_on_hand &lt; product_uom_qty"
+                    decoration-success="product_qty_on_hand &gt;= product_uom_qty"
+                    widget="float"
+                    column_invisible="parent.state == 'cancel'"/>
+                <field
+                    name="product_qty_forecasted"
+                    string="Forecasted"
+                    readonly="1"
+                    optional="hide"
+                    decoration-danger="product_qty_forecasted &lt; product_uom_qty"
+                    decoration-success="product_qty_forecasted &gt;= product_uom_qty"
+                    widget="float"
+                    column_invisible="parent.state == 'cancel'"/>
+            </xpath>
+        </field>
+    </record>
 
+</odoo>
