@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit Sales Order List View to add Preview button column -->
+    <record id="view_sale_order_list_inherit_preview" model="ir.ui.view">
+        <field name="name">sale.order.list.inherit.preview</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.sale_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='validity_date']" position="after">
+                <button
+                    string="Preview"
+                    name="action_preview_sale_order"
+                    type="object"
+                    icon="fa-eye"
+                    class="btn-secondary"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
+
