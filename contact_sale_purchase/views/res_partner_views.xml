@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Contact Form View Extension: Sales and Purchase Checkboxes -->
+    <record id="view_partner_form_inherit_sale_purchase" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.sale.purchase</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <xpath expr="//h1[hasclass('mb-0')]" position="after">
+                <div class="d-flex align-items-center gap-4 my-2">
+                    <span class="d-inline-flex align-items-center">
+                        <field name="is_sale" class="me-1"/>
+                        <label for="is_sale" string="Sales" class="fw-bold mb-0"/>
+                    </span>
+                    <span class="d-inline-flex align-items-center">
+                        <field name="is_purchase" class="me-1"/>
+                        <label for="is_purchase" string="Purchase" class="fw-bold mb-0"/>
+                    </span>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Search View: Filter Customers by is_sale and Vendors by is_purchase -->
+    <record id="view_res_partner_filter_inherit_sale_purchase" model="ir.ui.view">
+        <field name="name">res.partner.select.inherit.sale.purchase</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='customer']" position="replace">
+                <filter string="Customers / Sales" name="customer" domain="[('is_sale', '=', True)]"/>
+            </xpath>
+            <xpath expr="//filter[@name='supplier']" position="replace">
+                <filter string="Vendors / Purchase" name="supplier" domain="[('is_purchase', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
