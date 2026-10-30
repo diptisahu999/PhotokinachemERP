@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_saleorder_document_inherit_transport_bank" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//div[@name='so_total_summary']" position="after">
+            <!-- Transportation Details Section in Quotation PDF Report -->
+            <div t-if="doc.transporter_id or doc.vehicle_no or doc.transportation_doc_no or doc.transport_mode or doc.distance" 
+                 class="mt-3 mb-3" 
+                 style="page-break-inside: avoid;">
+                <table class="table table-sm table-bordered" style="width: 100%; border: 1px solid #ced4da; margin-bottom: 0;">
+                    <thead style="background-color: #f8f9fa;">
+                        <tr>
+                            <th colspan="2" class="p-2 text-uppercase" style="font-size: 12px; font-weight: bold; color: #333; letter-spacing: 0.5px;">
+                                Transportation Details
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody style="font-size: 11px;">
+                        <tr>
+                            <td style="width: 50%; padding: 6px 12px; vertical-align: top; border-right: 1px solid #ced4da;">
+                                <div t-if="doc.transporter_id" class="mb-1">
+                                    <strong>Transporter: </strong><span t-field="doc.transporter_id.name"/>
+                                </div>
+                                <div t-if="doc.transport_mode" class="mb-1">
+                                    <strong>Transportation Mode: </strong><span t-field="doc.transport_mode"/>
+                                </div>
+                                <div t-if="doc.vehicle_type and doc.transport_mode in ['1', '4']" class="mb-1">
+                                    <strong>Vehicle Type: </strong><span t-field="doc.vehicle_type"/>
+                                </div>
+                                <div t-if="doc.vehicle_no" class="mb-1">
+                                    <strong>Vehicle Number: </strong><span t-field="doc.vehicle_no"/>
+                                </div>
+                            </td>
+                            <td style="width: 50%; padding: 6px 12px; vertical-align: top;">
+                                <div t-if="doc.transportation_doc_no" class="mb-1">
+                                    <strong>Doc / LR No: </strong><span t-field="doc.transportation_doc_no"/>
+                                </div>
+                                <div t-if="doc.transportation_doc_date" class="mb-1">
+                                    <strong>Doc Date: </strong><span t-field="doc.transportation_doc_date" t-options="{'widget': 'date'}"/>
+                                </div>
+                                <div t-if="doc.distance" class="mb-1">
+                                    <strong>Distance: </strong><span t-field="doc.distance"/> km
+                                </div>
+                                <div t-if="doc.delivery_term_id" class="mb-1">
+                                    <strong>Delivery Term: </strong><span t-field="doc.delivery_term_id.name"/>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Company Bank Details Section in Quotation PDF Report -->
+            <t t-set="bank_account" t-value="doc.company_bank_id or (doc.company_id.partner_id.bank_ids and doc.company_id.partner_id.bank_ids[0])"/>
+            <div t-if="bank_account" 
+                 class="mt-3 mb-3" 
+                 style="page-break-inside: avoid;">
+                <table class="table table-sm table-bordered" style="width: 100%; border: 1px solid #ced4da; margin-bottom: 0;">
+                    <thead style="background-color: #f8f9fa;">
+                        <tr>
+                            <th colspan="2" class="p-2 text-uppercase" style="font-size: 12px; font-weight: bold; color: #333; letter-spacing: 0.5px;">
+                                Company Bank Details (for Payment)
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody style="font-size: 11px;">
+                        <tr>
+                            <td style="width: 50%; padding: 6px 12px; vertical-align: top; border-right: 1px solid #ced4da;">
+                                <div t-if="bank_account.bank_id.name" class="mb-1">
+                                    <strong>Bank Name: </strong><span t-field="bank_account.bank_id.name"/>
+                                </div>
+                                <div t-if="bank_account.acc_number" class="mb-1">
+                                    <strong>Account Number: </strong><span t-field="bank_account.acc_number"/>
+                                </div>
+                            </td>
+                            <td style="width: 50%; padding: 6px 12px; vertical-align: top;">
+                                <div t-if="bank_account.bank_id.bic" class="mb-1">
+                                    <strong>IFSC / BIC: </strong><span t-field="bank_account.bank_id.bic"/>
+                                </div>
+                                <div class="mb-1">
+                                    <strong>Beneficiary Name: </strong>
+                                    <span t-if="bank_account.acc_holder_name" t-field="bank_account.acc_holder_name"/>
+                                    <span t-elif="doc.company_id" t-field="doc.company_id.name"/>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </xpath>
+    </template>
+</odoo>
+

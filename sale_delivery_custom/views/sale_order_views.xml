@@ -36,7 +36,49 @@
                        options="{'no_open': True}"/>
                 <field name="picking_policy" invisible="1"/>
             </xpath>
+
+            <!-- 5. Add Company Bank Details inside Invoicing group in 'Other Info' -->
+            <xpath expr="//group[@name='sale_info']" position="inside">
+                <separator string="Company Bank Details"/>
+                <field name="company_partner_id" invisible="1"/>
+                <field name="company_bank_id"
+                       string="Company Bank Account"
+                       domain="[('partner_id', '=', company_partner_id)]"
+                       context="{'default_partner_id': company_partner_id}"
+                       options="{'no_quick_create': False}"/>
+                <field name="bank_name" string="Bank Name" invisible="not company_bank_id"/>
+                <field name="bank_acc_number" string="Account Number" invisible="not company_bank_id"/>
+                <field name="bank_bic" string="IFSC / BIC" invisible="not company_bank_id"/>
+                <field name="bank_acc_holder" string="Account Holder" invisible="not company_bank_id"/>
+            </xpath>
+
+            <!-- 6. Add Transporter Details and Transportation Details (Part B) in 'Other Info' -->
+            <xpath expr="//page[@name='other_information']" position="inside">
+                <group string="Transporter Details">
+                    <group>
+                        <field name="transporter_id"
+                               string="Transporter"
+                               placeholder="Select or create Transporter..."/>
+                    </group>
+                    <group/>
+                </group>
+                <group string="Transportation Details (Part B)">
+                    <group>
+                        <field name="transport_mode" string="Transportation Mode"/>
+                        <field name="vehicle_type" string="Vehicle Type" invisible="transport_mode not in ('1', '4')"/>
+                        <field name="vehicle_no" string="Vehicle Number" placeholder="e.g. GJ26U0758" invisible="transport_mode not in ('1', '4')"/>
+                        <label for="distance"/>
+                        <div class="o_row" name="distance">
+                            <field name="distance"/>
+                            <span>km</span>
+                        </div>
+                    </group>
+                    <group>
+                        <field name="transportation_doc_no" string="Transporter Doc No" placeholder="LR / Bilty / RR / Airway Bill No"/>
+                        <field name="transportation_doc_date" string="Transporter Doc Date"/>
+                    </group>
+                </group>
+            </xpath>
         </field>
     </record>
 </odoo>
-

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_form_inherit_transport_details" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit.transport.details</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='extra']" position="inside">
+                <group string="Transporter Details">
+                    <group>
+                        <field name="transporter_id" placeholder="Select or create Transporter..."/>
+                    </group>
+                    <group/>
+                </group>
+                <group string="Transportation Details (Part B)">
+                    <group>
+                        <field name="transport_mode" string="Transportation Mode"/>
+                        <field name="vehicle_type" string="Vehicle Type" invisible="transport_mode not in ('1', '4')"/>
+                        <field name="vehicle_no" string="Vehicle Number" placeholder="e.g. GJ26U0758" invisible="transport_mode not in ('1', '4')"/>
+                        <label for="distance"/>
+                        <div class="o_row" name="distance">
+                            <field name="distance"/>
+                            <span>km</span>
+                        </div>
+                    </group>
+                    <group>
+                        <field name="transportation_doc_no" string="Transporter Doc No" placeholder="LR / Bilty / RR / Airway Bill No"/>
+                        <field name="transportation_doc_date" string="Transporter Doc Date"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
