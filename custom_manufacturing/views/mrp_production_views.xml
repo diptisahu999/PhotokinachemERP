@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit MRP Production Form View to add Available Qty, Unit Price, Total Price, and Total Overall Price -->
+    <record id="mrp_production_form_view_inherit_custom_manufacturing" model="ir.ui.view">
+        <field name="name">mrp.production.form.inherit.custom.manufacturing</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <!-- 1. Available Quantity column after forecast availability widget -->
+            <xpath expr="//field[@name='move_raw_ids']//list//field[@name='forecast_availability']" position="after">
+                <field
+                    name="available_qty"
+                    string="Available Qty"
+                    readonly="1"
+                    force_save="1"
+                    column_invisible="parent.state == 'cancel'"
+                    decoration-danger="available_qty &lt; product_uom_qty"
+                    decoration-success="available_qty &gt;= product_uom_qty"/>
+            </xpath>
+
+            <!-- 2. Unit Price and Total Price columns after product unit of measure -->
+            <xpath expr="//field[@name='move_raw_ids']//list//field[@name='product_uom'][@widget='many2one_uom']" position="after">
+                <field name="currency_id" column_invisible="True"/>
+                <field
+                    name="unit_price"
+                    string="Unit Price"
+                    widget="monetary"
+                    options="{'currency_field': 'currency_id'}"/>
+                <field
+                    name="total_price"
+                    string="Total Price"
+                    widget="monetary"
+                    options="{'currency_field': 'currency_id'}"
+                    sum="Total Price"
+                    readonly="1"
+                    force_save="1"/>
+            </xpath>
+
+            <!-- 3. Total Overall Price summary below Components list -->
+            <xpath expr="//field[@name='move_raw_ids']" position="after">
+                <group class="mt-2">
+                    <group/>
+                    <group class="oe_subtotal_footer">
+                        <field name="currency_id" invisible="1"/>
+                        <field
+                            name="total_component_cost"
+                            string="Total Overall Price"
+                            class="oe_subtotal_footer_separator"
+                            widget="monetary"
+                            options="{'currency_field': 'currency_id'}"/>
+                    </group>
+                </group>
+                <div class="clearfix"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit MRP Production List View to display Total Components Cost -->
+    <record id="mrp_production_tree_view_inherit_custom_manufacturing" model="ir.ui.view">
+        <field name="name">mrp.production.list.inherit.custom.manufacturing</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="before">
+                <field name="currency_id" column_invisible="True"/>
+                <field
+                    name="total_component_cost"
+                    string="Total Components Cost"
+                    widget="monetary"
+                    options="{'currency_field': 'currency_id'}"
+                    optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
+
