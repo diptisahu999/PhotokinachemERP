@@ -37,6 +37,21 @@ class MrpProduction(models.Model):
             product, product_uom_qty, product_uom, operation_id, bom_line
         )
         company = self.company_id or self.env.company
-        price = self.env['stock.move']._get_move_component_price(product, product_uom, company)
+        date = self.date_start or fields.Date.today()
+        price = self.env['stock.move']._get_move_component_price(product, product_uom, company, date=date)
         vals['unit_price'] = price
         return vals
+
+    def action_recompute_component_prices(self):
+        """Recompute unit prices and total costs of components based on vendor price, currency conversion, and latest rates."""
+        for order in self:
+            company = order.company_id or self.env.company
+            date = order.date_start or fields.Date.today()
+            for move in order.move_raw_ids:
+                if move.product_id:
+                    move.unit_price = self.env['stock.move']._get_move_component_price(
+                        move.product_id, move.product_uom, company, date=date
+                    )
+                    qty = move.quantity if (order.state == 'done' and move.quantity) else move.product_uom_qty
+                    move.total_price = (move.unit_price or 0.0) * (qty or 0.0)
+            order._compute_total_component_cost()

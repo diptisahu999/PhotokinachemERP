@@ -37,10 +37,18 @@
                     force_save="1"/>
             </xpath>
 
-            <!-- 3. Total Overall Price summary below Components list -->
+            <!-- 3. Total Overall Price summary and Recompute Prices button below Components list -->
             <xpath expr="//field[@name='move_raw_ids']" position="after">
                 <group class="mt-2">
-                    <group/>
+                    <group>
+                        <button name="action_recompute_component_prices"
+                                type="object"
+                                string="Recompute Component Prices"
+                                class="btn btn-secondary btn-sm"
+                                icon="fa-refresh"
+                                help="Recalculate component prices using latest vendor purchase prices and USD-to-INR live rates"
+                                invisible="state in ('done', 'cancel')"/>
+                    </group>
                     <group class="oe_subtotal_footer">
                         <field name="currency_id" invisible="1"/>
                         <field
@@ -75,4 +83,3 @@
     </record>
 
 </odoo>
-
