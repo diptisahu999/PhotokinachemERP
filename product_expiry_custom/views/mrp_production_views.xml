@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- MRP Production Form View Inherit -->
+    <record id="mrp_production_form_view_inherit_expiry" model="ir.ui.view">
+        <field name="name">mrp.production.form.inherit.expiry</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='lot_producing_ids']/.." position="after">
+                <field name="expiration_date"
+                       string="Expiration Date"
+                       invisible="product_tracking in ('none', False) or state in ('draft', 'cancel')"
+                       readonly="state == 'done'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- MRP Production List View Inherit -->
+    <record id="mrp_production_tree_view_inherit_expiry" model="ir.ui.view">
+        <field name="name">mrp.production.list.inherit.expiry</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="before">
+                <field name="expiration_date" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
