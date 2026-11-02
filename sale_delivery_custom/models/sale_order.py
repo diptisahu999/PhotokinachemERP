@@ -98,6 +98,14 @@ class SaleOrder(models.Model):
             self.partner_shipping_id = self.partner_id.address_get(['delivery'])['delivery']
         else:
             self.partner_shipping_id = False
+        if self.state in ('draft', 'sent') and self.order_line:
+            self._recompute_taxes()
+
+    @api.onchange('partner_shipping_id', 'fiscal_position_id')
+    def _onchange_partner_shipping_taxes(self):
+        """Automatically recompute lines taxes when shipping address or fiscal position changes."""
+        if self.state in ('draft', 'sent') and self.order_line:
+            self._recompute_taxes()
 
     def action_confirm(self):
         res = super().action_confirm()
