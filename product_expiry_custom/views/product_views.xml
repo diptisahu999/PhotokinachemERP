@@ -32,6 +32,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='categ_id']" position="after">
                 <field name="expiry_date" optional="show"/>
+                <field name="standard_price" optional="show" string="Cost Price"/>
             </xpath>
         </field>
     </record>
@@ -44,6 +45,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='categ_id']" position="after">
                 <field name="expiry_date" optional="show"/>
+                <field name="standard_price" optional="show" string="Cost Price"/>
             </xpath>
         </field>
     </record>
@@ -57,8 +59,16 @@
             <xpath expr="//field[@name='name']" position="after">
                 <field name="expiry_date"/>
             </xpath>
+            <xpath expr="//filter[@name='filter_to_sell']" position="after">
+                <separator/>
+                <filter string="Has Expiry Date" name="has_expiry_date" domain="[('expiry_date', '!=', False)]"/>
+                <filter string="Expiring Soon (30 Days)" name="expiring_soon_30" domain="[('expiry_date', '&gt;=', context_today().strftime('%Y-%m-%d')), ('expiry_date', '&lt;=', (context_today() + datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Expired Products" name="expired_products" domain="[('expiry_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+            </xpath>
             <xpath expr="//group" position="inside">
                 <filter string="Expiry Date" name="group_by_expiry_date" context="{'group_by': 'expiry_date'}"/>
+                <filter string="Sales Price" name="group_by_list_price" context="{'group_by': 'list_price'}"/>
+                <filter string="Cost Price" name="group_by_standard_price" context="{'group_by': 'standard_price'}"/>
             </xpath>
         </field>
     </record>

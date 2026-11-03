@@ -12,6 +12,7 @@ class ProductTemplate(models.Model):
 
     def _register_hook(self):
         res = super()._register_hook()
+        # 1. Auto-enable expiration date on tracked products
         products = self.search([
             ('tracking', 'in', ('lot', 'serial')),
             '|', ('use_expiration_date', '=', False), ('expiration_time', '=', 0)
@@ -24,6 +25,26 @@ class ProductTemplate(models.Model):
                 vals['expiration_time'] = 365
             if vals:
                 p.write(vals)
+
+        # 2. Set default removal strategy to FEFO (First Expiry First Out) on categories and locations
+        fefo = self.env['product.removal'].search([('method', '=', 'fefo')], limit=1)
+        if fefo:
+            categories = self.env['product.category'].search([('removal_strategy_id', '=', False)])
+            if categories:
+                categories.write({'removal_strategy_id': fefo.id})
+            internal_locations = self.env['stock.location'].search([
+                ('usage', '=', 'internal'),
+                ('removal_strategy_id', '=', False)
+            ])
+            if internal_locations:
+                internal_locations.write({'removal_strategy_id': fefo.id})
+
+        # 3. Compute purchase details and expiry status on all existing lots
+        lots = self.env['stock.lot'].search([])
+        if lots:
+            lots._compute_purchase_details()
+            lots._compute_expiry_status()
+
         return res
 
     @api.onchange('tracking')
