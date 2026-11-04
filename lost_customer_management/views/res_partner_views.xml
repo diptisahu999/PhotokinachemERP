@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Partner Form View Inherit -->
+    <record id="view_partner_form_inherit_lost_customer" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.lost.customer</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority">40</field>
+        <field name="arch" type="xml">
+            <!-- Alert banner when customer is lost -->
+            <xpath expr="//sheet/*[1]" position="before">
+                <div class="alert alert-danger d-flex align-items-center mb-3" role="alert" invisible="not is_lost_customer">
+                    <i class="fa fa-exclamation-triangle fa-2x me-3 text-danger"/>
+                    <div class="flex-grow-1">
+                        <h5 class="alert-heading mb-1 fw-bold text-danger">⚠️ Lost Customer Notice</h5>
+                        <div>This customer has had no deals or orders in the last 6 months (Inactive for <field name="days_since_last_activity" class="fw-bold"/> days).</div>
+                    </div>
+                    <button name="action_check_lost_status" type="object" string="Re-check Status" class="btn btn-outline-danger btn-sm ms-2"/>
+                </div>
+            </xpath>
+
+            <!-- Status fields under Sales & Purchases tab -->
+            <xpath expr="//page[@name='sales_purchases']//group[@name='sale']" position="inside">
+                <field name="is_lost_customer" widget="boolean_toggle"/>
+                <field name="last_deal_or_order_date" invisible="not last_deal_or_order_date"/>
+                <field name="days_since_last_activity"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Partner List View Inherit -->
+    <record id="view_partner_tree_inherit_lost_customer" model="ir.ui.view">
+        <field name="name">res.partner.list.inherit.lost.customer</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="priority">40</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="is_lost_customer" column_invisible="True"/>
+                <field name="lost_status_display" widget="badge" decoration-danger="lost_status_display" optional="show" string="Customer Status"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Partner Search View Inherit -->
+    <record id="view_res_partner_filter_inherit_lost_customer" model="ir.ui.view">
+        <field name="name">res.partner.search.inherit.lost.customer</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="priority">40</field>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='customer']" position="after">
+                <separator/>
+                <filter string="Lost Customers (6+ Months)" name="filter_lost_customers" domain="[('is_lost_customer', '=', True)]"/>
+                <filter string="Active Customers" name="filter_active_customers" domain="[('is_lost_customer', '=', False)]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Lost Customer Status" name="group_by_lost_customer" context="{'group_by': 'is_lost_customer'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
