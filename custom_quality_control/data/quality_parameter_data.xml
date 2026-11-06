@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="param_ph" model="quality.parameter">
+            <field name="name">pH Value</field>
+            <field name="code">PH</field>
+            <field name="parameter_type">numeric</field>
+            <field name="default_uom_name">pH</field>
+            <field name="default_test_method">ASTM D1293 (Digital pH Meter)</field>
+            <field name="description">Acidity or alkalinity measure of the sample solution.</field>
+        </record>
+
+        <record id="param_viscosity" model="quality.parameter">
+            <field name="name">Viscosity</field>
+            <field name="code">VISC</field>
+            <field name="parameter_type">numeric</field>
+            <field name="default_uom_name">cP</field>
+            <field name="default_test_method">ASTM D2196 (Brookfield Viscometer)</field>
+            <field name="description">Fluid resistance to flow at standardized temperature.</field>
+        </record>
+
+        <record id="param_specific_gravity" model="quality.parameter">
+            <field name="name">Specific Gravity</field>
+            <field name="code">SG</field>
+            <field name="parameter_type">numeric</field>
+            <field name="default_uom_name">g/cm³</field>
+            <field name="default_test_method">ASTM D891 (Pycnometer / Hydrometer)</field>
+            <field name="description">Relative density compared to water at 25°C.</field>
+        </record>
+
+        <record id="param_purity" model="quality.parameter">
+            <field name="name">Purity / Assay (%)</field>
+            <field name="code">PURITY</field>
+            <field name="parameter_type">numeric</field>
+            <field name="default_uom_name">%</field>
+            <field name="default_test_method">Titration / Gas Chromatography (GC)</field>
+            <field name="description">Percentage concentration of active chemical compound.</field>
+        </record>
+
+        <record id="param_moisture" model="quality.parameter">
+            <field name="name">Moisture Content (%)</field>
+            <field name="code">MOIST</field>
+            <field name="parameter_type">numeric</field>
+            <field name="default_uom_name">%</field>
+            <field name="default_test_method">Karl Fischer Titration / Loss on Drying</field>
+            <field name="description">Water / moisture percentage in material.</field>
+        </record>
+
+        <record id="param_solids" model="quality.parameter">
+            <field name="name">Solid Content / Non-Volatile (%)</field>
+            <field name="code">SOLIDS</field>
+            <field name="parameter_type">numeric</field>
+            <field name="default_uom_name">%</field>
+            <field name="default_test_method">Oven Drying Method @ 105°C</field>
+            <field name="description">Percentage of non-volatile dry solids residue.</field>
+        </record>
+
+        <record id="param_appearance" model="quality.parameter">
+            <field name="name">Physical Appearance</field>
+            <field name="code">APPR</field>
+            <field name="parameter_type">text</field>
+            <field name="default_test_method">Visual Inspection @ 25°C</field>
+            <field name="default_expected_text">Clear Homogeneous Liquid, free from foreign matter</field>
+            <field name="description">Visual state, clarity, turbidity, and phase homogeneity.</field>
+        </record>
+
+        <record id="param_color" model="quality.parameter">
+            <field name="name">Color</field>
+            <field name="code">COLOR</field>
+            <field name="parameter_type">text</field>
+            <field name="default_test_method">Visual / Gardner / APHA Scale</field>
+            <field name="default_expected_text">Colorless to Pale Yellow</field>
+            <field name="description">Color assessment against color standard.</field>
+        </record>
+
+        <record id="param_odor" model="quality.parameter">
+            <field name="name">Odor</field>
+            <field name="code">ODOR</field>
+            <field name="parameter_type">text</field>
+            <field name="default_test_method">Olfactory Sensory Evaluation</field>
+            <field name="default_expected_text">Characteristic pleasant / odorless</field>
+            <field name="description">Organoleptic odor evaluation.</field>
+        </record>
+
+        <record id="param_density" model="quality.parameter">
+            <field name="name">Density</field>
+            <field name="code">DENS</field>
+            <field name="parameter_type">numeric</field>
+            <field name="default_uom_name">g/ml</field>
+            <field name="default_test_method">Digital Density Meter</field>
+            <field name="description">Mass per unit volume at specified temperature.</field>
+        </record>
+
+        <record id="param_packaging" model="quality.parameter">
+            <field name="name">Packaging &amp; Label Integrity</field>
+            <field name="code">PKG</field>
+            <field name="parameter_type">boolean</field>
+            <field name="default_test_method">Physical Container Audit</field>
+            <field name="description">Container condition, intact seals, proper hazard labeling and batch markings.</field>
+        </record>
+    </data>
+</odoo>
+

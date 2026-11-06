@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Quality Check List View -->
+    <record id="view_quality_check_list" model="ir.ui.view">
+        <field name="name">quality.check.list</field>
+        <field name="model">quality.check</field>
+        <field name="arch" type="xml">
+            <list string="Quality Inspections"
+                  decoration-danger="state == 'failed'"
+                  decoration-success="state == 'passed'"
+                  decoration-info="state == 'in_progress'"
+                  decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="check_date"/>
+                <field name="qc_type" widget="badge"/>
+                <field name="product_id"/>
+                <field name="lot_id" optional="show"/>
+                <field name="lot_name" optional="hide"/>
+                <field name="quantity"/>
+                <field name="product_uom_id"/>
+                <field name="passed_parameters" string="Passed" decoration-success="passed_parameters &gt; 0"/>
+                <field name="failed_parameters" string="Failed" decoration-danger="failed_parameters &gt; 0"/>
+                <field name="total_parameters" string="Total Tests"/>
+                <field name="overall_result" string="Overall Status" widget="badge"
+                       decoration-success="overall_result == 'pass'"
+                       decoration-danger="overall_result == 'fail'"
+                       decoration-warning="overall_result == 'pending'"/>
+                <field name="purchase_id" optional="hide"/>
+                <field name="production_id" optional="hide"/>
+                <field name="picking_id" optional="hide"/>
+                <field name="source_location_id" optional="hide"/>
+                <field name="dest_location_id" optional="show"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'passed'"
+                       decoration-danger="state in ('failed', 'quarantine', 'returned')"
+                       decoration-info="state == 'in_progress'"
+                       decoration-muted="state == 'cancel'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Quality Check Kanban View -->
+    <record id="view_quality_check_kanban" model="ir.ui.view">
+        <field name="name">quality.check.kanban</field>
+        <field name="model">quality.check</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" sample="1">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="product_id"/>
+                <field name="lot_id"/>
+                <field name="quantity"/>
+                <field name="product_uom_id"/>
+                <field name="qc_type"/>
+                <field name="overall_result"/>
+                <field name="state"/>
+                <field name="user_id"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click p-2 shadow-sm border rounded">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="text-primary"><field name="name"/></strong>
+                                <field name="overall_result" widget="badge"
+                                       decoration-success="overall_result == 'pass'"
+                                       decoration-danger="overall_result == 'fail'"
+                                       decoration-warning="overall_result == 'pending'"/>
+                            </div>
+                            <div class="mb-1">
+                                <span class="fw-bold"><field name="product_id"/></span>
+                            </div>
+                            <div class="text-muted small mb-1">
+                                <span t-if="record.lot_id.raw_value">Lot: <field name="lot_id"/> | </span>
+                                <span>Qty: <field name="quantity"/> <field name="product_uom_id"/></span>
+                            </div>
+                            <div class="text-muted small mb-2">
+                                <span class="badge text-bg-light"><field name="qc_type"/></span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center border-top pt-1 small text-muted">
+                                <span><field name="check_date"/></span>
+                                <field name="user_id" widget="many2one_avatar_user"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Quality Check Form View: Clean, Simple, Intuitive -->
+    <record id="view_quality_check_form" model="ir.ui.view">
+        <field name="name">quality.check.form</field>
+        <field name="model">quality.check</field>
+        <field name="arch" type="xml">
+            <form string="Quality Inspection &amp; Analysis">
+                <header>
+                    <button name="action_start" string="Start Testing" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+
+                    <button name="action_pass" string="Pass &amp; Release to Stock" type="object"
+                            class="btn-success" invisible="state != 'in_progress'"
+                            confirm="Confirm PASS for this inspection and release products to the Target Storage Location?"/>
+
+                    <button name="action_open_release_wizard" string="Release to Custom Location" type="object"
+                            class="btn-secondary" invisible="state != 'in_progress'"
+                            help="Choose any specific warehouse and storage location to release this approved product."/>
+
+                    <button name="action_fail" string="Fail (Reject)" type="object"
+                            class="btn-danger" invisible="state != 'in_progress'"
+                            confirm="Are you sure you want to REJECT this inspection? The product will NOT enter inventory."/>
+
+                    <button name="action_return_to_vendor" string="Return to Vendor" type="object"
+                            class="btn-danger" invisible="state not in ('failed', 'in_progress') or return_picking_id"
+                            confirm="Are you sure you want to return this failed item to the vendor? An immediate return transfer picking will be generated."/>
+
+                    <button name="action_send_to_quarantine" string="Move to Quarantine" type="object"
+                            class="btn-warning" invisible="state != 'failed'"
+                            confirm="Transfer this rejected product to Quarantine location?"/>
+
+                    <button name="action_load_product_parameters" string="Reload Parameters" type="object"
+                            class="btn-secondary" invisible="state not in ('draft', 'in_progress')"
+                            help="Reload specifications configured on the product template."/>
+
+                    <button name="action_save_parameters_to_product" string="Save to Product Defaults" type="object"
+                            class="btn-secondary" invisible="state not in ('draft', 'in_progress')"
+                            confirm="Save these parameters to the product template so all future inspections for this product will use them?"/>
+
+                    <button name="action_print_coa" string="Print COA Report" type="object"
+                            class="btn-secondary" icon="fa-print"/>
+
+                    <button name="action_reset_draft" string="Reset to Draft" type="object"
+                            invisible="state not in ('failed', 'cancel')"
+                            groups="custom_quality_control.group_quality_manager"/>
+
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('passed', 'cancel')"/>
+
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,passed,failed,returned"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_transfer" type="object" class="oe_stat_button"
+                                icon="fa-truck" invisible="not transfer_picking_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Inventory Transfer</span>
+                                <span class="o_stat_value"><field name="transfer_picking_id" readonly="1"/></span>
+                            </div>
+                        </button>
+                        <button name="action_view_quarantine_transfer" type="object" class="oe_stat_button"
+                                icon="fa-ban" invisible="not quarantine_picking_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Quarantine Transfer</span>
+                                <span class="o_stat_value"><field name="quarantine_picking_id" readonly="1"/></span>
+                            </div>
+                        </button>
+                        <button name="action_view_return_transfer" type="object" class="oe_stat_button"
+                                icon="fa-undo" invisible="not return_picking_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Return Transfer</span>
+                                <span class="o_stat_value"><field name="return_picking_id" readonly="1"/></span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name" string="Inspection Reference"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <h3>
+                            <field name="title" placeholder="Inspection Title" readonly="state in ('passed', 'failed', 'quarantine')"/>
+                        </h3>
+                    </div>
+
+                    <!-- Inspection Summary Section -->
+                    <group name="inspection_summary" string="Inspection Summary">
+                        <group>
+                            <field name="passed_parameters" string="Parameters Passed" class="text-success fw-bold"/>
+                            <field name="failed_parameters" string="Parameters Failed" class="text-danger fw-bold"/>
+                        </group>
+                        <group>
+                            <field name="total_parameters" string="Total Parameters"/>
+                            <field name="overall_result" string="Overall Status" widget="badge"
+                                   decoration-success="overall_result == 'pass'"
+                                   decoration-danger="overall_result == 'fail'"
+                                   decoration-warning="overall_result == 'pending'"/>
+                        </group>
+                    </group>
+
+                    <!-- Product & Batch Details -->
+                    <group>
+                        <group name="product_info" string="Product &amp; Batch Details">
+                            <field name="product_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="product_tmpl_id" invisible="1"/>
+                            <field name="lot_id" options="{'no_create': True}" readonly="state in ('passed', 'failed')"/>
+                            <field name="lot_name" invisible="lot_id" readonly="state in ('passed', 'failed')"/>
+                            <label for="quantity" string="Batch / Tested Qty"/>
+                            <div class="o_row">
+                                <field name="quantity" readonly="state in ('passed', 'failed')"/>
+                                <field name="product_uom_id" readonly="state in ('passed', 'failed')" options="{'no_create': True}"/>
+                            </div>
+                            <field name="qc_type" readonly="state != 'draft'"/>
+                        </group>
+                        <group name="locations_info" string="Storage &amp; Destination">
+                            <field name="source_location_id" readonly="state in ('passed', 'failed', 'quarantine')" options="{'no_create': True}"/>
+                            <field name="dest_warehouse_id" readonly="state in ('passed', 'failed', 'quarantine')" options="{'no_create': True}"/>
+                            <field name="dest_location_id" readonly="state in ('passed', 'failed', 'quarantine')" options="{'no_create': True}"/>
+                            <field name="quarantine_location_id" groups="custom_quality_control.group_quality_manager" readonly="state in ('passed', 'failed', 'quarantine')" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- Tab 1: Clean Parameters & Results Table -->
+                        <page string="Parameters &amp; Results" name="parameters">
+                            <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
+                                <div>
+                                    <span class="text-muted">Testing Specifications for: </span>
+                                    <field name="product_id" readonly="1" class="fw-bold text-primary"/>
+                                </div>
+                                <div>
+                                    <button name="action_load_product_parameters" string="Reload Product Specs"
+                                            type="object" class="btn btn-sm btn-outline-secondary me-1"
+                                            invisible="state not in ('draft', 'in_progress')"
+                                            help="Reload specifications currently configured on this product template."/>
+                                    <button name="action_save_parameters_to_product" string="Save as Product Defaults"
+                                            type="object" class="btn btn-sm btn-outline-primary"
+                                            invisible="state not in ('draft', 'in_progress')"
+                                            confirm="Save these parameters to the product template so all future inspections will automatically use them?"/>
+                                </div>
+                            </div>
+                            <field name="check_line_ids" readonly="state in ('passed', 'failed', 'quarantine')">
+                                <list editable="bottom"
+                                      decoration-success="status == 'pass'"
+                                      decoration-danger="status == 'fail'"
+                                      decoration-warning="status == 'pending'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name" string="Parameter / Test"/>
+                                    <field name="specification" string="Specification / Target"/>
+                                    <field name="measured_value" string="Actual / Measured Value" placeholder="Enter test result (e.g. 2900 cP, Clear, Pass)..."/>
+                                    <field name="status" string="Result" widget="badge"
+                                           decoration-success="status == 'pass'"
+                                           decoration-danger="status == 'fail'"
+                                           decoration-warning="status == 'pending'"/>
+                                    <field name="notes" string="Remarks" placeholder="Optional remarks..." optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Tab 2: Source Documents & Approvals -->
+                        <page string="Source Documents &amp; Approvals" name="source_approvals">
+                            <group>
+                                <group name="source_info" string="Source Documents">
+                                    <field name="purchase_id" readonly="1" invisible="not purchase_id"/>
+                                    <field name="picking_id" readonly="1" invisible="not picking_id"/>
+                                    <field name="production_id" readonly="1" invisible="not production_id"/>
+                                    <field name="partner_id" readonly="state != 'draft'"/>
+                                    <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                                </group>
+                                <group name="analyst_info" string="Analyst &amp; Sign-off">
+                                    <field name="user_id" widget="many2one_avatar_user" readonly="state in ('passed', 'failed')"/>
+                                    <field name="check_date" readonly="state in ('passed', 'failed')"/>
+                                    <field name="approved_by_id" widget="many2one_avatar_user" invisible="not approved_by_id"/>
+                                    <field name="approved_date" invisible="not approved_date"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Tab 3: Lab Notes & Rejection Reason -->
+                        <page string="Notes &amp; Rejection Reason" name="notes">
+                            <group>
+                                <field name="notes" placeholder="Detailed laboratory observations, ambient conditions, testing remarks..."/>
+                                <field name="rejection_reason" placeholder="State reason if batch/material failed quality checks and cannot be released..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Quality Check Search View -->
+    <record id="view_quality_check_search" model="ir.ui.view">
+        <field name="name">quality.check.search</field>
+        <field name="model">quality.check</field>
+        <field name="arch" type="xml">
+            <search string="Search Quality Inspections">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="product_id"/>
+                <field name="lot_id"/>
+                <field name="lot_name"/>
+                <field name="purchase_id"/>
+                <field name="picking_id"/>
+                <field name="production_id"/>
+                <field name="partner_id"/>
+                <field name="user_id"/>
+
+                <filter string="Under Testing" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Passed (Approved)" name="passed" domain="[('state', '=', 'passed')]"/>
+                <filter string="Failed (Rejected)" name="failed" domain="[('state', 'in', ('failed', 'quarantine', 'returned'))]"/>
+                <filter string="Returned to Vendor" name="returned" domain="[('state', '=', 'returned')]"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <separator/>
+                <filter string="Purchase Receipts" name="purchase_type" domain="[('qc_type', '=', 'purchase')]"/>
+                <filter string="Manufacturing Orders" name="mrp_type" domain="[('qc_type', '=', 'mrp')]"/>
+                <filter string="Internal Transfers" name="internal_type" domain="[('qc_type', '=', 'internal')]"/>
+                <separator/>
+                <filter name="filter_check_date" string="Inspection Date" date="check_date"/>
+
+                <group>
+                    <filter string="Status" name="group_by_state" domain="[]" context="{'group_by': 'state'}"/>
+                    <filter string="Overall Evaluation" name="group_by_result" domain="[]" context="{'group_by': 'overall_result'}"/>
+                    <filter string="Inspection Type" name="group_by_type" domain="[]" context="{'group_by': 'qc_type'}"/>
+                    <filter string="Product" name="group_by_product" domain="[]" context="{'group_by': 'product_id'}"/>
+                    <filter string="QC Analyst" name="group_by_user" domain="[]" context="{'group_by': 'user_id'}"/>
+                    <filter string="Inspection Date" name="group_by_date" domain="[]" context="{'group_by': 'check_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- All Quality Checks Action -->
+    <record id="action_quality_check_all" model="ir.actions.act_window">
+        <field name="name">Quality Inspections</field>
+        <field name="res_model">quality.check</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_quality_check_search"/>
+        <field name="context">{'search_default_in_progress': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No quality inspections found!
+            </p>
+            <p>
+                Inspections are automatically generated when incoming purchase shipments or finished manufacturing orders are validated.
+            </p>
+        </field>
+    </record>
+
+    <!-- Purchase Quality Checks Action -->
+    <record id="action_quality_check_purchase" model="ir.actions.act_window">
+        <field name="name">Purchase Quality Checks</field>
+        <field name="res_model">quality.check</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('qc_type', '=', 'purchase')]</field>
+        <field name="context">{'default_qc_type': 'purchase', 'search_default_in_progress': 1}</field>
+        <field name="search_view_id" ref="view_quality_check_search"/>
+    </record>
+
+    <!-- Manufacturing Quality Checks Action -->
+    <record id="action_quality_check_mrp" model="ir.actions.act_window">
+        <field name="name">Manufacturing Quality Checks</field>
+        <field name="res_model">quality.check</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('qc_type', '=', 'mrp')]</field>
+        <field name="context">{'default_qc_type': 'mrp', 'search_default_in_progress': 1}</field>
+        <field name="search_view_id" ref="view_quality_check_search"/>
+    </record>
+</odoo>

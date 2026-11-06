@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Stock Picking Form Inherit -->
+    <record id="view_picking_form_inherit_quality" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit.quality</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <!-- Smart Button for QC Checks -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_qc_checks" type="object" class="oe_stat_button"
+                        icon="fa-flask" invisible="qc_check_count == 0">
+                    <div class="o_stat_info">
+                        <field name="qc_check_count" class="o_stat_value"/>
+                        <span class="o_stat_text">QA / QC Checks</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- QC Status Badge: Hidden when 'none' or not incoming -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="qc_status" widget="badge"
+                       decoration-info="qc_status == 'to_check'"
+                       decoration-warning="qc_status == 'pending'"
+                       decoration-success="qc_status == 'passed'"
+                       decoration-danger="qc_status in ('failed', 'returned')"
+                       invisible="picking_type_code != 'incoming' or qc_status in ('none', False)"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Stock Picking List / Tree Inherit -->
+    <record id="vpicktree_inherit_quality" model="ir.ui.view">
+        <field name="name">stock.picking.list.inherit.quality</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="after">
+                <field name="qc_status" widget="badge" optional="show"
+                       decoration-info="qc_status == 'to_check'"
+                       decoration-warning="qc_status == 'pending'"
+                       decoration-success="qc_status == 'passed'"
+                       decoration-danger="qc_status in ('failed', 'returned')"
+                       invisible="qc_status in ('none', False)"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

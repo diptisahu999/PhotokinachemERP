@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="module_category_quality" model="ir.module.category">
+            <field name="name">Quality Control</field>
+            <field name="description">Manage QA/QC Inspections, Parameters, and Release Workflows</field>
+            <field name="sequence">25</field>
+        </record>
+
+        <record model="res.groups.privilege" id="res_groups_privilege_quality">
+            <field name="name">Quality Control</field>
+            <field name="sequence">10</field>
+            <field name="category_id" ref="module_category_quality"/>
+        </record>
+
+        <record id="group_quality_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="sequence">10</field>
+            <field name="privilege_id" ref="res_groups_privilege_quality"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Can view quality checks, enter dynamic test parameters and record inspection results.</field>
+        </record>
+
+        <record id="group_quality_manager" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="sequence">20</field>
+            <field name="privilege_id" ref="res_groups_privilege_quality"/>
+            <field name="implied_ids" eval="[(4, ref('group_quality_user'))]"/>
+            <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+            <field name="comment">Full access to QA/QC configuration, parameter definitions, and approval/rejection workflows.</field>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <!-- Multi-Company Record Rules -->
+        <record id="quality_check_comp_rule" model="ir.rule">
+            <field name="name">Quality Check multi-company</field>
+            <field name="model_id" ref="model_quality_check"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+    </data>
+</odoo>

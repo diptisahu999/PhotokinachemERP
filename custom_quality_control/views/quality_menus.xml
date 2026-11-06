@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Top-level Root App Menu: Visible in Sidebar / Apps Bar as "QA/QC" -->
+    <menuitem id="menu_quality_root"
+              name="QA/QC"
+              web_icon="custom_quality_control,static/description/icon.png"
+              sequence="26"
+              groups="base.group_user"/>
+
+    <!-- 1. Quality Inspections Menu -->
+    <menuitem id="menu_quality_checks"
+              name="Quality Inspections"
+              parent="menu_quality_root"
+              sequence="10"/>
+
+    <menuitem id="menu_quality_checks_all"
+              name="All Inspections"
+              parent="menu_quality_checks"
+              action="action_quality_check_all"
+              sequence="10"/>
+
+    <menuitem id="menu_quality_checks_purchase"
+              name="Purchase Receipts"
+              parent="menu_quality_checks"
+              action="action_quality_check_purchase"
+              sequence="20"/>
+
+    <menuitem id="menu_quality_checks_mrp"
+              name="Manufacturing Orders"
+              parent="menu_quality_checks"
+              action="action_quality_check_mrp"
+              sequence="30"/>
+
+    <!-- 2. Product Specifications Menu (DEDICATED SECTION TO SELECT & CONFIGURE PRODUCT PARAMETERS) -->
+    <menuitem id="menu_quality_product_specs"
+              name="Product Specifications"
+              parent="menu_quality_root"
+              sequence="20"/>
+
+    <menuitem id="menu_quality_product_parameters"
+              name="Product Parameters"
+              parent="menu_quality_product_specs"
+              action="action_quality_product_parameter"
+              sequence="10"/>
+
+    <menuitem id="menu_quality_products"
+              name="Products with QC"
+              parent="menu_quality_product_specs"
+              action="action_product_quality_template"
+              sequence="20"/>
+
+    <!-- 3. Master Data Menu -->
+    <menuitem id="menu_quality_master_data"
+              name="Master Library"
+              parent="menu_quality_root"
+              sequence="30"/>
+
+    <menuitem id="menu_quality_parameters"
+              name="Standard Parameter Library"
+              parent="menu_quality_master_data"
+              action="action_quality_parameter"
+              sequence="10"/>
+
+    <!-- 4. Configuration Menu -->
+    <menuitem id="menu_quality_config"
+              name="Configuration"
+              parent="menu_quality_root"
+              sequence="40"
+              groups="custom_quality_control.group_quality_manager"/>
+
+    <menuitem id="menu_quality_config_warehouse"
+              name="Warehouses &amp; Locations"
+              parent="menu_quality_config"
+              action="stock.action_warehouse_form"
+              sequence="10"/>
+
+    <menuitem id="menu_quality_config_locations"
+              name="Stock Locations"
+              parent="menu_quality_config"
+              action="stock.action_location_form"
+              sequence="20"/>
+</odoo>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Stock Picking QC Notification Wizard Form View -->
+    <record id="view_stock_picking_qc_wizard_form" model="ir.ui.view">
+        <field name="name">stock.picking.qc.wizard.form</field>
+        <field name="model">stock.picking.qc.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Order Sent to QA/QC">
+                <div class="alert alert-success d-flex align-items-center mb-3" role="alert">
+                    <i class="fa fa-flask fa-2x me-3 text-success" title="QC Notification Icon"/>
+                    <div>
+                        <h4 class="alert-heading mb-1 fw-bold">Order Successfully Sent to QA/QC!</h4>
+                        <p class="mb-0">
+                            Receipt <field name="picking_name" readonly="1" class="fw-bold"/> has been validated and the received products have been transferred to <b>Quality Control</b> (<field name="location_name" readonly="1"/>).
+                            <br/>
+                            Products have <b>NOT</b> been added to stock inventory. They will be added to available inventory only after the QA/QC team inspects and passes the tests.
+                        </p>
+                    </div>
+                </div>
+
+                <group string="Generated QA/QC Inspection Records">
+                    <field name="qc_check_ids" readonly="1" nolabel="1">
+                        <list create="false" edit="false" delete="false">
+                            <field name="name" string="Inspection Ref"/>
+                            <field name="product_id"/>
+                            <field name="lot_id" string="Batch / Lot"/>
+                            <field name="quantity" string="Quantity"/>
+                            <field name="product_uom_id" string="UoM"/>
+                            <field name="source_location_id" string="Current Location (QC)"/>
+                            <field name="dest_location_id" string="Target Location (Stock)"/>
+                            <field name="state" widget="badge"
+                                   decoration-warning="state in ('draft', 'in_progress')"
+                                   decoration-success="state == 'passed'"
+                                   decoration-danger="state == 'failed'"/>
+                        </list>
+                    </field>
+                </group>
+
+                <footer>
+                    <button name="action_open_qc_checks"
+                            type="object"
+                            string="Open QA/QC Inspection"
+                            class="btn-primary"
+                            icon="fa-flask"/>
+                    <button string="Close &amp; View Receipt"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
+

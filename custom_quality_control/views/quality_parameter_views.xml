@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Master Quality Parameter List View -->
+    <record id="view_quality_parameter_list" model="ir.ui.view">
+        <field name="name">quality.parameter.list</field>
+        <field name="model">quality.parameter</field>
+        <field name="arch" type="xml">
+            <list string="Quality Parameters" editable="bottom">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="parameter_type"/>
+                <field name="default_test_method"/>
+                <field name="default_uom_name"/>
+                <field name="default_min_value" invisible="parameter_type != 'numeric'"/>
+                <field name="default_max_value" invisible="parameter_type != 'numeric'"/>
+                <field name="default_target_value"/>
+                <field name="default_expected_text" invisible="parameter_type != 'text'"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Master Quality Parameter Form View -->
+    <record id="view_quality_parameter_form" model="ir.ui.view">
+        <field name="name">quality.parameter.form</field>
+        <field name="model">quality.parameter</field>
+        <field name="arch" type="xml">
+            <form string="Quality Parameter">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Parameter Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. pH Value, Viscosity, Purity (%)"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="basic_info">
+                            <field name="code" placeholder="e.g. PH, VISC"/>
+                            <field name="parameter_type"/>
+                            <field name="default_test_method" placeholder="e.g. ASTM D1293, Titration"/>
+                            <field name="default_uom_name" placeholder="e.g. pH, cP, %, g/cm³, ppm"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                        <group name="defaults">
+                            <field name="default_min_value" invisible="parameter_type != 'numeric'"/>
+                            <field name="default_max_value" invisible="parameter_type != 'numeric'"/>
+                            <field name="default_target_value"/>
+                            <field name="default_expected_text" invisible="parameter_type != 'text'"/>
+                        </group>
+                    </group>
+                    <group string="Guidance &amp; Description">
+                        <field name="description" nolabel="1" placeholder="Technical instructions or sampling methodology for this test..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Master Quality Parameter Search View -->
+    <record id="view_quality_parameter_search" model="ir.ui.view">
+        <field name="name">quality.parameter.search</field>
+        <field name="model">quality.parameter</field>
+        <field name="arch" type="xml">
+            <search string="Search Parameters">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="default_test_method"/>
+                <filter string="Numeric / Quantitative" name="numeric" domain="[('parameter_type', '=', 'numeric')]"/>
+                <filter string="Descriptive / Qualitative" name="text" domain="[('parameter_type', '=', 'text')]"/>
+                <filter string="Pass / Fail (Conforming)" name="boolean" domain="[('parameter_type', '=', 'boolean')]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Master Quality Parameter Action -->
+    <record id="action_quality_parameter" model="ir.actions.act_window">
+        <field name="name">Quality Parameters</field>
+        <field name="res_model">quality.parameter</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_quality_parameter_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define your quality test parameters!
+            </p>
+            <p>
+                Parameters define the tests (such as pH, Viscosity, Purity, Appearance) applied to products during QA/QC inspections.
+            </p>
+        </field>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- Product Quality Specifications / Parameters Views (PRODUCT-WISE) -->
+    <!-- ================================================================ -->
+
+    <!-- Product Quality Parameter List View: Editable, Grouped by Product -->
+    <record id="view_quality_product_parameter_list" model="ir.ui.view">
+        <field name="name">quality.product.parameter.list</field>
+        <field name="model">quality.product.parameter</field>
+        <field name="arch" type="xml">
+            <list string="Product Quality Specifications" editable="bottom" multi_edit="1">
+                <field name="sequence" widget="handle"/>
+                <field name="product_tmpl_id" string="Product" options="{'no_create': True}" required="1"/>
+                <field name="name" string="Parameter / Test Name" placeholder="e.g. Viscosity, Purity, Solid Content, Appearance" required="1"/>
+                <field name="specification" string="Specification / Target Standard" placeholder="e.g. 2,500 - 3,500 cP, Min 99.5%, Clear Amber Liquid" required="1"/>
+                <field name="test_method" string="Standard Test Method" placeholder="e.g. ASTM D2196, In-house" optional="show"/>
+                <field name="parameter_id" string="Master Parameter (Optional)" optional="hide"/>
+                <field name="notes" string="Remarks / Lab Guidance" optional="show" placeholder="Optional testing remarks"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Product Quality Parameter Form View -->
+    <record id="view_quality_product_parameter_form" model="ir.ui.view">
+        <field name="name">quality.product.parameter.form</field>
+        <field name="model">quality.product.parameter</field>
+        <field name="arch" type="xml">
+            <form string="Product Quality Specification">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Parameter / Test Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Viscosity, Purity, Moisture, pH"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="product_info" string="Target Product">
+                            <field name="product_tmpl_id" string="Product" options="{'no_create': True}" required="1"/>
+                            <field name="sequence"/>
+                            <field name="parameter_id" string="Master Parameter Template" placeholder="Select to autofill standard test"/>
+                        </group>
+                        <group name="spec_info" string="Testing Standards">
+                            <field name="specification" string="Specification / Target" placeholder="e.g. 2,500 - 3,500 cP, Min 99.5%, Clear Liquid" required="1"/>
+                            <field name="test_method" string="Standard Test Method" placeholder="e.g. ASTM D2196, In-house Method"/>
+                            <field name="notes" string="Remarks / Lab Guidance" placeholder="Guidance for QC Chemist"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Product Quality Parameter Search View -->
+    <record id="view_quality_product_parameter_search" model="ir.ui.view">
+        <field name="name">quality.product.parameter.search</field>
+        <field name="model">quality.product.parameter</field>
+        <field name="arch" type="xml">
+            <search string="Search Product Specifications">
+                <field name="product_tmpl_id" string="Product"/>
+                <field name="name" string="Parameter Name"/>
+                <field name="specification" string="Specification"/>
+                <field name="test_method" string="Test Method"/>
+                <group>
+                    <filter string="Product" name="group_by_product" context="{'group_by': 'product_tmpl_id'}"/>
+                    <filter string="Test Method" name="group_by_method" context="{'group_by': 'test_method'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Product Quality Parameter Action (PRODUCT-WISE SPECIFICATIONS) -->
+    <record id="action_quality_product_parameter" model="ir.actions.act_window">
+        <field name="name">Product Quality Parameters</field>
+        <field name="res_model">quality.product.parameter</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_quality_product_parameter_search"/>
+        <field name="context">{'search_default_group_by_product': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Set up product-wise quality testing parameters!
+            </p>
+            <p>
+                Select a product and configure its quality parameters and target specifications (e.g., Viscosity, Purity, pH, Appearance).
+                Whenever this product is purchased or manufactured, these exact parameters will be tested in QA/QC.
+            </p>
+        </field>
+    </record>
+</odoo>
+

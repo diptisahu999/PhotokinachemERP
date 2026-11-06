@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_quality_parameter_user,quality.parameter.user,model_quality_parameter,group_quality_user,1,0,0,0
+access_quality_parameter_manager,quality.parameter.manager,model_quality_parameter,group_quality_manager,1,1,1,1
+access_quality_product_parameter_user,quality.product.parameter.user,model_quality_product_parameter,group_quality_user,1,1,1,0
+access_quality_product_parameter_manager,quality.product.parameter.manager,model_quality_product_parameter,group_quality_manager,1,1,1,1
+access_quality_check_user,quality.check.user,model_quality_check,group_quality_user,1,1,1,1
+access_quality_check_manager,quality.check.manager,model_quality_check,group_quality_manager,1,1,1,1
+access_quality_check_line_user,quality.check.line.user,model_quality_check_line,group_quality_user,1,1,1,1
+access_quality_check_line_manager,quality.check.line.manager,model_quality_check_line,group_quality_manager,1,1,1,1
+access_quality_release_wizard_user,quality.release.wizard.user,model_quality_release_wizard,group_quality_user,1,1,1,1
+access_quality_release_wizard_manager,quality.release.wizard.manager,model_quality_release_wizard,group_quality_manager,1,1,1,1
+access_stock_picking_qc_wizard_user,stock.picking.qc.wizard.user,model_stock_picking_qc_wizard,base.group_user,1,1,1,1

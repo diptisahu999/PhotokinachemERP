@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_quality_check" model="ir.actions.report">
+        <field name="name">Certificate of Analysis (COA)</field>
+        <field name="model">quality.check</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_quality_control.report_quality_check_document</field>
+        <field name="report_file">custom_quality_control.report_quality_check_document</field>
+        <field name="print_report_name">'COA - %s - %s' % (object.name, object.product_id.name)</field>
+        <field name="binding_model_id" ref="model_quality_check"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
+

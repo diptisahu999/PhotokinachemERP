@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_quality_check_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 13px;">
+                        <!-- Header Banner -->
+                        <div class="text-center mb-4 pb-2 border-bottom">
+                            <h2 class="fw-bold text-uppercase" style="letter-spacing: 1px; color: #2C3E50;">Certificate of Analysis (COA)</h2>
+                            <div class="text-muted">Quality Assurance &amp; Quality Control Laboratory Report</div>
+                        </div>
+
+                        <!-- Metadata Table -->
+                        <table class="table table-sm table-borderless mb-4" style="background-color: #f8f9fa; border-radius: 6px; padding: 10px;">
+                            <tbody>
+                                <tr>
+                                    <td style="width: 20%;" class="fw-bold">COA Reference:</td>
+                                    <td style="width: 30%;"><span t-field="doc.name" class="fw-bold text-primary"/></td>
+                                    <td style="width: 20%;" class="fw-bold">Date of Analysis:</td>
+                                    <td style="width: 30%;"><span t-field="doc.check_date" t-options="{'widget': 'date'}"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Product Name:</td>
+                                    <td><span t-field="doc.product_id.display_name" class="fw-bold"/></td>
+                                    <td class="fw-bold">Batch / Lot No.:</td>
+                                    <td>
+                                        <span t-if="doc.lot_id" t-field="doc.lot_id.name" class="badge text-bg-secondary"/>
+                                        <span t-elif="doc.lot_name" t-field="doc.lot_name"/>
+                                        <span t-else="" class="text-muted">N/A</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Batch / Sample Qty:</td>
+                                    <td>
+                                        <span t-field="doc.quantity"/>
+                                        <span t-field="doc.product_uom_id.name"/>
+                                    </td>
+                                    <td class="fw-bold">Inspection Type:</td>
+                                    <td><span t-field="doc.qc_type"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Source Reference:</td>
+                                    <td>
+                                        <span t-if="doc.purchase_id" t-field="doc.purchase_id.name"/>
+                                        <span t-elif="doc.production_id" t-field="doc.production_id.name"/>
+                                        <span t-elif="doc.picking_id" t-field="doc.picking_id.name"/>
+                                        <span t-else="" class="text-muted">-</span>
+                                    </td>
+                                    <td class="fw-bold">Vendor / Customer:</td>
+                                    <td><span t-field="doc.partner_id.name" t-if="doc.partner_id"/></td>
+                                </tr>
+                                <tr t-if="doc.lot_id and doc.lot_id.expiration_date">
+                                    <td class="fw-bold">Expiration Date:</td>
+                                    <td colspan="3"><span t-field="doc.lot_id.expiration_date" t-options="{'widget': 'date'}"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Parameters and Analysis Table -->
+                        <h5 class="fw-bold mb-2" style="color: #2C3E50;">Test Parameters &amp; Analytical Results</h5>
+                        <table class="table table-sm table-bordered align-middle text-center mb-4">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 5%;">#</th>
+                                    <th style="width: 25%; text-align: left;">Test / Parameter</th>
+                                    <th style="width: 18%;">Standard Method</th>
+                                    <th style="width: 20%;">Specification</th>
+                                    <th style="width: 18%;">Observed Result</th>
+                                    <th style="width: 14%;">Conformance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="seq_num" t-value="1"/>
+                                <tr t-foreach="doc.check_line_ids" t-as="line">
+                                    <td><t t-esc="seq_num"/></td>
+                                    <td style="text-align: left;" class="fw-bold"><span t-field="line.name"/></td>
+                                    <td><span t-field="line.test_method" t-if="line.test_method"/><span t-else="" class="text-muted">-</span></td>
+                                    <td>
+                                        <span t-if="line.specification" t-field="line.specification"/>
+                                        <t t-elif="line.parameter_type == 'numeric'">
+                                            <t t-if="line.min_value and line.max_value">
+                                                <span t-field="line.min_value"/> - <span t-field="line.max_value"/> <span t-field="line.uom_name"/>
+                                            </t>
+                                            <t t-elif="line.min_value">
+                                                Min <span t-field="line.min_value"/> <span t-field="line.uom_name"/>
+                                            </t>
+                                            <t t-elif="line.max_value">
+                                                Max <span t-field="line.max_value"/> <span t-field="line.uom_name"/>
+                                            </t>
+                                            <t t-elif="line.target_value">
+                                                <span t-field="line.target_value"/> <span t-field="line.uom_name"/>
+                                            </t>
+                                        </t>
+                                        <t t-elif="line.parameter_type == 'text'">
+                                            <span t-field="line.expected_text"/>
+                                        </t>
+                                        <t t-elif="line.parameter_type == 'boolean'">
+                                            <span>Conforms to standard</span>
+                                        </t>
+                                    </td>
+                                    <td class="fw-bold">
+                                        <span t-if="line.measured_value" t-field="line.measured_value"/>
+                                        <t t-elif="line.parameter_type == 'numeric'">
+                                            <span t-field="line.measured_numeric"/> <span t-field="line.uom_name"/>
+                                        </t>
+                                        <t t-elif="line.parameter_type == 'text'">
+                                            <span t-field="line.measured_text"/>
+                                        </t>
+                                        <t t-elif="line.parameter_type == 'boolean'">
+                                            <span t-if="line.measured_boolean">Conforms</span>
+                                            <span t-else="" class="text-danger">Non-conforming</span>
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <span t-if="line.status == 'pass'" class="badge text-bg-success text-uppercase">Pass</span>
+                                        <span t-elif="line.status == 'fail'" class="badge text-bg-danger text-uppercase">Fail</span>
+                                        <span t-else="" class="badge text-bg-warning text-uppercase">Pending</span>
+                                    </td>
+                                    <t t-set="seq_num" t-value="seq_num + 1"/>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Disposition / Overall Result Banner -->
+                        <div class="row mb-4">
+                            <div class="col-8">
+                                <div class="p-3 border rounded h-100" style="background-color: #fafafa;">
+                                    <h6 class="fw-bold mb-1">Analytical Notes &amp; Observations:</h6>
+                                    <p class="mb-0 small text-muted">
+                                        <span t-field="doc.notes" t-if="doc.notes"/>
+                                        <span t-else="">Sample was tested in accordance with standard laboratory testing procedures and meets the approved quality release criteria.</span>
+                                    </p>
+                                    <div t-if="doc.rejection_reason" class="mt-2 text-danger small">
+                                        <strong>Rejection Reason: </strong><span t-field="doc.rejection_reason"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="p-3 border rounded h-100 d-flex flex-column justify-content-center align-items-center"
+                                     t-attf-style="background-color: #{doc.state == 'passed' and '#e8f5e9' or (doc.state in ('failed', 'quarantine', 'returned') and '#ffebee' or '#f5f5f5')};">
+                                    <div class="small fw-bold text-muted mb-1">FINAL DISPOSITION</div>
+                                    <h4 class="fw-bold mb-0"
+                                        t-attf-style="color: #{doc.state == 'passed' and '#2e7d32' or (doc.state in ('failed', 'quarantine', 'returned') and '#c62828' or '#616161')};">
+                                        <t t-if="doc.state == 'passed'">APPROVED FOR RELEASE</t>
+                                        <t t-elif="doc.state == 'returned'">REJECTED &amp; RETURNED TO VENDOR</t>
+                                        <t t-elif="doc.state in ('failed', 'quarantine')">REJECTED</t>
+                                        <t t-else="">UNDER TESTING</t>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Signatures Box -->
+                        <div class="row mt-5 pt-4">
+                            <div class="col-6 text-center">
+                                <div class="border-top pt-2 mx-4">
+                                    <div class="fw-bold"><span t-field="doc.user_id.name"/></div>
+                                    <div class="small text-muted">Analyzed By / QC Chemist</div>
+                                    <div class="small text-muted"><span t-field="doc.check_date" t-options="{'widget': 'date'}"/></div>
+                                </div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div class="border-top pt-2 mx-4">
+                                    <div class="fw-bold">
+                                        <span t-if="doc.approved_by_id" t-field="doc.approved_by_id.name"/>
+                                        <span t-else="" class="text-muted">Quality Manager</span>
+                                    </div>
+                                    <div class="small text-muted">Authorized Signatory / QA Head</div>
+                                    <div class="small text-muted"><span t-field="doc.approved_date" t-if="doc.approved_date" t-options="{'widget': 'date'}"/></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
+

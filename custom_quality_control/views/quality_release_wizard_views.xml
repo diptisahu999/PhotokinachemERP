@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_quality_release_wizard_form" model="ir.ui.view">
+        <field name="name">quality.release.wizard.form</field>
+        <field name="model">quality.release.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Release Product to Dynamic Storage Location">
+                <div class="alert alert-info mb-3">
+                    <strong>Choose Destination:</strong> Select any warehouse and any storage location (shelf, rack, bin, tank, or stock area) where you want to store this approved product.
+                </div>
+                <group>
+                    <group name="product_info" string="Batch Details">
+                        <field name="product_id"/>
+                        <field name="lot_id" invisible="not lot_id"/>
+                        <label for="quantity" string="Approved Qty"/>
+                        <div class="o_row">
+                            <field name="quantity"/>
+                            <field name="product_uom_id"/>
+                        </div>
+                        <field name="source_location_id"/>
+                    </group>
+                    <group name="destination_info" string="Dynamic Storage Location">
+                        <field name="dest_warehouse_id" options="{'no_create': True}" placeholder="Select Target Warehouse..."/>
+                        <field name="dest_location_id" options="{'no_create': True}" placeholder="Select Target Storage Location..."/>
+                    </group>
+                </group>
+                <group string="Release Remarks">
+                    <field name="notes" nolabel="1" placeholder="Optional remarks for this release (e.g. Tank 4 filled, Bay B-02 allocated)..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm_release" string="Confirm &amp; Release to Inventory" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
+

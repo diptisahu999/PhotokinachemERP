@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Product Template Form Inherit -->
+    <record id="product_template_form_view_inherit_quality" model="ir.ui.view">
+        <field name="name">product.template.form.inherit.quality</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <!-- Smart Button for QC Inspections -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_qc_checks" type="object" class="oe_stat_button"
+                        icon="fa-flask" invisible="not qc_required">
+                    <div class="o_stat_info">
+                        <field name="qc_check_count" class="o_stat_value"/>
+                        <span class="o_stat_text">QA / QC Checks</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- Quality Control Notebook Page -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Quality Control (QA/QC)" name="quality_control">
+                    <group>
+                        <group name="qc_settings" string="Inspection Rules">
+                            <field name="qc_required" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <div class="mb-2 text-muted" invisible="not qc_required">
+                        <em>Define default quality parameters and target specifications for this product. These parameters are dynamically loaded when purchasing or manufacturing this product, and can be edited or customized during individual batch inspections.</em>
+                    </div>
+                    <field name="qc_parameter_ids" invisible="not qc_required">
+                        <list editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="parameter_id" string="Template / Master" placeholder="Select master parameter (optional)..." optional="show"/>
+                            <field name="name" string="Parameter Name" placeholder="e.g. Viscosity, Purity, Appearance, pH..."/>
+                            <field name="specification" string="Standard Specification / Target" placeholder="e.g. 2,500 - 3,500 cP, Min 99.5%, Clear Liquid"/>
+                            <field name="test_method" string="Test Method" placeholder="e.g. ASTM D1293, In-house" optional="show"/>
+                            <field name="notes" string="Remarks" placeholder="Optional testing remarks" optional="show"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Product Template List Inherit: Show QC Required Column -->
+    <record id="product_template_tree_view_inherit_quality" model="ir.ui.view">
+        <field name="name">product.template.list.inherit.quality</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='categ_id']" position="after">
+                <field name="qc_required" widget="boolean_toggle" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Products with QC Action -->
+    <record id="action_product_quality_template" model="ir.actions.act_window">
+        <field name="name">Products with Quality Specifications</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('qc_required', '=', True)]</field>
+        <field name="context">{'default_qc_required': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Manage products requiring quality inspection!
+            </p>
+            <p>
+                Select or create a product to define its quality specifications. Whenever this product is purchased or manufactured, QA/QC testing is automatically triggered.
+            </p>
+        </field>
+    </record>
+</odoo>
+
