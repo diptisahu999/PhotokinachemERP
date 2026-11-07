@@ -12,17 +12,19 @@
                 <field name="partner_id" string="Customer"/>
                 <field name="sale_id" string="Sale Order"/>
                 <field name="origin" string="Source Document" optional="show"/>
+                <field name="sale_order_currency_id" column_invisible="True"/>
+                <field name="order_value" string="Order Value" widget="monetary" options="{'currency_field': 'sale_order_currency_id'}" optional="show"/>
                 <field name="scheduled_date" optional="show" widget="remaining_days"/>
                 <field name="location_id" string="From" groups="stock.group_stock_multi_locations" optional="show"/>
                 <field name="location_dest_id" string="To" groups="stock.group_stock_multi_locations" optional="show"/>
                 <field name="products_availability" optional="show" widget="badge"
-                       decoration-success="state == 'assigned' or products_availability_state == 'available'"
-                       decoration-warning="state != 'assigned' and products_availability_state in ('expected', 'available')"
-                       decoration-danger="state != 'assigned' and products_availability_state == 'late'"/>
+                       decoration-danger="products_availability_state == 'late' or products_availability == 'Not Available'"
+                       decoration-warning="products_availability_state == 'expected'"
+                       decoration-success="products_availability_state == 'available' and products_availability != 'Not Available'"/>
                 <field name="products_availability_state" column_invisible="True"/>
                 <field name="state" optional="show" widget="badge"
-                       decoration-success="state == 'assigned'"
-                       decoration-warning="state in ('confirmed', 'waiting')"/>
+                       decoration-success="state == 'assigned' and products_availability_state != 'late' and products_availability != 'Not Available'"
+                       decoration-warning="state in ('confirmed', 'waiting') or (state == 'assigned' and (products_availability_state == 'late' or products_availability == 'Not Available'))"/>
             </list>
         </field>
     </record>
@@ -41,6 +43,34 @@
             </xpath>
             <xpath expr="//group" position="inside">
                 <filter string="Sale Order" name="group_by_sale_id" context="{'group_by': 'sale_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Picking Form View for Order Value & Remarks -->
+    <record id="view_picking_form_inherit_sales_dispatch" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit.sales.dispatch</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <!-- 1. Order Value under Source Document -->
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="sale_order_currency_id" invisible="1"/>
+                <field name="order_value" string="Order Value" widget="monetary" options="{'currency_field': 'sale_order_currency_id'}" invisible="not sale_id"/>
+            </xpath>
+
+            <!-- 2. Fix Product Availability Color on Form View (Red when Not Available) -->
+            <xpath expr="//field[@name='products_availability']" position="attributes">
+                <attribute name="decoration-danger">products_availability_state == 'late' or products_availability == 'Not Available'</attribute>
+                <attribute name="decoration-warning">products_availability_state == 'expected'</attribute>
+                <attribute name="decoration-success">products_availability_state == 'available' and products_availability != 'Not Available'</attribute>
+            </xpath>
+
+            <!-- 3. Move Line Remarks in Operations Tab for Unavailable Product -->
+            <xpath expr="//page[@name='operations']//field[@name='move_ids']/list/field[@name='forecast_availability']" position="after">
+                <field name="is_not_available" column_invisible="True"/>
+                <field name="remarks" string="Remarks" placeholder="Remarks for unavailable product..." optional="show" invisible="not is_not_available and not remarks"/>
             </xpath>
         </field>
     </record>
