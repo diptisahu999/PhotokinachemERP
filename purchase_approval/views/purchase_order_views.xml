@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================================= -->
+    <!-- Purchase Order Form View Inherit: Approval Workflow       -->
+    <!-- ========================================================= -->
+    <record id="purchase_order_form_inherit_approval" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.approval</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="priority" eval="30"/>
+        <field name="arch" type="xml">
+            <!-- Header Buttons for Purchase Approval -->
+            <xpath expr="//header" position="inside">
+                <!-- 1. Send for Purchase Approval Button (Visible on draft/sent RFQs) -->
+                <button name="action_send_for_approval"
+                        string="Send for Purchase Approval"
+                        type="object"
+                        class="btn-primary oe_highlight"
+                        invisible="not can_send_approval"
+                        data-hotkey="v"/>
+
+                <!-- 2. Confirm Approval Button (Visible to authorized approvers) -->
+                <button name="action_approve_purchase"
+                        string="Confirm Approval"
+                        type="object"
+                        class="btn-success oe_highlight"
+                        invisible="approval_state != 'to_approve' or not is_approver"
+                        confirm="Confirm APPROVAL of this purchase order? It will be approved and directly confirmed into an active Purchase Order."
+                        data-hotkey="a"/>
+
+                <!-- 3. Reject Button (Visible to users with Purchase Approval allowed) -->
+                <button name="action_open_reject_wizard"
+                        string="Reject"
+                        type="object"
+                        class="btn-danger"
+                        invisible="approval_state != 'to_approve' or not is_approver"
+                        data-hotkey="j"/>
+
+                <!-- 4. Recall Request (Requester can cancel pending submission) -->
+                <button name="action_cancel_approval_request"
+                        string="Recall Request"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="approval_state != 'to_approve'"
+                        help="Cancel the pending approval request and return to draft."/>
+
+                <!-- 5. Revise RFQ (For rejected purchases) -->
+                <button name="action_reset_to_draft_approval"
+                        string="Revise RFQ"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="approval_state != 'rejected' or state not in ('draft', 'sent')"
+                        help="Reset rejected RFQ to draft to amend quantities or prices and re-submit."/>
+            </xpath>
+
+            <!-- Adjust standard Confirm Order buttons to require approval -->
+            <xpath expr="//button[@id='draft_confirm']" position="attributes">
+                <attribute name="invisible">state != 'draft' or approval_state != 'approved'</attribute>
+            </xpath>
+            <xpath expr="//button[@id='bid_confirm']" position="attributes">
+                <attribute name="invisible">state != 'sent' or approval_state != 'approved'</attribute>
+            </xpath>
+            <!-- Hide standard Odoo Approve Order button to avoid duplicate approve buttons -->
+            <xpath expr="//button[@name='button_approve']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Top Details: Approval Status Badge (Concerned Authority removed) -->
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="approval_state" widget="badge"
+                       decoration-info="approval_state == 'to_submit'"
+                       decoration-warning="approval_state == 'to_approve'"
+                       decoration-success="approval_state == 'approved'"
+                       decoration-danger="approval_state == 'rejected'"/>
+                <field name="is_approver" invisible="1"/>
+                <field name="can_send_approval" invisible="1"/>
+            </xpath>
+
+            <!-- Notebook Tab: Purchase Approval Details & Audit Trail -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Purchase Approval" name="purchase_approval">
+                    <!-- Banner for Waiting Approval -->
+                    <div class="alert alert-warning mb-3" role="alert" invisible="approval_state != 'to_approve'">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-clock-o fa-2x me-3 text-warning"/>
+                            <div>
+                                <h6 class="alert-heading fw-bold mb-1">Waiting for Purchase Approval</h6>
+                                <span>
+                                    This purchase request was submitted by <b><field name="requested_by_id" readonly="1" class="d-inline"/></b> on <b><field name="request_date" readonly="1" class="d-inline"/></b>.
+                                    Awaiting review and approval from an authorized user.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Banner for Approved -->
+                    <div class="alert alert-success mb-3" role="alert" invisible="approval_state != 'approved'">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-check-circle fa-2x me-3 text-success"/>
+                            <div>
+                                <h6 class="alert-heading fw-bold mb-1">Purchase Approved</h6>
+                                <span>
+                                    Approved by <b><field name="approved_by_id" readonly="1" class="d-inline"/></b> on <b><field name="approval_date" readonly="1" class="d-inline"/></b>.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Banner for Rejected -->
+                    <div class="alert alert-danger mb-3" role="alert" invisible="approval_state != 'rejected'">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-times-circle fa-2x me-3 text-danger"/>
+                            <div>
+                                <h6 class="alert-heading fw-bold mb-1">Purchase Approval Rejected</h6>
+                                <span>
+                                    <b>Reason: </b><field name="rejection_reason" readonly="1" class="d-inline fw-bold"/>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <group>
+                        <group name="submission_info" string="Submission Details">
+                            <field name="approval_state" widget="badge"
+                                   decoration-info="approval_state == 'to_submit'"
+                                   decoration-warning="approval_state == 'to_approve'"
+                                   decoration-success="approval_state == 'approved'"
+                                   decoration-danger="approval_state == 'rejected'"/>
+                            <field name="requested_by_id" string="Submitted By" readonly="1"/>
+                            <field name="request_date" string="Submission Date" readonly="1"/>
+                            <field name="approval_notes" string="Requester Notes / Justification"
+                                   placeholder="Context or urgency remarks for the approving authority..."
+                                   readonly="approval_state in ('to_approve', 'approved')"/>
+                        </group>
+                        <group name="decision_info" string="Approval &amp; Decision Details">
+                            <field name="approved_by_id" string="Approved By" readonly="1" invisible="not approved_by_id"/>
+                            <field name="approval_date" string="Approval Date" readonly="1" invisible="not approval_date"/>
+                            <field name="rejection_reason" string="Rejection Reason" readonly="1" invisible="approval_state != 'rejected'"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ========================================================= -->
+    <!-- Purchase Order Tree / List View Inherit: Status Badge     -->
+    <!-- ========================================================= -->
+    <record id="purchase_order_kpis_tree_inherit_approval" model="ir.ui.view">
+        <field name="name">purchase.order.kpis.tree.inherit.approval</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_kpis_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="approval_state" widget="badge" optional="show"
+                       decoration-info="approval_state == 'to_submit'"
+                       decoration-warning="approval_state == 'to_approve'"
+                       decoration-success="approval_state == 'approved'"
+                       decoration-danger="approval_state == 'rejected'"/>
+                <field name="approved_by_id" widget="many2one_avatar_user" optional="show" string="Approved By"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="purchase_order_view_tree_inherit_approval" model="ir.ui.view">
+        <field name="name">purchase.order.view.tree.inherit.approval</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="approval_state" widget="badge" optional="show"
+                       decoration-info="approval_state == 'to_submit'"
+                       decoration-warning="approval_state == 'to_approve'"
+                       decoration-success="approval_state == 'approved'"
+                       decoration-danger="approval_state == 'rejected'"/>
+                <field name="approved_by_id" widget="many2one_avatar_user" optional="show" string="Approved By"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ========================================================= -->
+    <!-- Purchase Order Filter / Search View Inherit               -->
+    <!-- ========================================================= -->
+    <record id="view_purchase_order_filter_inherit_approval" model="ir.ui.view">
+        <field name="name">purchase.order.filter.inherit.approval</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='to_approve']" position="after">
+                <separator/>
+                <filter string="Waiting Approval" name="filter_waiting_approval"
+                        domain="[('approval_state', '=', 'to_approve')]"/>
+                <filter string="Approved Purchases" name="filter_approved"
+                        domain="[('approval_state', '=', 'approved')]"/>
+                <filter string="Rejected Purchases" name="filter_rejected"
+                        domain="[('approval_state', '=', 'rejected')]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Approval Status" name="group_by_approval_state" context="{'group_by': 'approval_state'}"/>
+                <filter string="Approved By" name="group_by_approved_by" context="{'group_by': 'approved_by_id'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
