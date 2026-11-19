@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================================= -->
+    <!-- Actions for Purchase Approval                             -->
+    <!-- ========================================================= -->
+
+    <!-- 1. Purchases Waiting for Approval (Default View) -->
+    <record id="action_purchase_order_waiting_approval" model="ir.actions.act_window">
+        <field name="name">Waiting for Approval</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">list,kanban,form,pivot,graph,calendar,activity</field>
+        <field name="search_view_id" ref="purchase.view_purchase_order_filter"/>
+        <field name="domain">[('approval_state', '=', 'to_approve')]</field>
+        <field name="context">{'search_default_filter_waiting_approval': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No purchase orders waiting for approval!
+            </p>
+            <p>
+                When RFQs are submitted by purchasers, they appear here for authorized users to review, approve, or reject.
+                Once approved, the order is automatically confirmed into an active Purchase Order (PO).
+            </p>
+        </field>
+    </record>
+
+    <!-- 2. Approved Purchases (POs) -->
+    <record id="action_purchase_order_approved" model="ir.actions.act_window">
+        <field name="name">Approved Purchases (POs)</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">list,kanban,form,pivot,graph,calendar,activity</field>
+        <field name="search_view_id" ref="purchase.view_purchase_order_filter"/>
+        <field name="domain">[('approval_state', '=', 'approved')]</field>
+        <field name="context">{'search_default_filter_approved': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No approved purchase orders found.
+            </p>
+            <p>
+                Once an authorized user approves an RFQ, it is confirmed into a Purchase Order and listed here.
+            </p>
+        </field>
+    </record>
+
+    <!-- 3. Rejected Purchases -->
+    <record id="action_purchase_order_rejected" model="ir.actions.act_window">
+        <field name="name">Rejected Purchases</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">list,kanban,form,pivot,graph,calendar,activity</field>
+        <field name="search_view_id" ref="purchase.view_purchase_order_filter"/>
+        <field name="domain">[('approval_state', '=', 'rejected')]</field>
+        <field name="context">{'search_default_filter_rejected': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No rejected purchase orders.
+            </p>
+            <p>
+                Purchases rejected by authorized users appear here along with rejection reasons.
+            </p>
+        </field>
+    </record>
+
+    <!-- 4. All Requests & History -->
+    <record id="action_purchase_order_approval_history" model="ir.actions.act_window">
+        <field name="name">All Purchases &amp; Requests</field>
+        <field name="res_model">purchase.order</field>
+        <field name="view_mode">list,kanban,form,pivot,graph,calendar,activity</field>
+        <field name="search_view_id" ref="purchase.view_purchase_order_filter"/>
+        <field name="domain">[]</field>
+        <field name="context">{'search_default_group_by_approval_state': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No purchase orders or RFQs found.
+            </p>
+        </field>
+    </record>
+
+    <!-- ========================================================= -->
+    <!-- TOP-LEVEL ROOT MENU: VISIBLE IN SIDEBAR AS "PURCHASE APPROVAL" -->
+    <!-- ========================================================= -->
+    <menuitem id="menu_purchase_approval_root"
+              name="Purchase Approval"
+              web_icon="purchase_approval,static/description/icon.png"
+              sequence="27"
+              groups="purchase.group_purchase_user"/>
+
+    <!-- Section: Approvals -->
+    <menuitem id="menu_purchase_approval_section"
+              name="Purchase Approvals"
+              parent="menu_purchase_approval_root"
+              sequence="10"/>
+
+    <!-- 1. Waiting Approval (Primary action) -->
+    <menuitem id="menu_purchase_approval_waiting"
+              name="Waiting Approval"
+              parent="menu_purchase_approval_section"
+              action="action_purchase_order_waiting_approval"
+              sequence="10"/>
+
+    <!-- 2. Approved (POs) -->
+    <menuitem id="menu_purchase_approval_approved_list"
+              name="Approved Purchases (POs)"
+              parent="menu_purchase_approval_section"
+              action="action_purchase_order_approved"
+              sequence="20"/>
+
+    <!-- 3. Rejected -->
+    <menuitem id="menu_purchase_approval_rejected_list"
+              name="Rejected Purchases"
+              parent="menu_purchase_approval_section"
+              action="action_purchase_order_rejected"
+              sequence="25"/>
+
+    <!-- 4. All Requests -->
+    <menuitem id="menu_purchase_approval_all_history"
+              name="All Purchases &amp; Requests"
+              parent="menu_purchase_approval_section"
+              action="action_purchase_order_approval_history"
+              sequence="30"/>
+
+    <!-- ========================================================= -->
+    <!-- ALSO INTEGRATED INTO STANDARD PURCHASE APP                -->
+    <!-- ========================================================= -->
+    <menuitem id="menu_purchase_to_approve"
+              name="Waiting Approval"
+              parent="purchase.menu_procurement_management"
+              action="action_purchase_order_waiting_approval"
+              sequence="3"/>
+</odoo>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Security Group for Concerned Authority / Purchase Approvers -->
+        <record id="group_purchase_approver" model="res.groups">
+            <field name="name">Concerned Authority / Purchase Approver</field>
+            <field name="implied_ids" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+            <field name="comment">Users with this role can approve or reject purchase orders sent for approval.</field>
+        </record>
+
+        <!-- Ensure Purchase Managers automatically inherit Approver capabilities -->
+        <record id="purchase.group_purchase_manager" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('group_purchase_approver'))]"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purchase_approval_reject_wizard_form" model="ir.ui.view">
+        <field name="name">purchase.approval.reject.wizard.form</field>
+        <field name="model">purchase.approval.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Purchase Request">
+                <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
+                    <i class="fa fa-exclamation-triangle fa-2x me-3 text-warning"/>
+                    <div>
+                        <h5 class="alert-heading mb-1 fw-bold">Reject Purchase Order Approval</h5>
+                        <p class="mb-0">
+                            Please state the reason for rejecting this purchase request.
+                            The reason will be recorded in the order audit history and notified to the requester.
+                        </p>
+                    </div>
+                </div>
+
+                <group>
+                    <field name="order_id" readonly="1" options="{'no_open': True}"/>
+                    <field name="rejection_reason" placeholder="State reason for rejection (e.g. Budget exceeded, Unit rate higher than market, Quotation terms non-compliant)..." widget="text" rows="4"/>
+                </group>
+
+                <footer>
+                    <button name="action_confirm_reject" string="Confirm Rejection" type="object" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
