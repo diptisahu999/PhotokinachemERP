@@ -150,6 +150,14 @@ class QualityCheck(models.Model):
         copy=False,
         tracking=True
     )
+    scrap_id = fields.Many2one(
+        'stock.scrap',
+        string='Scrap Order',
+        readonly=True,
+        copy=False,
+        tracking=True,
+        help="Scrap order created when a manufactured product is rejected in QC."
+    )
 
     # Inspection & Approvals
     user_id = fields.Many2one(
@@ -861,10 +869,13 @@ class QualityCheck(models.Model):
                 check.production_id.message_post(body=_("Quality Check %s for %s PASSED. Finished products released to: %s.") % (check.name, check.product_id.display_name, dest_name))
 
     def action_fail(self):
-        """Mark inspection as Failed (Rejected). Does not add product to inventory."""
+        """Mark inspection as Failed (Rejected). For manufacturing, automatically scraps the product."""
         for check in self:
-            if check.state in ('passed', 'failed', 'quarantine'):
+            if check.state in ('passed', 'failed', 'quarantine', 'returned'):
                 raise UserError(_("This inspection is already finished."))
+
+            if check.qc_type == 'purchase':
+                raise UserError(_("For purchased goods, please use 'Return to Vendor' to process rejected items."))
 
             check.write({
                 'state': 'failed',
@@ -876,7 +887,25 @@ class QualityCheck(models.Model):
             msg = _("<b>Quality Check FAILED / REJECTED</b> by %s.") % self.env.user.name
             if check.rejection_reason:
                 msg += _("<br/><b>Reason:</b> %s") % check.rejection_reason
-            msg += _("<br/>Products are held at current location (%s) and NOT added to inventory stock.") % (check.source_location_id.display_name if check.source_location_id else 'QC')
+
+            # If this is a Manufacturing inspection, automatically route the rejected product to Scrap
+            if check.qc_type == 'mrp':
+                scrap = check._action_scrap_manufactured_product()
+                if scrap:
+                    msg += _(
+                        "<br/><b>Manufactured Product Automatically Scrapped:</b> "
+                        "<a href='#' data-oe-model='stock.scrap' data-oe-id='%s'>%s</a> "
+                        "(Qty: %s %s moved to Scrap Location: %s)."
+                    ) % (
+                        scrap.id,
+                        scrap.name,
+                        check.quantity,
+                        check.product_uom_id.name if check.product_uom_id else '',
+                        scrap.scrap_location_id.display_name if scrap.scrap_location_id else 'Scrap'
+                    )
+            else:
+                msg += _("<br/>Products are held at current location (%s) and NOT added to inventory stock.") % (check.source_location_id.display_name if check.source_location_id else 'QC')
+
             check.message_post(body=msg)
 
             if check.purchase_id:
@@ -884,7 +913,96 @@ class QualityCheck(models.Model):
             if check.picking_id:
                 check.picking_id.message_post(body=_("Quality Check %s for %s FAILED. Material rejected.") % (check.name, check.product_id.display_name))
             if check.production_id:
-                check.production_id.message_post(body=_("Quality Check %s for %s FAILED. Manufactured batch rejected.") % (check.name, check.product_id.display_name))
+                mo_msg = _("Quality Check %s for %s FAILED.") % (check.name, check.product_id.display_name)
+                if check.scrap_id:
+                    mo_msg += _(
+                        " Defective manufactured batch was automatically moved to Scrap "
+                        "(<a href='#' data-oe-model='stock.scrap' data-oe-id='%s'>%s</a>)."
+                    ) % (check.scrap_id.id, check.scrap_id.name)
+                else:
+                    mo_msg += _(" Manufactured batch rejected.")
+                check.production_id.message_post(body=mo_msg)
+
+    def _action_scrap_manufactured_product(self):
+        """
+        Creates and completes an automatic stock.scrap movement for rejected
+        manufactured goods from the QC staging location into Scrap.
+        """
+        self.ensure_one()
+        if self.scrap_id:
+            return self.scrap_id
+
+        # 1. Determine Source Location (where the finished goods currently reside)
+        source_loc = self.source_location_id
+        if not source_loc and self.production_id:
+            source_loc = self.production_id.location_dest_id
+        if not source_loc:
+            warehouse = self.dest_warehouse_id or self.env['stock.warehouse'].get_main_warehouse(self.company_id.id)
+            source_loc = warehouse.qc_location_id if warehouse else False
+        if not source_loc:
+            raise UserError(_("Cannot scrap product: Source QC location cannot be determined."))
+
+        # 2. Determine Scrap Location (inventory loss / scrap location)
+        scrap_loc = self.env['stock.location'].search([
+            ('usage', '=', 'inventory'),
+            ('company_id', 'in', [self.company_id.id, False]),
+        ], order='id asc', limit=1)
+        if not scrap_loc:
+            raise UserError(_("Cannot scrap product: No inventory scrap location found."))
+
+        # 3. Determine Lot / Serial Number
+        lot = False
+        if self.product_id.tracking != 'none':
+            if self.lot_id and self.lot_id.product_id == self.product_id:
+                lot = self.lot_id
+            elif self.lot_name:
+                lot = self.env['stock.lot'].search([
+                    ('name', '=', self.lot_name),
+                    ('product_id', '=', self.product_id.id),
+                    ('company_id', 'in', [self.company_id.id, False]),
+                ], limit=1)
+                if not lot:
+                    lot = self.env['stock.lot'].create({
+                        'name': self.lot_name,
+                        'product_id': self.product_id.id,
+                        'company_id': self.company_id.id,
+                    })
+            elif self.production_id:
+                if hasattr(self.production_id, 'lot_producing_ids') and self.production_id.lot_producing_ids:
+                    matching_lots = self.production_id.lot_producing_ids.filtered(lambda l: l.product_id == self.product_id)
+                    if matching_lots:
+                        lot = matching_lots[0]
+                if not lot and self.production_id.move_finished_ids.move_line_ids.lot_id:
+                    matching_lots = self.production_id.move_finished_ids.move_line_ids.lot_id.filtered(lambda l: l.product_id == self.product_id)
+                    if matching_lots:
+                        lot = matching_lots[0]
+
+        # 4. Prepare Scrap Values
+        scrap_vals = {
+            'product_id': self.product_id.id,
+            'scrap_qty': self.quantity or 1.0,
+            'product_uom_id': self.product_uom_id.id or self.product_id.uom_id.id,
+            'location_id': source_loc.id,
+            'scrap_location_id': scrap_loc.id,
+            'origin': f"QC Rejected: {self.name}" + (f" ({self.production_id.name})" if self.production_id else ""),
+            'company_id': self.company_id.id,
+        }
+        if lot:
+            scrap_vals['lot_id'] = lot.id
+        if self.production_id:
+            scrap_vals['production_id'] = self.production_id.id
+
+        scrap = self.env['stock.scrap'].create(scrap_vals)
+
+        # Ensure source location is strictly the QC location where finished goods were staged
+        if scrap.location_id != source_loc:
+            scrap.write({'location_id': source_loc.id})
+
+        # 5. Process Scrap move
+        scrap.do_scrap()
+
+        self.write({'scrap_id': scrap.id})
+        return scrap
 
     def action_send_to_quarantine(self):
         """Move rejected product to quarantine location in any warehouse."""
@@ -1123,12 +1241,28 @@ class QualityCheck(models.Model):
             'target': 'current',
         }
 
+    def action_view_scrap(self):
+        self.ensure_one()
+        if not self.scrap_id:
+            raise UserError(_("No scrap order has been created for this inspection."))
+        return {
+            'name': _('Scrapped Product Order'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'stock.scrap',
+            'res_id': self.scrap_id.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
     def action_return_to_vendor(self):
         """
         Creates an immediate Return Transfer picking to return the defective / failed
-        products from QC location back to the Vendor (or production/source).
+        products from QC location back to the Vendor.
         """
         self.ensure_one()
+        if self.qc_type != 'purchase':
+            raise UserError(_("'Return to Vendor' is only applicable to Purchase inspections."))
+
         if self.transfer_picking_id and self.transfer_picking_id.state == 'done':
             raise UserError(_("Cannot return: products have already been approved and released to inventory stock."))
 

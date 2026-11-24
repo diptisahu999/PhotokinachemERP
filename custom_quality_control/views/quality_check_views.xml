@@ -30,6 +30,7 @@
                 <field name="picking_id" optional="hide"/>
                 <field name="source_location_id" optional="hide"/>
                 <field name="dest_location_id" optional="show"/>
+                <field name="scrap_id" optional="hide"/>
                 <field name="user_id" widget="many2one_avatar_user" optional="show"/>
                 <field name="state" widget="badge"
                        decoration-success="state == 'passed'"
@@ -98,23 +99,23 @@
                             class="btn-primary" invisible="state != 'draft'"/>
 
                     <button name="action_pass" string="Pass &amp; Release to Stock" type="object"
-                            class="btn-success" invisible="state != 'in_progress'"
+                            class="btn-success" invisible="state != 'in_progress' or overall_result == 'fail'"
                             confirm="Confirm PASS for this inspection and release products to the Target Storage Location?"/>
 
                     <button name="action_open_release_wizard" string="Release to Custom Location" type="object"
-                            class="btn-secondary" invisible="state != 'in_progress'"
+                            class="btn-secondary" invisible="state != 'in_progress' or overall_result == 'fail'"
                             help="Choose any specific warehouse and storage location to release this approved product."/>
 
                     <button name="action_fail" string="Fail (Reject)" type="object"
-                            class="btn-danger" invisible="state != 'in_progress'"
-                            confirm="Are you sure you want to REJECT this inspection? The product will NOT enter inventory."/>
+                            class="btn-danger" invisible="qc_type == 'purchase' or state != 'in_progress' or overall_result != 'fail'"
+                            confirm="Are you sure you want to REJECT this inspection? The manufactured product will be automatically moved to Scrap."/>
 
                     <button name="action_return_to_vendor" string="Return to Vendor" type="object"
-                            class="btn-danger" invisible="state not in ('failed', 'in_progress') or return_picking_id"
+                            class="btn-danger" invisible="qc_type != 'purchase' or return_picking_id or (state == 'in_progress' and overall_result != 'fail') or state not in ('failed', 'in_progress')"
                             confirm="Are you sure you want to return this failed item to the vendor? An immediate return transfer picking will be generated."/>
 
                     <button name="action_send_to_quarantine" string="Move to Quarantine" type="object"
-                            class="btn-warning" invisible="state != 'failed'"
+                            class="btn-warning" invisible="state != 'failed' or scrap_id or return_picking_id"
                             confirm="Transfer this rejected product to Quarantine location?"/>
 
                     <button name="action_load_product_parameters" string="Reload Parameters" type="object"
@@ -158,6 +159,13 @@
                             <div class="o_stat_info">
                                 <span class="o_stat_text">Return Transfer</span>
                                 <span class="o_stat_value"><field name="return_picking_id" readonly="1"/></span>
+                            </div>
+                        </button>
+                        <button name="action_view_scrap" type="object" class="oe_stat_button"
+                                icon="fa-trash-o" invisible="not scrap_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Scrapped Order</span>
+                                <span class="o_stat_value"><field name="scrap_id" readonly="1"/></span>
                             </div>
                         </button>
                     </div>
@@ -300,6 +308,7 @@
                 <filter string="Passed (Approved)" name="passed" domain="[('state', '=', 'passed')]"/>
                 <filter string="Failed (Rejected)" name="failed" domain="[('state', 'in', ('failed', 'quarantine', 'returned'))]"/>
                 <filter string="Returned to Vendor" name="returned" domain="[('state', '=', 'returned')]"/>
+                <filter string="Scrapped" name="scrapped" domain="[('scrap_id', '!=', False)]"/>
                 <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
                 <separator/>
                 <filter string="Purchase Receipts" name="purchase_type" domain="[('qc_type', '=', 'purchase')]"/>
