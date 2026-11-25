@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_force_delete_purchase_wizard,custom.purchase.force.delete.wizard,model_custom_purchase_force_delete_wizard,purchase.group_purchase_user,1,1,1,1

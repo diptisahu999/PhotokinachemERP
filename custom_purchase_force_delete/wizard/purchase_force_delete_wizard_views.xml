@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_custom_purchase_force_delete_wizard_form" model="ir.ui.view">
+        <field name="name">custom.purchase.force.delete.wizard.form</field>
+        <field name="model">custom.purchase.force.delete.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Force Delete Purchase Order(s)">
+                <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
+                    <i class="fa fa-exclamation-triangle fa-2x me-3 text-danger"/>
+                    <div>
+                        <h5 class="alert-heading fw-bold mb-1">Permanent Deletion Warning</h5>
+                        <p class="mb-0">
+                            You are about to <b>forcefully and permanently delete</b> the selected purchase order(s).
+                            This will bypass standard state restrictions and delete the orders regardless of whether they are RFQs, Waiting Approval, or confirmed Purchase Orders.
+                        </p>
+                    </div>
+                </div>
+
+                <group>
+                    <group string="Selected Orders Summary">
+                        <field name="count" string="Total Orders to Delete" readonly="1"/>
+                        <field name="order_names" string="Order References" readonly="1"/>
+                    </group>
+                    <group string="Related Documents Detected">
+                        <field name="picking_count" string="Linked Receipts / Pickings" readonly="1"/>
+                        <field name="qc_count" string="Linked Quality Checks" readonly="1"/>
+                        <field name="invoice_count" string="Linked Vendor Bills" readonly="1"/>
+                    </group>
+                </group>
+
+                <group string="Cascade Cleanup Options">
+                    <field name="delete_pickings" string="Delete Linked Receipts / Stock Pickings"/>
+                    <field name="delete_quality_checks" string="Delete Linked Quality Inspections"/>
+                    <field name="delete_invoices" string="Delete Draft/Cancelled Vendor Bills"/>
+                </group>
+
+                <div class="text-muted small mb-3">
+                    <i class="fa fa-info-circle me-1"/>
+                    All linked order lines, activities, and chatter messages will be completely cleaned up.
+                </div>
+
+                <footer>
+                    <button name="action_confirm_force_delete"
+                            string="Yes, Confirm Force Delete"
+                            type="object"
+                            class="btn-danger"
+                            confirm="Are you ABSOLUTELY SURE you want to permanently delete these purchase order(s) and their linked records? This action cannot be undone."/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_custom_purchase_force_delete_wizard" model="ir.actions.act_window">
+        <field name="name">Force Delete Purchase Order(s)</field>
+        <field name="res_model">custom.purchase.force.delete.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
