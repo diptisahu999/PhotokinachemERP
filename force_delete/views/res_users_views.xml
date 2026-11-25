@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add Force Delete Authority toggle to User Form View (Settings -> Users & Companies -> Users) -->
+    <record id="view_users_form_inherit_force_delete" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.force.delete</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="priority" eval="60"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='access_rights']" position="inside">
+                <group string="Force Delete Authority" name="force_delete_authority_group">
+                    <field name="allow_force_delete" widget="boolean_toggle"
+                           help="If enabled, this user is authorized to forcefully delete locked documents (Manufacturing Orders, Transfers, Invoices, etc.)."/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add Force Delete column to User List View -->
+    <record id="view_users_tree_inherit_force_delete" model="ir.ui.view">
+        <field name="name">res.users.tree.inherit.force.delete</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='role']" position="after">
+                <field name="allow_force_delete" widget="boolean" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

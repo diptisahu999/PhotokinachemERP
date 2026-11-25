@@ -47,6 +47,7 @@ Key Capabilities:
         'wizard/force_delete_wizard_views.xml',
         'views/force_delete_actions.xml',
         'views/force_delete_views.xml',
+        'views/res_users_views.xml',
         'views/force_delete_log_views.xml',
         'views/force_delete_menus.xml',
     ],
