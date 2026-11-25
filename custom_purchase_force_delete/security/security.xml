@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="group_allow_force_delete_purchase" model="res.groups">
+            <field name="name">Allow Force Delete Purchase Orders</field>
+            <field name="implied_ids" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+            <field name="comment">Users in this group can forcefully delete Purchase Orders and RFQs regardless of their state.</field>
+        </record>
+    </data>
+</odoo>
