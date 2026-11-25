@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_force_delete" model="res.groups">
+        <field name="name">Allow Force Delete Records</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Allows authorized users to forcefully delete locked documents (such as Done Manufacturing Orders, Pickings, etc.) bypassing standard state restrictions.</field>
+    </record>
+
+    <!-- Automatically grant Force Delete permission to Settings / System Administrator -->
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('force_delete.group_force_delete'))]"/>
+    </record>
+</odoo>

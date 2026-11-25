@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Server Action: Force Delete for Manufacturing Orders (mrp.production) -->
+    <record id="action_mrp_production_force_delete" model="ir.actions.server">
+        <field name="name">Force Delete</field>
+        <field name="model_id" ref="mrp.model_mrp_production"/>
+        <field name="binding_model_id" ref="mrp.model_mrp_production"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="group_ids" eval="[(4, ref('force_delete.group_force_delete'))]"/>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_force_delete()
+        </field>
+    </record>
+
+    <!-- Server Action: Force Delete for Inventory Transfers (stock.picking) -->
+    <record id="action_stock_picking_force_delete" model="ir.actions.server">
+        <field name="name">Force Delete</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="group_ids" eval="[(4, ref('force_delete.group_force_delete'))]"/>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_force_delete()
+        </field>
+    </record>
+
+    <!-- Server Action: Force Delete for Purchase Orders (purchase.order) -->
+    <record id="action_purchase_order_force_delete" model="ir.actions.server">
+        <field name="name">Force Delete</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="group_ids" eval="[(4, ref('force_delete.group_force_delete'))]"/>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_force_delete()
+        </field>
+    </record>
+
+    <!-- Server Action: Force Delete for Sales Orders (sale.order) -->
+    <record id="action_sale_order_force_delete" model="ir.actions.server">
+        <field name="name">Force Delete</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="group_ids" eval="[(4, ref('force_delete.group_force_delete'))]"/>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_force_delete()
+        </field>
+    </record>
+
+    <!-- Server Action: Force Delete for Invoices / Journal Entries (account.move) -->
+    <record id="action_account_move_force_delete" model="ir.actions.server">
+        <field name="name">Force Delete</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="group_ids" eval="[(4, ref('force_delete.group_force_delete'))]"/>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.action_force_delete()
+        </field>
+    </record>
+</odoo>

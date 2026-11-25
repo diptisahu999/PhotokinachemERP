@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_force_delete_log" model="ir.actions.act_window">
+        <field name="name">Force Delete Logs</field>
+        <field name="res_model">force.delete.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_force_delete_log_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No force deletion logs recorded yet.
+            </p>
+            <p>
+                Every time an authorized user forcefully deletes locked records, an immutable audit log is captured here.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item under Settings -> Technical -> Database Structure -->
+    <menuitem id="menu_force_delete_log_technical"
+              name="Force Delete Audit Logs"
+              parent="base.menu_custom"
+              action="action_force_delete_log"
+              sequence="120"
+              groups="force_delete.group_force_delete"/>
+</odoo>

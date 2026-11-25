@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_force_delete_wizard,access_force_delete_wizard,model_force_delete_wizard,force_delete.group_force_delete,1,1,1,1
+access_force_delete_log_admin,access_force_delete_log_admin,model_force_delete_log,force_delete.group_force_delete,1,1,1,1

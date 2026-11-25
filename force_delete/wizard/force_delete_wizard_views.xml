@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_force_delete_wizard_form" model="ir.ui.view">
+        <field name="name">force.delete.wizard.form</field>
+        <field name="model">force.delete.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Force Delete Confirmation">
+                <field name="model_name" invisible="1"/>
+                <field name="record_ids" invisible="1"/>
+                <field name="show_revert_stock" invisible="1"/>
+
+                <field name="warning_message" nolabel="1" widget="html"/>
+
+                <group string="Target Records" col="2">
+                    <field name="model_description" string="Document Type" readonly="1"/>
+                    <field name="record_count" string="Count" readonly="1"/>
+                </group>
+
+                <notebook>
+                    <page string="Records to Delete" name="records_page">
+                        <field name="record_names" nolabel="1" readonly="1" widget="text" style="max-height: 200px; overflow-y: auto; font-family: monospace;"/>
+                    </page>
+                    <page string="Options" name="options_page">
+                        <group>
+                            <field name="revert_stock" invisible="not show_revert_stock"/>
+                            <field name="delete_chatter"/>
+                        </group>
+                    </page>
+                </notebook>
+
+                <footer>
+                    <button name="action_confirm_force_delete"
+                            string="Confirm Force Delete"
+                            type="object"
+                            class="btn-danger"
+                            confirm="Are you absolutely sure you want to permanently delete these records? This operation cannot be undone."/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

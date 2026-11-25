@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Force Delete Log List View -->
+    <record id="view_force_delete_log_list" model="ir.ui.view">
+        <field name="name">force.delete.log.list</field>
+        <field name="model">force.delete.log</field>
+        <field name="arch" type="xml">
+            <list string="Force Delete Audit Logs" create="false" edit="false">
+                <field name="delete_date"/>
+                <field name="user_id"/>
+                <field name="res_model_name" string="Document Type"/>
+                <field name="record_count" string="Count"/>
+                <field name="revert_stock" widget="boolean_toggle"/>
+                <field name="name" string="Summary"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Force Delete Log Form View -->
+    <record id="view_force_delete_log_form" model="ir.ui.view">
+        <field name="name">force.delete.log.form</field>
+        <field name="model">force.delete.log</field>
+        <field name="arch" type="xml">
+            <form string="Force Delete Audit Log" create="false" edit="false">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Execution Details">
+                            <field name="user_id" readonly="1"/>
+                            <field name="delete_date" readonly="1"/>
+                            <field name="revert_stock" readonly="1"/>
+                        </group>
+                        <group string="Affected Records">
+                            <field name="res_model_name" readonly="1"/>
+                            <field name="res_model" readonly="1"/>
+                            <field name="record_count" readonly="1"/>
+                            <field name="record_ids_text" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Deleted References" name="records">
+                            <field name="record_names" readonly="1" widget="text" style="font-family: monospace; white-space: pre-wrap;"/>
+                        </page>
+                        <page string="Technical Details" name="details">
+                            <field name="details" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Force Delete Log Search View -->
+    <record id="view_force_delete_log_search" model="ir.ui.view">
+        <field name="name">force.delete.log.search</field>
+        <field name="model">force.delete.log</field>
+        <field name="arch" type="xml">
+            <search string="Search Force Delete Logs">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="res_model_name"/>
+                <filter string="Stock Reverted" name="filter_stock_reverted" domain="[('revert_stock', '=', True)]"/>
+                <group>
+                    <filter string="Document Type" name="group_res_model" context="{'group_by': 'res_model_name'}"/>
+                    <filter string="User" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'delete_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>
