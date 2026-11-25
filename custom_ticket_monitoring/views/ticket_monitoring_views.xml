@@ -108,7 +108,7 @@
                         <!-- Tab 1: Detailed Description & Evidence -->
                         <page string="Issue Details &amp; Evidence" name="description_page">
                             <group string="Detailed Description &amp; Business Impact">
-                                <field name="description" nolabel="1" placeholder="Provide complete facts, affected batches/products/machines, and immediate business impact..."/>
+                                <field name="description" nolabel="1" placeholder="Provide complete facts, affected batches/products/machines, and immediate business impact..." style="min-height: 120px; width: 100%;"/>
                             </group>
                             <group string="Attached Evidence / Photos / Logs">
                                 <field name="attachment_ids" widget="many2many_binary" string="Upload Evidence"/>
@@ -118,7 +118,7 @@
                         <!-- Tab 2: Action & Resolution (Owner) -->
                         <page string="Action Taken &amp; CAPA" name="resolution_page">
                             <group string="Action &amp; Corrective Steps Taken">
-                                <field name="action_taken" nolabel="1" placeholder="Describe the step-by-step actions taken to resolve this issue..."/>
+                                <field name="action_taken" nolabel="1" placeholder="Describe the step-by-step actions taken to resolve this issue..." style="min-height: 100px; width: 100%;"/>
                             </group>
                             <group>
                                 <group string="Root Cause Analysis (RCA)">

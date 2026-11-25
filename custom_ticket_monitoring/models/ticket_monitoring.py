@@ -61,7 +61,7 @@ class TicketMonitoring(models.Model):
         tracking=True,
     )
     subject = fields.Char(string='Subject / Short Title', required=True, tracking=True)
-    description = fields.Html(string='Detailed Description & Business Impact', required=True)
+    description = fields.Text(string='Detailed Description & Business Impact', required=True)
 
     # 5. Priority & SLAs
     priority = fields.Selection([
@@ -151,7 +151,7 @@ class TicketMonitoring(models.Model):
         'ticket_id', 'attachment_id',
         string='Attached Evidence / Photos',
     )
-    action_taken = fields.Html(string='Action & Corrective Steps Taken', tracking=True)
+    action_taken = fields.Text(string='Action & Corrective Steps Taken', tracking=True)
     root_cause = fields.Text(string='Root Cause Analysis (RCA)', tracking=True)
     capa_action = fields.Text(string='Corrective & Preventive Action (CAPA)', tracking=True)
     resolution_evidence_ids = fields.Many2many(
