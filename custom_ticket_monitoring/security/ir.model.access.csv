@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ticket_department_user,ticket.department.user,model_ticket_department,group_ticket_user,1,0,0,0
+access_ticket_department_hod,ticket.department.hod,model_ticket_department,group_ticket_hod,1,1,0,0
+access_ticket_department_manager,ticket.department.manager,model_ticket_department,group_ticket_manager,1,1,1,1
+access_ticket_category_user,ticket.category.user,model_ticket_category,group_ticket_user,1,0,0,0
+access_ticket_category_hod,ticket.category.hod,model_ticket_category,group_ticket_hod,1,1,1,0
+access_ticket_category_manager,ticket.category.manager,model_ticket_category,group_ticket_manager,1,1,1,1
+access_ticket_stage_user,ticket.stage.user,model_ticket_stage,group_ticket_user,1,0,0,0
+access_ticket_stage_manager,ticket.stage.manager,model_ticket_stage,group_ticket_manager,1,1,1,1
+access_ticket_monitoring_user,ticket.monitoring.user,model_ticket_monitoring,group_ticket_user,1,1,1,0
+access_ticket_monitoring_technician,ticket.monitoring.technician,model_ticket_monitoring,group_ticket_technician,1,1,1,0
+access_ticket_monitoring_hod,ticket.monitoring.hod,model_ticket_monitoring,group_ticket_hod,1,1,1,0
+access_ticket_monitoring_gm,ticket.monitoring.gm,model_ticket_monitoring,group_ticket_gm,1,1,1,1
+access_ticket_monitoring_director,ticket.monitoring.director,model_ticket_monitoring,group_ticket_director,1,1,1,1
+access_ticket_monitoring_manager,ticket.monitoring.manager,model_ticket_monitoring,group_ticket_manager,1,1,1,1

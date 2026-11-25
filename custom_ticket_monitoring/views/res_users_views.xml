@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add 15 KPIs Dashboard Access Toggle to User Form (Settings -> Users & Companies -> Users) -->
+    <record id="view_users_form_inherit_ticket_dashboard" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.ticket.dashboard</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="priority" eval="55"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='access_rights']" position="inside">
+                <group string="Ticket Monitoring Special Permissions" name="group_ticket_monitoring_permissions">
+                    <field name="has_ticket_dashboard_access" widget="boolean_toggle"
+                           help="If enabled, this user is granted executive access to view and analyze the 15 Core KPIs Management Dashboard."/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

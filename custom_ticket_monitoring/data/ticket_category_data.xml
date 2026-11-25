@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- 1. Sales & Marketing Categories -->
+    <record id="cat_sales_complaints" model="ticket.category">
+        <field name="name">Customer Complaints</field>
+        <field name="department_id" ref="dept_sales"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_sales_enquiry" model="ticket.category">
+        <field name="name">Enquiry Follow-up Delays</field>
+        <field name="department_id" ref="dept_sales"/>
+        <field name="default_priority">p3</field>
+    </record>
+    <record id="cat_sales_quotations" model="ticket.category">
+        <field name="name">Pending Quotations and Approvals</field>
+        <field name="department_id" ref="dept_sales"/>
+        <field name="default_priority">p3</field>
+    </record>
+    <record id="cat_sales_so_delays" model="ticket.category">
+        <field name="name">Sales Order Processing Delays</field>
+        <field name="department_id" ref="dept_sales"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_sales_payment_followup" model="ticket.category">
+        <field name="name">Customer Payment Follow-up</field>
+        <field name="department_id" ref="dept_sales"/>
+        <field name="default_priority">p3</field>
+    </record>
+    <record id="cat_sales_availability" model="ticket.category">
+        <field name="name">Product Availability Enquiries</field>
+        <field name="department_id" ref="dept_sales"/>
+        <field name="default_priority">p3</field>
+    </record>
+    <record id="cat_sales_pricing_approval" model="ticket.category">
+        <field name="name">Pricing and Discount Approvals</field>
+        <field name="department_id" ref="dept_sales"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_sales_sample" model="ticket.category">
+        <field name="name">Customer Sample Requests</field>
+        <field name="department_id" ref="dept_sales"/>
+        <field name="default_priority">p3</field>
+    </record>
+    <record id="cat_sales_returns" model="ticket.category">
+        <field name="name">Sales Returns and Replacements</field>
+        <field name="department_id" ref="dept_sales"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_sales_dispatch_coordination" model="ticket.category">
+        <field name="name">Dispatch Delays / Coordination</field>
+        <field name="department_id" ref="dept_sales"/>
+        <field name="default_priority">p2</field>
+    </record>
+
+    <!-- 2. Production Categories -->
+    <record id="cat_prod_planning" model="ticket.category">
+        <field name="name">Production Planning Delays</field>
+        <field name="department_id" ref="dept_production"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_prod_rm_shortage" model="ticket.category">
+        <field name="name">Raw Material Shortages</field>
+        <field name="department_id" ref="dept_production"/>
+        <field name="default_priority">p1</field>
+    </record>
+    <record id="cat_prod_batch_delays" model="ticket.category">
+        <field name="name">Batch Delays</field>
+        <field name="department_id" ref="dept_production"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_prod_breakdowns" model="ticket.category">
+        <field name="name">Machine Breakdowns</field>
+        <field name="department_id" ref="dept_production"/>
+        <field name="default_priority">p1</field>
+    </record>
+    <record id="cat_prod_deviations" model="ticket.category">
+        <field name="name">Quality Deviations / In-process</field>
+        <field name="department_id" ref="dept_production"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_prod_rejection" model="ticket.category">
+        <field name="name">Batch Rejection / Reprocessing</field>
+        <field name="department_id" ref="dept_production"/>
+        <field name="default_priority">p1</field>
+    </record>
+    <record id="cat_prod_packaging" model="ticket.category">
+        <field name="name">Packaging Shortages</field>
+        <field name="department_id" ref="dept_production"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_prod_safety" model="ticket.category">
+        <field name="name">Safety Concerns</field>
+        <field name="department_id" ref="dept_production"/>
+        <field name="default_priority">p1</field>
+    </record>
+
+    <!-- 3. Quality Assurance / QA-QC Categories -->
+    <record id="cat_qc_rm_rejection" model="ticket.category">
+        <field name="name">Raw Material Rejection</field>
+        <field name="department_id" ref="dept_qa_qc"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_qc_fg_complaints" model="ticket.category">
+        <field name="name">Finished Goods Complaints</field>
+        <field name="department_id" ref="dept_qa_qc"/>
+        <field name="default_priority">p1</field>
+    </record>
+    <record id="cat_qc_testing_delays" model="ticket.category">
+        <field name="name">Testing Delays / Lab Backlog</field>
+        <field name="department_id" ref="dept_qa_qc"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_qc_ncr_capa" model="ticket.category">
+        <field name="name">Non-conformance (NCR) / CAPA</field>
+        <field name="department_id" ref="dept_qa_qc"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_qc_batch_release" model="ticket.category">
+        <field name="name">Batch Release Approvals</field>
+        <field name="department_id" ref="dept_qa_qc"/>
+        <field name="default_priority">p2</field>
+    </record>
+
+    <!-- 4. Purchase & Procurement Categories -->
+    <record id="cat_purch_requisition" model="ticket.category">
+        <field name="name">Purchase Requisition Pending</field>
+        <field name="department_id" ref="dept_purchase"/>
+        <field name="default_priority">p3</field>
+    </record>
+    <record id="cat_purch_po_delays" model="ticket.category">
+        <field name="name">PO Approval Delays</field>
+        <field name="department_id" ref="dept_purchase"/>
+        <field name="default_priority">p3</field>
+    </record>
+    <record id="cat_purch_supplier_delays" model="ticket.category">
+        <field name="name">Supplier Delivery Delays</field>
+        <field name="department_id" ref="dept_purchase"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_purch_emergency" model="ticket.category">
+        <field name="name">Emergency Purchase</field>
+        <field name="department_id" ref="dept_purchase"/>
+        <field name="default_priority">p1</field>
+    </record>
+
+    <!-- 5. Stores & Inventory Categories -->
+    <record id="cat_inv_stock_shortage" model="ticket.category">
+        <field name="name">Stock Shortages</field>
+        <field name="department_id" ref="dept_inventory"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_inv_discrepancy" model="ticket.category">
+        <field name="name">Physical Stock Discrepancies</field>
+        <field name="department_id" ref="dept_inventory"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_inv_near_expiry" model="ticket.category">
+        <field name="name">Expired / Near-expiry Material</field>
+        <field name="department_id" ref="dept_inventory"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_inv_inward_delay" model="ticket.category">
+        <field name="name">Material Inward / Issuance Delays</field>
+        <field name="department_id" ref="dept_inventory"/>
+        <field name="default_priority">p3</field>
+    </record>
+
+    <!-- 6. Dispatch & Logistics Categories -->
+    <record id="cat_log_transporter" model="ticket.category">
+        <field name="name">Transporter Availability / Delayed Deliveries</field>
+        <field name="department_id" ref="dept_dispatch"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_log_incorrect_dispatch" model="ticket.category">
+        <field name="name">Incorrect Dispatch / Transit Damage</field>
+        <field name="department_id" ref="dept_dispatch"/>
+        <field name="default_priority">p1</field>
+    </record>
+    <record id="cat_log_doc_errors" model="ticket.category">
+        <field name="name">Transport Documentation / e-Waybill Errors</field>
+        <field name="department_id" ref="dept_dispatch"/>
+        <field name="default_priority">p2</field>
+    </record>
+
+    <!-- 7. Finance & Accounts Categories -->
+    <record id="cat_fin_customer_payment" model="ticket.category">
+        <field name="name">Customer Payment Discrepancies</field>
+        <field name="department_id" ref="dept_finance"/>
+        <field name="default_priority">p3</field>
+    </record>
+    <record id="cat_fin_invoice_correction" model="ticket.category">
+        <field name="name">Invoice Corrections / Credit Notes</field>
+        <field name="department_id" ref="dept_finance"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_fin_gst_tally" model="ticket.category">
+        <field name="name">GST / Tally Entry Corrections</field>
+        <field name="department_id" ref="dept_finance"/>
+        <field name="default_priority">p3</field>
+    </record>
+
+    <!-- 8. HR & Administration Categories -->
+    <record id="cat_hr_attendance_salary" model="ticket.category">
+        <field name="name">Attendance &amp; Salary Discrepancies</field>
+        <field name="department_id" ref="dept_hr"/>
+        <field name="default_priority">p3</field>
+    </record>
+    <record id="cat_hr_grievances" model="ticket.category">
+        <field name="name">Employee Grievances</field>
+        <field name="department_id" ref="dept_hr"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_hr_facility" model="ticket.category">
+        <field name="name">Facility / Housekeeping / Canteen Issues</field>
+        <field name="department_id" ref="dept_hr"/>
+        <field name="default_priority">p4</field>
+    </record>
+
+    <!-- 9. Maintenance & Engineering Categories -->
+    <record id="cat_maint_breakdown" model="ticket.category">
+        <field name="name">Machine Breakdowns / Electrical Faults</field>
+        <field name="department_id" ref="dept_maintenance"/>
+        <field name="default_priority">p1</field>
+    </record>
+    <record id="cat_maint_utility" model="ticket.category">
+        <field name="name">Utility / Compressor / Water Supply Issues</field>
+        <field name="department_id" ref="dept_maintenance"/>
+        <field name="default_priority">p1</field>
+    </record>
+    <record id="cat_maint_preventive" model="ticket.category">
+        <field name="name">Preventive Maintenance Requests</field>
+        <field name="department_id" ref="dept_maintenance"/>
+        <field name="default_priority">p3</field>
+    </record>
+
+    <!-- 10. IT & Systems Categories -->
+    <record id="cat_it_hardware_network" model="ticket.category">
+        <field name="name">Computer Hardware / Network / Internet</field>
+        <field name="department_id" ref="dept_it"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_it_tally_erp" model="ticket.category">
+        <field name="name">Tally / ERP / HRMS Issues</field>
+        <field name="department_id" ref="dept_it"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_it_server" model="ticket.category">
+        <field name="name">Server Connectivity / Backup Failures</field>
+        <field name="department_id" ref="dept_it"/>
+        <field name="default_priority">p1</field>
+    </record>
+
+    <!-- 11. R&D Categories -->
+    <record id="cat_rnd_new_product" model="ticket.category">
+        <field name="name">New Product / Sample Development</field>
+        <field name="department_id" ref="dept_rnd"/>
+        <field name="default_priority">p3</field>
+    </record>
+    <record id="cat_rnd_formulation" model="ticket.category">
+        <field name="name">Formulation / Raw Material Substitution</field>
+        <field name="department_id" ref="dept_rnd"/>
+        <field name="default_priority">p3</field>
+    </record>
+
+    <!-- 12. Management / Approvals Categories -->
+    <record id="cat_mgmt_capex" model="ticket.category">
+        <field name="name">Capital Expenditure (CapEx) Approvals</field>
+        <field name="department_id" ref="dept_management"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_mgmt_credit_discount" model="ticket.category">
+        <field name="name">Special Discounts &amp; Credit Approvals</field>
+        <field name="department_id" ref="dept_management"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_mgmt_policy" model="ticket.category">
+        <field name="name">Policy Exceptions &amp; Interdepartmental Disputes</field>
+        <field name="department_id" ref="dept_management"/>
+        <field name="default_priority">p1</field>
+    </record>
+
+    <!-- 13. MIS Department Categories -->
+    <record id="cat_mis_submission_delay" model="ticket.category">
+        <field name="name">Daily / Weekly / Monthly MIS Submission Delays</field>
+        <field name="department_id" ref="dept_mis"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_mis_reconciliation" model="ticket.category">
+        <field name="name">Tally, Google Sheets and ERP Data Reconciliation</field>
+        <field name="department_id" ref="dept_mis"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_mis_formula_dashboard" model="ticket.category">
+        <field name="name">Dashboard Refresh Failures / Formula Errors</field>
+        <field name="department_id" ref="dept_mis"/>
+        <field name="default_priority">p1</field>
+    </record>
+    <record id="cat_mis_master_data" model="ticket.category">
+        <field name="name">Master-data Corrections (Customer, Product, Zone)</field>
+        <field name="department_id" ref="dept_mis"/>
+        <field name="default_priority">p3</field>
+    </record>
+    <record id="cat_mis_source_data_delay" model="ticket.category">
+        <field name="name">Unsubmitted Source Data / Delayed Inputs from Departments</field>
+        <field name="department_id" ref="dept_mis"/>
+        <field name="default_priority">p2</field>
+    </record>
+    <record id="cat_mis_automation" model="ticket.category">
+        <field name="name">Data Extraction &amp; Report Automation Requests</field>
+        <field name="department_id" ref="dept_mis"/>
+        <field name="default_priority">p4</field>
+    </record>
+</odoo>

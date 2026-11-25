@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="module_category_ticket_monitoring" model="ir.module.category">
+            <field name="name">Ticket Monitoring System</field>
+            <field name="description">Operational Excellence &amp; Issue Tracking for Photokina Chemicals</field>
+            <field name="sequence">28</field>
+        </record>
+
+        <record model="res.groups.privilege" id="res_groups_privilege_ticket_monitoring">
+            <field name="name">Ticket Monitoring</field>
+            <field name="sequence">10</field>
+            <field name="category_id" ref="module_category_ticket_monitoring"/>
+        </record>
+
+        <!-- 1. Standard Employee / Requester -->
+        <record id="group_ticket_user" model="res.groups">
+            <field name="name">Employee / Requester</field>
+            <field name="sequence">10</field>
+            <field name="privilege_id" ref="res_groups_privilege_ticket_monitoring"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Can raise operational tickets, track own tickets, verify resolution, and rate satisfaction.</field>
+        </record>
+
+        <!-- 2. Assigned Owner / Operator (L1) -->
+        <record id="group_ticket_technician" model="res.groups">
+            <field name="name">Assigned Owner / Technician (L1)</field>
+            <field name="sequence">20</field>
+            <field name="privilege_id" ref="res_groups_privilege_ticket_monitoring"/>
+            <field name="implied_ids" eval="[(4, ref('group_ticket_user'))]"/>
+            <field name="comment">Accountable assignee. Acknowledges tickets, adds progress, and marks as resolved.</field>
+        </record>
+
+        <!-- 3. Department Head / HOD (L2) -->
+        <record id="group_ticket_hod" model="res.groups">
+            <field name="name">Department Head / HOD (L2)</field>
+            <field name="sequence">30</field>
+            <field name="privilege_id" ref="res_groups_privilege_ticket_monitoring"/>
+            <field name="implied_ids" eval="[(4, ref('group_ticket_technician'))]"/>
+            <field name="comment">Department Head. Full visibility over department tickets, reassigns owners, and handles L2 escalations.</field>
+        </record>
+
+        <!-- 4. General Manager / Operations Head (L3) -->
+        <record id="group_ticket_gm" model="res.groups">
+            <field name="name">General Manager (L3)</field>
+            <field name="sequence">40</field>
+            <field name="privilege_id" ref="res_groups_privilege_ticket_monitoring"/>
+            <field name="implied_ids" eval="[(4, ref('group_ticket_hod'))]"/>
+            <field name="comment">Cross-departmental visibility across all 13 departments. Resolves SLA breaches and disputes.</field>
+        </record>
+
+        <!-- Dedicated Group for 15 KPIs Dashboard Access -->
+        <record id="group_ticket_dashboard" model="res.groups">
+            <field name="name">15 KPIs Management Dashboard Access</field>
+            <field name="comment">Allows user to view the Management Dashboard with 15 Core KPIs.</field>
+        </record>
+
+        <!-- 5. CEO / Managing Director (L4) -->
+        <record id="group_ticket_director" model="res.groups">
+            <field name="name">CEO / Managing Director (L4)</field>
+            <field name="sequence">50</field>
+            <field name="privilege_id" ref="res_groups_privilege_ticket_monitoring"/>
+            <field name="implied_ids" eval="[(6, 0, [ref('group_ticket_gm')])]"/>
+            <field name="comment">Top-level executive oversight. Receives L4 critical escalations and approves exceptions.</field>
+        </record>
+
+        <!-- 6. System Administrator -->
+        <record id="group_ticket_manager" model="res.groups">
+            <field name="name">Ticket Administrator</field>
+            <field name="sequence">60</field>
+            <field name="privilege_id" ref="res_groups_privilege_ticket_monitoring"/>
+            <field name="implied_ids" eval="[(4, ref('group_ticket_director')), (4, ref('group_ticket_dashboard'))]"/>
+            <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+            <field name="comment">Full system configuration of departments, issue categories, stages, and SLA parameters.</field>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <!-- ============================================== -->
+        <!-- RECORD RULES                                  -->
+        <!-- ============================================== -->
+        <!-- Rule 1: Employee sees tickets they created or where they are assigned -->
+        <record id="rule_ticket_monitoring_user" model="ir.rule">
+            <field name="name">Tickets: Own or Assigned Tickets</field>
+            <field name="model_id" ref="model_ticket_monitoring"/>
+            <field name="groups" eval="[(4, ref('group_ticket_user'))]"/>
+            <field name="domain_force">['|', ('user_id', '=', user.id), ('owner_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Rule 2: Technician / Dept Member sees department tickets -->
+        <record id="rule_ticket_monitoring_technician" model="ir.rule">
+            <field name="name">Tickets: Department Member Tickets</field>
+            <field name="model_id" ref="model_ticket_monitoring"/>
+            <field name="groups" eval="[(4, ref('group_ticket_technician'))]"/>
+            <field name="domain_force">['|', '|', ('user_id', '=', user.id), ('owner_id', '=', user.id), ('assigned_department_id.member_ids', 'in', [user.id])]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Rule 3: HOD sees all tickets for their department (originating or assigned) -->
+        <record id="rule_ticket_monitoring_hod" model="ir.rule">
+            <field name="name">Tickets: HOD Department Visibility</field>
+            <field name="model_id" ref="model_ticket_monitoring"/>
+            <field name="groups" eval="[(4, ref('group_ticket_hod'))]"/>
+            <field name="domain_force">['|', '|', '|', ('user_id', '=', user.id), ('assigned_department_id.hod_id', '=', user.id), ('origin_department_id.hod_id', '=', user.id), ('assigned_department_id.member_ids', 'in', [user.id])]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Rule 4: GM / CEO / Administrator has global cross-department visibility -->
+        <record id="rule_ticket_monitoring_all" model="ir.rule">
+            <field name="name">Tickets: Global Cross-Department Visibility</field>
+            <field name="model_id" ref="model_ticket_monitoring"/>
+            <field name="groups" eval="[(4, ref('group_ticket_gm')), (4, ref('group_ticket_director')), (4, ref('group_ticket_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+    </data>
+</odoo>

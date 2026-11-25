@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Scheduled Action for SLA & Escalation Engine -->
+    <record id="ir_cron_ticket_sla_escalation" model="ir.cron">
+        <field name="name">Ticket Monitoring: Check SLA Deadlines and Auto-Escalate</field>
+        <field name="model_id" ref="model_ticket_monitoring"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_check_sla_and_escalate()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Department List View -->
+    <record id="view_ticket_department_list" model="ir.ui.view">
+        <field name="name">ticket.department.list</field>
+        <field name="model">ticket.department</field>
+        <field name="arch" type="xml">
+            <list string="Departments">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="hod_id"/>
+                <field name="sla_target_percent" widget="percentage"/>
+                <field name="open_ticket_count"/>
+                <field name="ticket_count"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Department Kanban View -->
+    <record id="view_ticket_department_kanban" model="ir.ui.view">
+        <field name="name">ticket.department.kanban</field>
+        <field name="model">ticket.department</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_dashboard">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="color"/>
+                <field name="hod_id"/>
+                <field name="sla_target_percent"/>
+                <field name="open_ticket_count"/>
+                <field name="ticket_count"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h4 class="mb-0 fw-bold"><field name="name"/></h4>
+                            <span class="badge text-bg-primary"><field name="code"/></span>
+                        </div>
+                        <div class="text-muted small mb-2">
+                            <span>HOD: </span>
+                            <field name="hod_id"/>
+                        </div>
+                        <div class="row text-center mt-3 g-2">
+                            <div class="col-6">
+                                <a type="object" name="action_view_department_tickets" class="d-block p-2 rounded bg-light text-decoration-none">
+                                    <div class="fs-4 fw-bold text-danger"><field name="open_ticket_count"/></div>
+                                    <div class="small text-muted">Open Tickets</div>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a type="object" name="action_view_department_tickets" class="d-block p-2 rounded bg-light text-decoration-none">
+                                    <div class="fs-4 fw-bold text-primary"><field name="ticket_count"/></div>
+                                    <div class="small text-muted">Total Tickets</div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top text-muted small">
+                            <span>SLA Target: <b><field name="sla_target_percent"/>%</b></span>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Department Form View -->
+    <record id="view_ticket_department_form" model="ir.ui.view">
+        <field name="name">ticket.department.form</field>
+        <field name="model">ticket.department</field>
+        <field name="arch" type="xml">
+            <form string="Department">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_department_tickets" type="object" class="oe_stat_button" icon="fa-ticket">
+                            <div class="o_stat_info">
+                                <field name="open_ticket_count" class="o_stat_value text-danger"/>
+                                <span class="o_stat_text">Open Tickets</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="Department Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Sales &amp; Marketing, Production, MIS"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="dept_info" string="Department Info">
+                            <field name="code" placeholder="e.g. SALE, PROD, MIS"/>
+                            <field name="hod_id" options="{'no_create': True}"/>
+                            <field name="sla_target_percent"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                        <group name="dept_members" string="Team Members">
+                            <field name="member_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Predefined Issue Categories" name="categories">
+                            <field name="category_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="default_priority"/>
+                                    <field name="default_owner_id"/>
+                                    <field name="active" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ticket_department" model="ir.actions.act_window">
+        <field name="name">Departments</field>
+        <field name="res_model">ticket.department</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Set up your 13 operational departments!</p>
+        </field>
+    </record>
+</odoo>

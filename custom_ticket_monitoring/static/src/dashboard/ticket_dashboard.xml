@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="custom_ticket_monitoring.TicketKpiDashboard">
+        <div class="o_action o_ticket_dashboard p-4 overflow-auto bg-100 h-100">
+            <!-- Header Toolbar -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom bg-white p-3 rounded-3 shadow-sm">
+                <div>
+                    <h3 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="fa fa-tachometer text-primary"/> Management Dashboard (15 Core KPIs)
+                    </h3>
+                    <p class="text-muted small mb-0">
+                        Operational Excellence &amp; SLA Monitoring System • Photokina Chemicals Pvt. Ltd.
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+                    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm" t-on-click="loadData">
+                        <i class="fa fa-refresh"/> Refresh
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm" t-on-click="openPivot">
+                        <i class="fa fa-table"/> Pivot Analysis
+                    </button>
+                    <button class="btn btn-outline-info btn-sm d-flex align-items-center gap-1 shadow-sm" t-on-click="openGraph">
+                        <i class="fa fa-bar-chart"/> Graphs
+                    </button>
+                    <button class="btn btn-outline-dark btn-sm d-flex align-items-center gap-1 shadow-sm" t-on-click="openDepartmentScorecards">
+                        <i class="fa fa-sitemap"/> Department Scorecards
+                    </button>
+                    <button class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm fw-semibold" t-on-click="createTicket">
+                        <i class="fa fa-plus"/> New Ticket
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div t-if="state.loading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading KPIs...</span>
+                </div>
+                <p class="text-muted mt-2">Computing live operational KPIs...</p>
+            </div>
+
+            <div t-else="">
+                <!-- SECTION 1: CRITICAL OPERATIONAL SUMMARY (4 PRIMARY HERO CARDS) -->
+                <div class="row g-3 mb-4">
+                    <!-- 1. Total Tickets Raised -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card h-100 border-0 shadow-sm kpi-card kpi-card-blue"
+                             t-on-click="openAllTickets">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-uppercase text-muted fw-bold small mb-1">Total Tickets Raised</div>
+                                    <h2 class="mb-0 fw-bolder text-primary"><t t-esc="state.kpis.total_tickets"/></h2>
+                                    <div class="small text-muted mt-1">All logged issues</div>
+                                </div>
+                                <div class="kpi-icon-circle bg-primary-subtle text-primary">
+                                    <i class="fa fa-ticket fa-2x"/>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 pt-0 text-primary small fw-semibold">
+                                View all tickets <i class="fa fa-arrow-right ms-1"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Open / Active Backlog -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card h-100 border-0 shadow-sm kpi-card kpi-card-info"
+                             t-on-click="openOpenTickets">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-uppercase text-muted fw-bold small mb-1">Open Active Backlog</div>
+                                    <h2 class="mb-0 fw-bolder text-info"><t t-esc="state.kpis.open_tickets"/></h2>
+                                    <div class="small text-muted mt-1">In progress &amp; unclosed</div>
+                                </div>
+                                <div class="kpi-icon-circle bg-info-subtle text-info">
+                                    <i class="fa fa-hourglass-half fa-2x"/>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 pt-0 text-info small fw-semibold">
+                                View open backlog <i class="fa fa-arrow-right ms-1"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Overdue / SLA Breached -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card h-100 border-0 shadow-sm kpi-card kpi-card-danger"
+                             t-on-click="openBreachedTickets">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-uppercase text-muted fw-bold small mb-1">Overdue / SLA Breached</div>
+                                    <h2 class="mb-0 fw-bolder text-danger"><t t-esc="state.kpis.breached_tickets"/></h2>
+                                    <div class="small text-danger fw-semibold mt-1">
+                                        <i class="fa fa-exclamation-triangle"/> Requires Action
+                                    </div>
+                                </div>
+                                <div class="kpi-icon-circle bg-danger-subtle text-danger">
+                                    <i class="fa fa-bell fa-2x"/>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 pt-0 text-danger small fw-semibold">
+                                View breached tickets <i class="fa fa-arrow-right ms-1"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Critical (P1) Emergencies -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card h-100 border-0 shadow-sm kpi-card kpi-card-crimson"
+                             t-on-click="openP1Tickets">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-uppercase text-muted fw-bold small mb-1">Critical (P1) Issues</div>
+                                    <h2 class="mb-0 fw-bolder text-danger"><t t-esc="state.kpis.p1_tickets"/></h2>
+                                    <div class="small text-danger fw-semibold mt-1">
+                                        <i class="fa fa-fire"/> 2h Resolution Target
+                                    </div>
+                                </div>
+                                <div class="kpi-icon-circle bg-danger-subtle text-danger">
+                                    <i class="fa fa-bolt fa-2x"/>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 pt-0 text-danger small fw-semibold">
+                                View P1 tickets <i class="fa fa-arrow-right ms-1"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: SERVICE QUALITY & SLA COMPLIANCE KPIS (4 METRIC TILES) -->
+                <h5 class="fw-bold text-secondary mb-3 d-flex align-items-center gap-2">
+                    <i class="fa fa-line-chart text-success"/> Service Quality &amp; SLA Compliance Metrics
+                </h5>
+                <div class="row g-3 mb-4">
+                    <!-- 5. Overall SLA Compliance % -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card h-100 border-0 shadow-sm kpi-metric-box">
+                            <div class="card-body">
+                                <div class="text-muted small fw-bold text-uppercase">SLA Compliance Rate</div>
+                                <div class="d-flex align-items-baseline gap-2 my-2">
+                                    <h2 class="mb-0 fw-bolder text-success"><t t-esc="state.kpis.sla_compliance"/>%</h2>
+                                    <span class="badge bg-success-subtle text-success small">Target: &gt;= 95%</span>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                         t-attf-style="width: {{state.kpis.sla_compliance}}%"/>
+                                </div>
+                                <div class="small text-muted mt-2">Resolved within SLA target</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. Average Resolution Time -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card h-100 border-0 shadow-sm kpi-metric-box">
+                            <div class="card-body">
+                                <div class="text-muted small fw-bold text-uppercase">Avg Resolution Time</div>
+                                <div class="d-flex align-items-baseline gap-2 my-2">
+                                    <h2 class="mb-0 fw-bolder text-purple"><t t-esc="state.kpis.avg_resolution_hours"/> <span class="fs-6 fw-normal text-muted">hrs</span></h2>
+                                </div>
+                                <div class="small text-muted mt-2">From submission to resolution</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7. Ticket Reopening Rate % -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card h-100 border-0 shadow-sm kpi-metric-box"
+                             t-on-click="openReopenedTickets">
+                            <div class="card-body">
+                                <div class="text-muted small fw-bold text-uppercase">Ticket Reopen Rate</div>
+                                <div class="d-flex align-items-baseline gap-2 my-2">
+                                    <h2 class="mb-0 fw-bolder text-warning"><t t-esc="state.kpis.reopen_rate"/>%</h2>
+                                    <span class="badge bg-warning-subtle text-warning small">Target: &lt; 5%</span>
+                                </div>
+                                <div class="small text-muted mt-2"><t t-esc="state.kpis.reopened_tickets"/> reopened tickets</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 8. Requester Satisfaction Score -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card h-100 border-0 shadow-sm kpi-metric-box">
+                            <div class="card-body">
+                                <div class="text-muted small fw-bold text-uppercase">Satisfaction Score</div>
+                                <div class="d-flex align-items-baseline gap-2 my-2">
+                                    <h2 class="mb-0 fw-bolder text-warning"><t t-esc="state.kpis.avg_satisfaction"/> <span class="fs-6 fw-normal text-muted">/ 5</span></h2>
+                                    <span class="text-warning">
+                                        <i class="fa fa-star"/><i class="fa fa-star"/><i class="fa fa-star"/><i class="fa fa-star"/><i class="fa fa-star"/>
+                                    </span>
+                                </div>
+                                <div class="small text-muted mt-2">Based on closed ticket feedback</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: OPERATIONAL QUEUES & ESCALATION HEALTH (4 SUB-CARDS) -->
+                <h5 class="fw-bold text-secondary mb-3 d-flex align-items-center gap-2">
+                    <i class="fa fa-tasks text-primary"/> Operational Queues &amp; Escalation Status
+                </h5>
+                <div class="row g-3 mb-4">
+                    <!-- 9. Pending Requester Verification -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card h-100 border-0 shadow-sm clickable-tile p-3"
+                             t-on-click="openPendingVerification">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <div class="fw-bold text-dark fs-5"><t t-esc="state.kpis.pending_verification"/></div>
+                                    <div class="small text-muted">Pending Verification</div>
+                                </div>
+                                <i class="fa fa-check-circle-o fa-2x text-info"/>
+                            </div>
+                            <div class="small text-info mt-2">Awaiting requester sign-off <i class="fa fa-arrow-right ms-1"/></div>
+                        </div>
+                    </div>
+
+                    <!-- 10. On-Hold / External Dependency -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card h-100 border-0 shadow-sm clickable-tile p-3"
+                             t-on-click="openOnHoldTickets">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <div class="fw-bold text-dark fs-5"><t t-esc="state.kpis.on_hold_count"/></div>
+                                    <div class="small text-muted">On-Hold Tickets</div>
+                                </div>
+                                <i class="fa fa-pause-circle-o fa-2x text-secondary"/>
+                            </div>
+                            <div class="small text-muted mt-2">Vendor / Spares / Approval <i class="fa fa-arrow-right ms-1"/></div>
+                        </div>
+                    </div>
+
+                    <!-- 11. Escalated Tickets (L2 to L4) -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card h-100 border-0 shadow-sm clickable-tile p-3"
+                             t-on-click="openEscalatedTickets">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <div class="fw-bold text-danger fs-5"><t t-esc="state.kpis.escalated_tickets"/></div>
+                                    <div class="small text-muted">Escalated (L2 - L4)</div>
+                                </div>
+                                <i class="fa fa-level-up fa-2x text-danger"/>
+                            </div>
+                            <div class="small text-danger mt-2">
+                                L2: <t t-esc="state.kpis.l2_count"/> | L3: <t t-esc="state.kpis.l3_count"/> | L4: <t t-esc="state.kpis.l4_count"/> <i class="fa fa-arrow-right ms-1"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 12. MIS Department Specific -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="card h-100 border-0 shadow-sm clickable-tile p-3"
+                             t-on-click="openMisTickets">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <div class="fw-bold text-dark fs-5"><t t-esc="state.kpis.mis_count"/></div>
+                                    <div class="small text-muted">MIS Department Issues</div>
+                                </div>
+                                <i class="fa fa-database fa-2x text-primary"/>
+                            </div>
+                            <div class="small text-primary mt-2">ERP, Tally &amp; Reports <i class="fa fa-arrow-right ms-1"/></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: DEPARTMENT PERFORMANCE SCORECARDS (13 DEPARTMENTS TABLE) -->
+                <div class="card border-0 shadow-sm rounded-3 mt-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                        <h5 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                            <i class="fa fa-building text-primary"/> Department-wise SLA Performance (13 Departments)
+                        </h5>
+                        <button class="btn btn-sm btn-outline-primary" t-on-click="openDepartmentScorecards">
+                            Open Full Scorecards
+                        </button>
+                    </div>
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-muted small text-uppercase">
+                                <tr>
+                                    <th class="ps-3">Department</th>
+                                    <th>Code</th>
+                                    <th>Head of Dept (HOD)</th>
+                                    <th class="text-center">Open Tickets</th>
+                                    <th class="text-center">SLA Breached</th>
+                                    <th class="text-center">Total Logged</th>
+                                    <th class="text-center">SLA Compliance</th>
+                                    <th class="text-end pe-3">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="state.kpis.departments" t-as="dept" t-key="dept.id">
+                                    <tr>
+                                        <td class="ps-3 fw-semibold text-dark"><t t-esc="dept.name"/></td>
+                                        <td><span class="badge bg-light text-dark border"><t t-esc="dept.code"/></span></td>
+                                        <td class="text-muted"><t t-esc="dept.hod_name"/></td>
+                                        <td class="text-center">
+                                            <span t-if="dept.open &gt; 0" class="badge bg-primary rounded-pill px-2"><t t-esc="dept.open"/></span>
+                                            <span t-else="" class="text-muted">0</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-if="dept.breached &gt; 0" class="badge bg-danger rounded-pill px-2"><t t-esc="dept.breached"/></span>
+                                            <span t-else="" class="text-success"><i class="fa fa-check"/></span>
+                                        </td>
+                                        <td class="text-center fw-semibold"><t t-esc="dept.total"/></td>
+                                        <td class="text-center">
+                                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                                <div class="progress flex-grow-1" style="max-width: 80px; height: 6px;">
+                                                    <div class="progress-bar"
+                                                         t-att-class="dept.sla_rate &gt;= 95 ? 'bg-success' : (dept.sla_rate &gt;= 80 ? 'bg-warning' : 'bg-danger')"
+                                                         t-attf-style="width: {{dept.sla_rate}}%"/>
+                                                </div>
+                                                <span class="small fw-bold"><t t-esc="dept.sla_rate"/>%</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-3">
+                                            <button class="btn btn-sm btn-outline-secondary py-0 px-2"
+                                                    t-on-click="() =&gt; this.openDepartmentTickets(dept)">
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>
