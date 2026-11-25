@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- 1. Sales & Marketing -->
+    <record id="dept_sales" model="ticket.department">
+        <field name="name">Sales &amp; Marketing</field>
+        <field name="code">SALE</field>
+        <field name="sequence">10</field>
+        <field name="sla_target_percent">95.0</field>
+        <field name="color">1</field>
+    </record>
+
+    <!-- 2. Production -->
+    <record id="dept_production" model="ticket.department">
+        <field name="name">Production</field>
+        <field name="code">PROD</field>
+        <field name="sequence">20</field>
+        <field name="sla_target_percent">95.0</field>
+        <field name="color">2</field>
+    </record>
+
+    <!-- 3. Quality Assurance / Quality Control (QA/QC) -->
+    <record id="dept_qa_qc" model="ticket.department">
+        <field name="name">Quality Assurance / Quality Control</field>
+        <field name="code">QC</field>
+        <field name="sequence">30</field>
+        <field name="sla_target_percent">98.0</field>
+        <field name="color">3</field>
+    </record>
+
+    <!-- 4. Purchase & Procurement -->
+    <record id="dept_purchase" model="ticket.department">
+        <field name="name">Purchase &amp; Procurement</field>
+        <field name="code">PURCH</field>
+        <field name="sequence">40</field>
+        <field name="sla_target_percent">90.0</field>
+        <field name="color">4</field>
+    </record>
+
+    <!-- 5. Stores & Inventory -->
+    <record id="dept_inventory" model="ticket.department">
+        <field name="name">Stores &amp; Inventory</field>
+        <field name="code">INV</field>
+        <field name="sequence">50</field>
+        <field name="sla_target_percent">95.0</field>
+        <field name="color">5</field>
+    </record>
+
+    <!-- 6. Dispatch & Logistics -->
+    <record id="dept_dispatch" model="ticket.department">
+        <field name="name">Dispatch &amp; Logistics</field>
+        <field name="code">LOG</field>
+        <field name="sequence">60</field>
+        <field name="sla_target_percent">95.0</field>
+        <field name="color">6</field>
+    </record>
+
+    <!-- 7. Finance & Accounts -->
+    <record id="dept_finance" model="ticket.department">
+        <field name="name">Finance &amp; Accounts</field>
+        <field name="code">FIN</field>
+        <field name="sequence">70</field>
+        <field name="sla_target_percent">95.0</field>
+        <field name="color">7</field>
+    </record>
+
+    <!-- 8. Human Resources & Administration -->
+    <record id="dept_hr" model="ticket.department">
+        <field name="name">Human Resources &amp; Administration</field>
+        <field name="code">HR</field>
+        <field name="sequence">80</field>
+        <field name="sla_target_percent">95.0</field>
+        <field name="color">8</field>
+    </record>
+
+    <!-- 9. Maintenance & Engineering -->
+    <record id="dept_maintenance" model="ticket.department">
+        <field name="name">Maintenance &amp; Engineering</field>
+        <field name="code">MAINT</field>
+        <field name="sequence">90</field>
+        <field name="sla_target_percent">95.0</field>
+        <field name="color">9</field>
+    </record>
+
+    <!-- 10. IT & Systems -->
+    <record id="dept_it" model="ticket.department">
+        <field name="name">IT &amp; Systems</field>
+        <field name="code">IT</field>
+        <field name="sequence">100</field>
+        <field name="sla_target_percent">98.0</field>
+        <field name="color">10</field>
+    </record>
+
+    <!-- 11. Research & Development (R&D) -->
+    <record id="dept_rnd" model="ticket.department">
+        <field name="name">Research &amp; Development</field>
+        <field name="code">RND</field>
+        <field name="sequence">110</field>
+        <field name="sla_target_percent">90.0</field>
+        <field name="color">11</field>
+    </record>
+
+    <!-- 12. Management / Approvals -->
+    <record id="dept_management" model="ticket.department">
+        <field name="name">Management / Approvals</field>
+        <field name="code">MGMT</field>
+        <field name="sequence">120</field>
+        <field name="sla_target_percent">95.0</field>
+        <field name="color">12</field>
+    </record>
+
+    <!-- 13. MIS Department -->
+    <record id="dept_mis" model="ticket.department">
+        <field name="name">MIS Department</field>
+        <field name="code">MIS</field>
+        <field name="sequence">130</field>
+        <field name="sla_target_percent">98.0</field>
+        <field name="color">13</field>
+    </record>
+</odoo>

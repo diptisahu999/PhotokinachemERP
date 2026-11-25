@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ticket_category_list" model="ir.ui.view">
+        <field name="name">ticket.category.list</field>
+        <field name="model">ticket.category</field>
+        <field name="arch" type="xml">
+            <list string="Ticket Categories" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="default_priority"/>
+                <field name="default_owner_id"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ticket_category_search" model="ir.ui.view">
+        <field name="name">ticket.category.search</field>
+        <field name="model">ticket.category</field>
+        <field name="arch" type="xml">
+            <search string="Search Categories">
+                <field name="name"/>
+                <field name="department_id"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Department" name="group_by_dept" context="{'group_by': 'department_id'}"/>
+                    <filter string="Default Priority" name="group_by_priority" context="{'group_by': 'default_priority'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ticket_category" model="ir.actions.act_window">
+        <field name="name">Issue Categories</field>
+        <field name="res_model">ticket.category</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_by_dept': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Set up department-wise ticket issue categories!</p>
+        </field>
+    </record>
+</odoo>

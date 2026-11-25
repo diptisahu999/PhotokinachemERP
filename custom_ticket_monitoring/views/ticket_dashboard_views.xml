@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================== -->
+    <!-- MANAGEMENT DASHBOARD & MIS ANALYTICS (15 KPIS) -->
+    <!-- ============================================== -->
+
+    <!-- Pivot View: Core KPIs -->
+    <record id="view_ticket_monitoring_pivot" model="ir.ui.view">
+        <field name="name">ticket.monitoring.pivot</field>
+        <field name="model">ticket.monitoring</field>
+        <field name="arch" type="xml">
+            <pivot string="15 Core KPIs Management Pivot Analysis" sample="1">
+                <field name="assigned_department_id" type="row"/>
+                <field name="priority" type="row"/>
+                <field name="sla_status" type="col"/>
+                <field name="resolution_duration_hours" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Graph View: Department Resolution & SLA Compliance -->
+    <record id="view_ticket_monitoring_graph_dept" model="ir.ui.view">
+        <field name="name">ticket.monitoring.graph.dept</field>
+        <field name="model">ticket.monitoring</field>
+        <field name="arch" type="xml">
+            <graph string="Department-wise Tickets &amp; SLA Compliance" type="bar" sample="1">
+                <field name="assigned_department_id"/>
+                <field name="sla_status"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Graph View: Priority Breakdown -->
+    <record id="view_ticket_monitoring_graph_priority" model="ir.ui.view">
+        <field name="name">ticket.monitoring.graph.priority</field>
+        <field name="model">ticket.monitoring</field>
+        <field name="arch" type="xml">
+            <graph string="Tickets by Priority (P1 to P4)" type="pie" sample="1">
+                <field name="priority"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Action 1: Executive KPI Cards Dashboard (Client Action) -->
+    <record id="action_ticket_monitoring_kpi_dashboard" model="ir.actions.client">
+        <field name="name">Management Dashboard (15 Core KPIs)</field>
+        <field name="tag">ticket_kpi_dashboard</field>
+    </record>
+
+    <!-- Action 2: Multi-Dimensional Pivot Analysis (Window Action) -->
+    <record id="action_ticket_monitoring_dashboard" model="ir.actions.act_window">
+        <field name="name">SLA &amp; Performance Pivot Analysis</field>
+        <field name="res_model">ticket.monitoring</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="view_id" ref="view_ticket_monitoring_pivot"/>
+        <field name="context">{
+            'search_default_open_tickets': 1,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Operational Excellence Management Dashboard</p>
+            <p>Real-time analytics for resolution time, SLA compliance %, overdue backlog, and repeat issues.</p>
+        </field>
+    </record>
+</odoo>

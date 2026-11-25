@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================== -->
+    <!-- 1. TICKET FORM VIEW                            -->
+    <!-- ============================================== -->
+    <record id="view_ticket_monitoring_form" model="ir.ui.view">
+        <field name="name">ticket.monitoring.form</field>
+        <field name="model">ticket.monitoring</field>
+        <field name="arch" type="xml">
+            <form string="Operational Issue Ticket">
+                <header>
+                    <!-- Action Buttons -->
+                    <button name="action_accept" string="Accept &amp; Acknowledge" type="object"
+                            class="btn-primary" invisible="state not in ('draft', 'assigned')" icon="fa-check-circle"/>
+
+                    <button name="action_start" string="In Progress" type="object"
+                            class="btn-primary" invisible="state not in ('assigned')" icon="fa-play"/>
+
+                    <button name="action_hold" string="Put On Hold" type="object"
+                            class="btn-secondary" invisible="state not in ('in_progress')" icon="fa-pause"/>
+
+                    <button name="action_resume" string="Resume Work" type="object"
+                            class="btn-primary" invisible="state not in ('on_hold')" icon="fa-play"/>
+
+                    <button name="action_resolve" string="Mark as Resolved" type="object"
+                            class="btn-success" invisible="state not in ('in_progress', 'on_hold', 'reopened')" icon="fa-check"/>
+
+                    <button name="action_verify_close" string="Verify &amp; Close Ticket" type="object"
+                            class="btn-success fw-bold" invisible="state != 'resolved'" icon="fa-lock"/>
+
+                    <button name="action_reopen" string="Reopen Ticket" type="object"
+                            class="btn-outline-danger" invisible="state not in ('resolved', 'closed')" icon="fa-repeat"/>
+
+                    <!-- Statusbar Widget -->
+                    <field name="state" widget="statusbar" statusbar_visible="draft,assigned,in_progress,resolved,closed"/>
+                </header>
+
+                <!-- Alert Ribbons -->
+                <div class="alert alert-danger d-flex align-items-center mb-0" role="alert" invisible="sla_status != 'breached' or state in ('closed', 'resolved')">
+                    <i class="fa fa-exclamation-circle fa-2x me-3 text-danger" title="SLA Breached Alert"/>
+                    <div>
+                        <h5 class="alert-heading mb-0 fw-bold">🚨 SLA Target Breached!</h5>
+                        <div>This ticket has passed its target resolution deadline (<field name="resolution_deadline" class="fw-bold"/>). Escalated to General Manager.</div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning d-flex align-items-center mb-0" role="alert" invisible="sla_status != 'risk' or state in ('closed', 'resolved')">
+                    <i class="fa fa-clock-o fa-2x me-3 text-warning" title="SLA Risk Alert"/>
+                    <div>
+                        <h5 class="alert-heading mb-0 fw-bold">⚠️ SLA At Risk (&gt;75% Time Elapsed)</h5>
+                        <div>Approaching resolution deadline (<field name="resolution_deadline" class="fw-bold"/>). Escalated to Department HOD for intervention.</div>
+                    </div>
+                </div>
+
+                <div class="alert alert-danger d-flex align-items-center mb-0" role="alert" invisible="priority != 'p1' or state in ('closed')">
+                    <i class="fa fa-fire fa-2x me-3 text-danger" title="Critical Priority Alert"/>
+                    <div>
+                        <h5 class="alert-heading mb-0 fw-bold">🔥 P1 - CRITICAL OPERATIONAL ISSUE</h5>
+                        <div>Requires immediate action! Target resolution within <b>2 hours</b>.</div>
+                    </div>
+                </div>
+
+                <sheet>
+                    <div class="oe_title">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <h2 class="mb-0 text-muted"><field name="name"/></h2>
+                            <field name="is_mis_department" invisible="1"/>
+                            <span class="badge text-bg-info px-2 py-1" invisible="not is_mis_department">
+                                <i class="fa fa-bar-chart me-1"/>MIS Department
+                            </span>
+                            <span class="badge text-bg-danger px-2 py-1" invisible="not is_reopened">
+                                <i class="fa fa-repeat me-1"/>Reopened (<field name="reopen_count"/>x)
+                            </span>
+                        </div>
+                        <label for="subject" string="Subject / Issue Title"/>
+                        <h1>
+                            <field name="subject" placeholder="e.g. Batch BATCH-2026-08 Viscosity High, Raw Material Shortage, Server Offline"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group name="left_info" string="Ticket Classification &amp; Routing">
+                            <field name="origin_department_id" options="{'no_create': True}"/>
+                            <field name="assigned_department_id" options="{'no_create': True}"/>
+                            <field name="category_id" options="{'no_create': True}"/>
+                            <field name="priority" widget="priority"/>
+                            <field name="user_id" string="Raised By" options="{'no_create': True}"/>
+                            <field name="create_date" string="Reported Date"/>
+                        </group>
+
+                        <group name="right_info" string="Ownership, SLA &amp; Escalation">
+                            <field name="owner_id" widget="many2one_avatar_user" options="{'no_create': True}"/>
+                            <field name="response_deadline"/>
+                            <field name="resolution_deadline"/>
+                            <field name="first_response_date" invisible="not first_response_date"/>
+                            <field name="sla_status" widget="badge"
+                                   decoration-success="sla_status in ('met', 'within_sla')"
+                                   decoration-warning="sla_status == 'risk'"
+                                   decoration-danger="sla_status == 'breached'"/>
+                            <field name="escalation_level" widget="badge"
+                                   decoration-info="escalation_level == 'l1'"
+                                   decoration-warning="escalation_level == 'l2'"
+                                   decoration-danger="escalation_level in ('l3', 'l4')"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- Tab 1: Detailed Description & Evidence -->
+                        <page string="Issue Details &amp; Evidence" name="description_page">
+                            <group string="Detailed Description &amp; Business Impact">
+                                <field name="description" nolabel="1" placeholder="Provide complete facts, affected batches/products/machines, and immediate business impact..."/>
+                            </group>
+                            <group string="Attached Evidence / Photos / Logs">
+                                <field name="attachment_ids" widget="many2many_binary" string="Upload Evidence"/>
+                            </group>
+                        </page>
+
+                        <!-- Tab 2: Action & Resolution (Owner) -->
+                        <page string="Action Taken &amp; CAPA" name="resolution_page">
+                            <group string="Action &amp; Corrective Steps Taken">
+                                <field name="action_taken" nolabel="1" placeholder="Describe the step-by-step actions taken to resolve this issue..."/>
+                            </group>
+                            <group>
+                                <group string="Root Cause Analysis (RCA)">
+                                    <field name="root_cause" nolabel="1" placeholder="Why did this failure/delay occur?"/>
+                                </group>
+                                <group string="Corrective &amp; Preventive Action (CAPA)">
+                                    <field name="capa_action" nolabel="1" placeholder="What permanent controls are implemented to avoid repetition?"/>
+                                </group>
+                            </group>
+                            <group string="Proof of Resolution">
+                                <field name="resolution_evidence_ids" widget="many2many_binary" string="Resolution Proof"/>
+                            </group>
+                            <group name="timing_metrics" string="Resolution Metrics">
+                                <field name="resolved_date" invisible="not resolved_date"/>
+                                <field name="closed_date" invisible="not closed_date"/>
+                                <field name="resolution_duration_hours" widget="float_time" invisible="not resolution_duration_hours"/>
+                            </group>
+                        </page>
+
+                        <!-- Tab 3: Requester Verification & Satisfaction Feedback -->
+                        <page string="Verification &amp; Feedback" name="feedback_page">
+                            <group string="Requester Closure Verification">
+                                <field name="satisfaction_score" widget="radio" options="{'horizontal': true}"/>
+                                <field name="requester_feedback" placeholder="Requester comments on the quality and timeliness of the resolution..."/>
+                            </group>
+                            <group string="Reopen History" invisible="not is_reopened">
+                                <field name="reopen_count" readonly="1"/>
+                                <field name="reopen_reason" readonly="1"/>
+                            </group>
+                        </page>
+
+                        <!-- Tab 4: Specific MIS Department Tracking (Only for MIS tickets) -->
+                        <page string="MIS Report Parameters" name="mis_page" invisible="not is_mis_department">
+                            <group>
+                                <group string="Report Information">
+                                    <field name="report_name" placeholder="e.g. Daily Sales MIS, Inventory Ageing"/>
+                                    <field name="reporting_period"/>
+                                    <field name="source_system"/>
+                                </group>
+                                <group string="KPI &amp; Accountability">
+                                    <field name="affected_kpi" placeholder="e.g. On-time Dispatches, Margin Variance"/>
+                                    <field name="data_owner_id" options="{'no_create': True}"/>
+                                    <field name="validation_owner_id" options="{'no_create': True}"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- Tab 5: Escalation History -->
+                        <page string="Escalation Notes" name="escalation_page">
+                            <group>
+                                <field name="escalation_level"/>
+                                <field name="escalation_reason" placeholder="Notes explaining reason for L2/L3/L4 escalation..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <!-- Chatter Feed & Activities -->
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================== -->
+    <!-- 2. TICKET KANBAN VIEW                          -->
+    <!-- ============================================== -->
+    <record id="view_ticket_monitoring_kanban" model="ir.ui.view">
+        <field name="name">ticket.monitoring.kanban</field>
+        <field name="model">ticket.monitoring</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id" class="o_kanban_small_column" sample="1" quick_create="false">
+                <field name="name"/>
+                <field name="subject"/>
+                <field name="priority"/>
+                <field name="owner_id"/>
+                <field name="assigned_department_id"/>
+                <field name="resolution_deadline"/>
+                <field name="sla_status"/>
+                <field name="escalation_level"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-primary"><field name="name"/></span>
+                            <field name="priority" widget="priority"/>
+                        </div>
+                        <h6 class="fw-bold mb-2 text-truncate"><field name="subject"/></h6>
+                        <div class="d-flex gap-1 mb-2 flex-wrap">
+                            <span class="badge text-bg-secondary"><field name="assigned_department_id"/></span>
+                            <t t-if="record.sla_status.raw_value == 'breached'">
+                                <span class="badge text-bg-danger">SLA Breached</span>
+                            </t>
+                            <t t-elif="record.sla_status.raw_value == 'risk'">
+                                <span class="badge text-bg-warning">SLA Risk</span>
+                            </t>
+                            <t t-if="record.escalation_level.raw_value in ['l2', 'l3', 'l4']">
+                                <span class="badge text-bg-danger"><field name="escalation_level"/></span>
+                            </t>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top text-muted small">
+                            <span><i class="fa fa-clock-o me-1"/><field name="resolution_deadline" widget="remaining_days"/></span>
+                            <field name="owner_id" widget="many2one_avatar_user"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ============================================== -->
+    <!-- 3. TICKET LIST VIEW                            -->
+    <!-- ============================================== -->
+    <record id="view_ticket_monitoring_list" model="ir.ui.view">
+        <field name="name">ticket.monitoring.list</field>
+        <field name="model">ticket.monitoring</field>
+        <field name="arch" type="xml">
+            <list string="Operational Tickets"
+                  decoration-danger="sla_status == 'breached' or priority == 'p1'"
+                  decoration-warning="sla_status == 'risk'"
+                  decoration-muted="state == 'closed'"
+                  sample="1">
+                <field name="priority" widget="priority" optional="show"/>
+                <field name="name" decoration-bf="1"/>
+                <field name="subject"/>
+                <field name="assigned_department_id"/>
+                <field name="origin_department_id" optional="hide"/>
+                <field name="category_id" optional="show"/>
+                <field name="owner_id" widget="many2one_avatar_user"/>
+                <field name="user_id" string="Raised By" optional="hide"/>
+                <field name="create_date" string="Created On" optional="show"/>
+                <field name="resolution_deadline" string="Target Resolution" widget="remaining_days"/>
+                <field name="sla_status" widget="badge"
+                       decoration-success="sla_status in ('met', 'within_sla')"
+                       decoration-warning="sla_status == 'risk'"
+                       decoration-danger="sla_status == 'breached'"/>
+                <field name="escalation_level" widget="badge"
+                       decoration-info="escalation_level == 'l1'"
+                       decoration-warning="escalation_level == 'l2'"
+                       decoration-danger="escalation_level in ('l3', 'l4')"/>
+                <field name="state" widget="badge"
+                       decoration-primary="state in ('open', 'assigned')"
+                       decoration-info="state == 'in_progress'"
+                       decoration-warning="state == 'on_hold'"
+                       decoration-success="state == 'resolved'"
+                       decoration-muted="state == 'closed'"
+                       decoration-danger="state == 'reopened'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================== -->
+    <!-- 4. TICKET SEARCH VIEW                          -->
+    <!-- ============================================== -->
+    <record id="view_ticket_monitoring_search" model="ir.ui.view">
+        <field name="name">ticket.monitoring.search</field>
+        <field name="model">ticket.monitoring</field>
+        <field name="arch" type="xml">
+            <search string="Search Operational Tickets">
+                <field name="name" string="Ticket ID"/>
+                <field name="subject" string="Subject"/>
+                <field name="owner_id" string="Assigned Owner"/>
+                <field name="user_id" string="Raised By"/>
+                <field name="assigned_department_id" string="Assigned Dept"/>
+                <field name="category_id" string="Category"/>
+
+                <filter string="My Assigned Tickets" name="my_assigned" domain="[('owner_id', '=', uid)]"/>
+                <filter string="Tickets Raised By Me" name="raised_by_me" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter string="Open / Active" name="open_tickets" domain="[('state', 'not in', ('closed',))]"/>
+                <filter string="In Progress" name="filter_in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Under Review / On Hold" name="filter_on_hold" domain="[('state', '=', 'on_hold')]"/>
+                <filter string="Pending Verification" name="filter_pending_verify" domain="[('state', '=', 'resolved')]"/>
+                <separator/>
+                <filter string="🔥 P1 Critical Tickets" name="filter_p1" domain="[('priority', '=', 'p1')]"/>
+                <filter string="🚨 SLA Breached" name="filter_sla_breached" domain="[('sla_status', '=', 'breached')]"/>
+                <filter string="⚠️ SLA at Risk (&gt;75%)" name="filter_sla_risk" domain="[('sla_status', '=', 'risk')]"/>
+                <filter string="Escalated (L2 / L3 / L4)" name="filter_escalated" domain="[('escalation_level', 'in', ('l2', 'l3', 'l4'))]"/>
+                <filter string="Reopened" name="filter_reopened" domain="[('is_reopened', '=', True)]"/>
+                <separator/>
+                <filter string="MIS Tickets" name="filter_mis" domain="[('assigned_department_id.code', '=', 'MIS')]"/>
+
+                <group>
+                    <filter string="Assigned Department" name="group_by_assigned_dept" context="{'group_by': 'assigned_department_id'}"/>
+                    <filter string="Originating Department" name="group_by_origin_dept" context="{'group_by': 'origin_department_id'}"/>
+                    <filter string="Assigned Owner" name="group_by_owner" context="{'group_by': 'owner_id'}"/>
+                    <filter string="Priority" name="group_by_priority" context="{'group_by': 'priority'}"/>
+                    <filter string="SLA Status" name="group_by_sla" context="{'group_by': 'sla_status'}"/>
+                    <filter string="Escalation Level" name="group_by_escalation" context="{'group_by': 'escalation_level'}"/>
+                    <filter string="Stage / Status" name="group_by_state" context="{'group_by': 'state'}"/>
+                    <filter string="Category" name="group_by_category" context="{'group_by': 'category_id'}"/>
+                    <filter string="Creation Date" name="group_by_create_date" context="{'group_by': 'create_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================== -->
+    <!-- 5. WINDOW ACTIONS                              -->
+    <!-- ============================================== -->
+    <!-- All Tickets Action -->
+    <record id="action_ticket_monitoring_all" model="ir.actions.act_window">
+        <field name="name">All Operational Tickets</field>
+        <field name="res_model">ticket.monitoring</field>
+        <field name="view_mode">kanban,list,form,pivot,graph</field>
+        <field name="context">{'search_default_open_tickets': 1}</field>
+        <field name="search_view_id" ref="view_ticket_monitoring_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first operational issue ticket!</p>
+            <p>Track, resolve, and escalate operational issues across all departments.</p>
+        </field>
+    </record>
+
+    <!-- My Tickets Action -->
+    <record id="action_ticket_monitoring_my" model="ir.actions.act_window">
+        <field name="name">My Tickets</field>
+        <field name="res_model">ticket.monitoring</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">['|', ('user_id', '=', uid), ('owner_id', '=', uid)]</field>
+        <field name="context">{'search_default_open_tickets': 1}</field>
+    </record>
+
+    <!-- Overdue / SLA Breached Action -->
+    <record id="action_ticket_monitoring_overdue" model="ir.actions.act_window">
+        <field name="name">Overdue / SLA Breached Tickets</field>
+        <field name="res_model">ticket.monitoring</field>
+        <field name="view_mode">list,kanban,form,pivot</field>
+        <field name="domain">[('sla_status', '=', 'breached'), ('state', 'not in', ('closed', 'resolved'))]</field>
+    </record>
+
+    <!-- Critical P1 Tickets Action -->
+    <record id="action_ticket_monitoring_p1" model="ir.actions.act_window">
+        <field name="name">Critical (P1) Tickets</field>
+        <field name="res_model">ticket.monitoring</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('priority', '=', 'p1'), ('state', 'not in', ('closed',))]</field>
+    </record>
+
+    <!-- MIS Department Action -->
+    <record id="action_ticket_monitoring_mis" model="ir.actions.act_window">
+        <field name="name">MIS Department Tickets</field>
+        <field name="res_model">ticket.monitoring</field>
+        <field name="view_mode">kanban,list,form,pivot</field>
+        <field name="domain">[('assigned_department_id.code', '=', 'MIS')]</field>
+    </record>
+</odoo>

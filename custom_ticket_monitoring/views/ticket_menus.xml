@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Top-Level App Menu -->
+    <menuitem id="menu_ticket_monitoring_root"
+              name="Ticket Monitoring"
+              sequence="28"
+              web_icon="custom_ticket_monitoring,static/description/icon.png"/>
+
+    <!-- 1. Operations Menu -->
+    <menuitem id="menu_ticket_operations"
+              name="Tickets"
+              parent="menu_ticket_monitoring_root"
+              sequence="10"/>
+
+    <menuitem id="menu_ticket_all"
+              name="All Operational Tickets"
+              parent="menu_ticket_operations"
+              action="action_ticket_monitoring_all"
+              sequence="10"/>
+
+    <menuitem id="menu_ticket_my"
+              name="My Tickets"
+              parent="menu_ticket_operations"
+              action="action_ticket_monitoring_my"
+              sequence="20"/>
+
+    <menuitem id="menu_ticket_p1"
+              name="🔥 Critical (P1) Tickets"
+              parent="menu_ticket_operations"
+              action="action_ticket_monitoring_p1"
+              sequence="30"/>
+
+    <menuitem id="menu_ticket_overdue"
+              name="🚨 Overdue / SLA Breached"
+              parent="menu_ticket_operations"
+              action="action_ticket_monitoring_overdue"
+              sequence="40"/>
+
+    <menuitem id="menu_ticket_mis"
+              name="📊 MIS Department"
+              parent="menu_ticket_operations"
+              action="action_ticket_monitoring_mis"
+              sequence="50"/>
+
+    <!-- 2. Dashboard & Reporting Menu -->
+    <menuitem id="menu_ticket_dashboard_parent"
+              name="Reporting &amp; MIS"
+              parent="menu_ticket_monitoring_root"
+              sequence="20"/>
+
+    <menuitem id="menu_ticket_dashboard_kpi"
+              name="Management Dashboard (15 KPIs)"
+              parent="menu_ticket_dashboard_parent"
+              action="action_ticket_monitoring_kpi_dashboard"
+              groups="group_ticket_dashboard"
+              sequence="10"/>
+
+    <menuitem id="menu_ticket_pivot_analysis"
+              name="Pivot &amp; Trend Analysis"
+              parent="menu_ticket_dashboard_parent"
+              action="action_ticket_monitoring_dashboard"
+              groups="group_ticket_dashboard"
+              sequence="15"/>
+
+    <menuitem id="menu_ticket_department_overview"
+              name="Departmental Scorecards"
+              parent="menu_ticket_dashboard_parent"
+              action="action_ticket_department"
+              sequence="20"/>
+
+    <!-- 3. Configuration Menu (Admins & HODs) -->
+    <menuitem id="menu_ticket_config"
+              name="Configuration"
+              parent="menu_ticket_monitoring_root"
+              groups="group_ticket_hod,group_ticket_manager"
+              sequence="30"/>
+
+    <menuitem id="menu_ticket_config_departments"
+              name="Departments"
+              parent="menu_ticket_config"
+              action="action_ticket_department"
+              sequence="10"/>
+
+    <menuitem id="menu_ticket_config_categories"
+              name="Issue Categories"
+              parent="menu_ticket_config"
+              action="action_ticket_category"
+              sequence="20"/>
+
+    <menuitem id="menu_ticket_config_stages"
+              name="Pipeline Stages"
+              parent="menu_ticket_config"
+              action="action_ticket_stage"
+              groups="group_ticket_manager"
+              sequence="30"/>
+</odoo>

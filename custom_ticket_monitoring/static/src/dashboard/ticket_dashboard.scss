@@ -1,0 +1,45 @@
+.o_ticket_dashboard {
+    .kpi-card {
+        border-radius: 12px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+
+        &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+        }
+
+        .kpi-icon-circle {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    .kpi-metric-box {
+        border-radius: 12px;
+        transition: transform 0.2s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+        }
+    }
+
+    .clickable-tile {
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background-color 0.15s ease, transform 0.15s ease;
+
+        &:hover {
+            background-color: #f8fafc;
+            transform: translateY(-2px);
+        }
+    }
+
+    .text-purple {
+        color: #7c3aed !important;
+    }
+}
