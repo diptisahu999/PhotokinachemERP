@@ -21,6 +21,7 @@ Custom Manufacturing Enhancements
     ],
     'data': [
         'views/mrp_production_views.xml',
+        'views/mrp_bom_views.xml',
     ],
     'post_init_hook': 'post_init_hook',
     'installable': True,

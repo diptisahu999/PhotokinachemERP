@@ -21,3 +21,13 @@ def post_init_hook(env):
     productions = env['mrp.production'].search([])
     for production in productions:
         production._compute_total_component_cost()
+    bom_lines = env['mrp.bom.line'].search([('product_id', '!=', False)])
+    for line in bom_lines:
+        company = line.bom_id.company_id or env.company
+        price = env['stock.move']._get_move_component_price(
+            line.product_id, line.product_uom_id, company
+        )
+        line.write({'cost': price})
+    boms = env['mrp.bom'].search([])
+    for bom in boms:
+        bom._compute_bom_cost_summary()

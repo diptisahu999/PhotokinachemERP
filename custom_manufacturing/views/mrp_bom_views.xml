@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit MRP BoM Form View to add Cost, Total Cost, and BoM Cost Summary -->
+    <record id="mrp_bom_form_view_inherit_custom_manufacturing" model="ir.ui.view">
+        <field name="name">mrp.bom.form.inherit.custom.manufacturing</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <!-- Hidden currency field on sheet -->
+            <xpath expr="//sheet" position="inside">
+                <field name="currency_id" invisible="1"/>
+            </xpath>
+
+            <!-- 1. Cost column directly in the components list before product_qty -->
+            <xpath expr="//field[@name='bom_line_ids']//list//field[@name='product_qty']" position="before">
+                <field name="currency_id" column_invisible="True"/>
+                <field name="cost"
+                       string="Cost"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"/>
+            </xpath>
+
+            <!-- 2. Total Cost column after product_uom_id -->
+            <xpath expr="//field[@name='bom_line_ids']//list//field[@name='product_uom_id']" position="after">
+                <field name="total_cost"
+                       string="Total Cost"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       sum="Total Cost"
+                       readonly="1"
+                       force_save="1"/>
+            </xpath>
+
+            <!-- 3. BoM Total Cost Summary & Recompute button below components table -->
+            <xpath expr="//field[@name='bom_line_ids']" position="after">
+                <group class="mt-2">
+                    <group>
+                        <button name="action_recompute_bom_costs"
+                                type="object"
+                                string="Recompute Costs"
+                                class="btn btn-secondary btn-sm"
+                                icon="fa-refresh"
+                                help="Refresh all component costs using latest master costs and vendor prices"/>
+                    </group>
+                    <group class="oe_subtotal_footer oe_right">
+                        <field name="total_bom_cost"
+                               string="Total BoM Cost"
+                               widget="monetary"
+                               options="{'currency_field': 'currency_id'}"/>
+                        <field name="unit_cost"
+                               string="Cost per Unit"
+                               class="oe_subtotal_footer_separator"
+                               widget="monetary"
+                               options="{'currency_field': 'currency_id'}"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
