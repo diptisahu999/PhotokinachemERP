@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Outgoing Mail Server for Photokina Chemicals (Google Workspace / Gmail SMTP) -->
+        <record id="mail_server_photokina_gmail" model="ir.mail_server">
+            <field name="name">Photokina Gmail / Google Workspace SMTP</field>
+            <field name="smtp_host">smtp.gmail.com</field>
+            <field name="smtp_port">587</field>
+            <field name="smtp_encryption">starttls</field>
+            <field name="smtp_user">nsm@photokinachem.com</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Email Template: Ticket Assigned to Owner Notification -->
+        <record id="email_template_ticket_assigned" model="mail.template">
+            <field name="name">Ticket: Assigned to Owner Notification</field>
+            <field name="model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
+            <field name="subject">[Assigned] Ticket {{ object.name }}: {{ object.subject }}</field>
+            <field name="email_from">{{ (object.company_id.email_formatted or 'nsm@photokinachem.com') }}</field>
+            <field name="email_to">{{ object.owner_id.email }}</field>
+            <field name="partner_to">{{ object.owner_id.partner_id.id }}</field>
+            <field name="description">Automatic email notification sent to the assigned owner when a ticket is created or assigned</field>
+            <field name="body_html" type="html">
+<table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F4F9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #2D3748; width: 100%; border-collapse: separate;">
+    <tr>
+        <td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" width="620" style="padding: 24px; background-color: #FFFFFF; color: #2D3748; border-collapse: separate; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin: 20px 0;">
+                <tbody>
+                    <!-- HEADER -->
+                    <tr>
+                        <td style="padding-bottom: 20px; border-bottom: 2px solid #E2E8F0;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td valign="middle">
+                                        <div style="font-size: 13px; font-weight: 600; color: #718096; text-transform: uppercase; letter-spacing: 0.5px;">Photokina Chemicals Pvt. Ltd.</div>
+                                        <div style="font-size: 20px; font-weight: bold; color: #1A365D; margin-top: 4px;">Ticket Monitoring System</div>
+                                    </td>
+                                    <td valign="middle" align="right">
+                                        <span style="background-color: #3182CE; color: #FFFFFF; font-size: 13px; font-weight: bold; padding: 6px 14px; border-radius: 20px; display: inline-block;">
+                                            <t t-out="object.name or ''"/>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- GREETING -->
+                    <tr>
+                        <td style="padding: 24px 0 16px 0; font-size: 15px; line-height: 24px;">
+                            Dear <strong><t t-out="object.owner_id.name or ''"/></strong>,<br/><br/>
+                            A new operational ticket has been assigned to you as the accountable owner. Please review the details below and acknowledge within the First Response SLA deadline.
+                        </td>
+                    </tr>
+
+                    <!-- TICKET SUMMARY CARD -->
+                    <tr>
+                        <td>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 16px; font-size: 14px; line-height: 22px;">
+                                <tr>
+                                    <td style="padding: 6px 10px; width: 35%; font-weight: 600; color: #4A5568;">Subject / Issue:</td>
+                                    <td style="padding: 6px 10px; width: 65%; font-weight: bold; color: #1A202C;"><t t-out="object.subject or ''"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px 10px; font-weight: 600; color: #4A5568;">Priority:</td>
+                                    <td style="padding: 6px 10px;">
+                                        <t t-if="object.priority == '3'">
+                                            <span style="background-color: #E53E3E; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">P1 - Critical (2h)</span>
+                                        </t>
+                                        <t t-elif="object.priority == '2'">
+                                            <span style="background-color: #DD6B20; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">P2 - High (4h)</span>
+                                        </t>
+                                        <t t-elif="object.priority == '1'">
+                                            <span style="background-color: #3182CE; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">P3 - Medium (24h)</span>
+                                        </t>
+                                        <t t-else="">
+                                            <span style="background-color: #718096; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">P4 - Low (48h)</span>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px 10px; font-weight: 600; color: #4A5568;">Assigned Department:</td>
+                                    <td style="padding: 6px 10px; color: #2D3748;"><t t-out="object.assigned_department_id.name or ''"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px 10px; font-weight: 600; color: #4A5568;">Originating Department:</td>
+                                    <td style="padding: 6px 10px; color: #2D3748;"><t t-out="object.origin_department_id.name or ''"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px 10px; font-weight: 600; color: #4A5568;">Category / Issue Type:</td>
+                                    <td style="padding: 6px 10px; color: #2D3748;"><t t-out="object.category_id.name or 'N/A'"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px 10px; font-weight: 600; color: #4A5568;">Raised By:</td>
+                                    <td style="padding: 6px 10px; color: #2D3748;"><t t-out="object.user_id.name or ''"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px 10px; font-weight: 600; color: #4A5568;">First Response Deadline:</td>
+                                    <td style="padding: 6px 10px; color: #C53030; font-weight: 600;"><t t-out="object.response_deadline or 'N/A'"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 6px 10px; font-weight: 600; color: #4A5568;">Target Resolution Deadline:</td>
+                                    <td style="padding: 6px 10px; color: #C53030; font-weight: 600;"><t t-out="object.resolution_deadline or 'N/A'"/></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- DESCRIPTION -->
+                    <tr t-if="object.description">
+                        <td style="padding-top: 18px;">
+                            <div style="font-weight: 600; font-size: 14px; color: #4A5568; margin-bottom: 6px;">Description &amp; Business Impact:</div>
+                            <div style="background-color: #EDF2F7; border-left: 4px solid #4A5568; padding: 12px 16px; border-radius: 4px; font-size: 13px; line-height: 20px; color: #2D3748;">
+                                <t t-out="object.description"/>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- BUTTON -->
+                    <tr>
+                        <td align="center" style="padding: 30px 0 16px 0;">
+                            <a t-attf-href="{{ object.get_base_url() }}/web#id={{ object.id }}&amp;model=ticket.monitoring&amp;view_type=form"
+                               style="background-color: #2B6CB0; color: #FFFFFF; font-size: 14px; font-weight: bold; text-decoration: none; padding: 12px 28px; border-radius: 6px; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                View &amp; Manage Ticket in Odoo
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="border-top: 1px solid #E2E8F0; padding-top: 16px; font-size: 12px; color: #A0AEC0; text-align: center;">
+                            Photokina Chemicals Pvt. Ltd. &#8226; Operational Issue Monitoring &#8226; Automated Notification
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+</table>
+            </field>
+        </record>
+    </data>
+</odoo>

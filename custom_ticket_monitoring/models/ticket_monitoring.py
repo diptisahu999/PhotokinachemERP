@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import datetime
+import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+
+_logger = logging.getLogger(__name__)
 
 class TicketMonitoring(models.Model):
     _name = 'ticket.monitoring'
@@ -27,6 +30,12 @@ class TicketMonitoring(models.Model):
         default=lambda self: self.env.user,
         required=True,
         tracking=True,
+    )
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        default=lambda self: self.env.company,
+        required=True,
     )
     employee_code = fields.Char(
         string='Employee Code',
@@ -313,21 +322,47 @@ class TicketMonitoring(models.Model):
             t._sync_stage_from_state()
             # Post creation notification to chatter
             t.message_post(body=_("Ticket %s created and assigned to %s.") % (t.name, t.assigned_department_id.name))
+            if t.owner_id:
+                t._notify_assigned_owner()
         return tickets
 
     def write(self, vals):
+        old_owners = {t.id: t.owner_id.id for t in self}
         if 'state' in vals:
             target_state = vals['state']
             stage = self.env['ticket.stage'].search([('state', '=', target_state)], limit=1)
             if stage:
                 vals['stage_id'] = stage.id
-        return super().write(vals)
+        res = super().write(vals)
+        if 'owner_id' in vals and vals['owner_id']:
+            for t in self:
+                if t.owner_id and t.owner_id.id != old_owners.get(t.id):
+                    t._notify_assigned_owner()
+        return res
 
     def _sync_stage_from_state(self):
         for t in self:
             stage = self.env['ticket.stage'].search([('state', '=', t.state)], limit=1)
             if stage:
                 t.stage_id = stage.id
+
+    def _notify_assigned_owner(self):
+        template = self.env.ref('custom_ticket_monitoring.email_template_ticket_assigned', raise_if_not_found=False)
+        for ticket in self:
+            if not ticket.owner_id or not ticket.owner_id.email:
+                continue
+            # Ensure assigned owner is added as a follower in chatter
+            if ticket.owner_id.partner_id:
+                try:
+                    ticket.message_subscribe([ticket.owner_id.partner_id.id])
+                except Exception as e:
+                    _logger.warning("Could not subscribe owner to ticket %s: %s", ticket.name, e)
+            # Send assignment email
+            if template:
+                try:
+                    template.send_mail(ticket.id, force_send=True)
+                except Exception as e:
+                    _logger.warning("Could not send assignment email for ticket %s: %s", ticket.name, e)
 
     # ---------------------------------------------------------
     # LIFECYCLE ACTION METHODS
@@ -338,6 +373,7 @@ class TicketMonitoring(models.Model):
             raise UserError(_("Please select an Assigned Owner before assigning."))
         self.state = 'assigned'
         self.message_post(body=_("Ticket assigned to %s.") % self.owner_id.name)
+        self._notify_assigned_owner()
 
     def action_accept(self):
         """Step 3: Owner formally acknowledges responsibility within First Response SLA."""

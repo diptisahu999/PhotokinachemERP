@@ -35,6 +35,7 @@ Key Capabilities:
         'data/ticket_department_data.xml',
         'data/ticket_category_data.xml',
         'data/ticket_cron_data.xml',
+        'data/ticket_mail_data.xml',
         'views/ticket_stage_views.xml',
         'views/ticket_category_views.xml',
         'views/ticket_department_views.xml',
