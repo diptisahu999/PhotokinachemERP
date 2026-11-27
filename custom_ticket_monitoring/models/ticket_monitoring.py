@@ -163,6 +163,10 @@ class TicketMonitoring(models.Model):
     action_taken = fields.Text(string='Action & Corrective Steps Taken', tracking=True)
     root_cause = fields.Text(string='Root Cause Analysis (RCA)', tracking=True)
     capa_action = fields.Text(string='Corrective & Preventive Action (CAPA)', tracking=True)
+    progress = fields.Integer(string='Progress (%)', default=0, tracking=True)
+    hold_reason = fields.Char(string='Hold Reason / Dependency', tracking=True)
+    resume_date = fields.Datetime(string='Expected Resume Date', tracking=True)
+    pending_from = fields.Char(string='Pending From', tracking=True)
     resolution_evidence_ids = fields.Many2many(
         'ir.attachment',
         'ticket_resolution_attachment_rel',
@@ -328,6 +332,7 @@ class TicketMonitoring(models.Model):
 
     def write(self, vals):
         old_owners = {t.id: t.owner_id.id for t in self}
+        old_states = {t.id: t.state for t in self} if 'state' in vals else {}
         if 'state' in vals:
             target_state = vals['state']
             stage = self.env['ticket.stage'].search([('state', '=', target_state)], limit=1)
@@ -338,6 +343,19 @@ class TicketMonitoring(models.Model):
             for t in self:
                 if t.owner_id and t.owner_id.id != old_owners.get(t.id):
                     t._notify_assigned_owner()
+        # Trigger email if state changed directly and not bypassed by action methods
+        if 'state' in vals and not self.env.context.get('skip_status_email'):
+            for t in self:
+                old_s = old_states.get(t.id)
+                new_s = vals['state']
+                if old_s and old_s != new_s:
+                    state_dict = dict(self._fields['state'].selection)
+                    old_name = state_dict.get(old_s, old_s)
+                    new_name = 'WIP' if new_s == 'in_progress' else ('ON HOLD' if new_s == 'on_hold' else state_dict.get(new_s, new_s))
+                    if new_s in ('in_progress', 'on_hold'):
+                        t._notify_status_change(old_state_label=old_name, new_state_label=new_name)
+                    elif new_s in ('resolved', 'closed'):
+                        t._notify_completed()
         return res
 
     def _sync_stage_from_state(self):
@@ -358,7 +376,7 @@ class TicketMonitoring(models.Model):
                     ticket.message_subscribe([ticket.owner_id.partner_id.id])
                 except Exception as e:
                     _logger.warning("Could not subscribe owner to ticket %s: %s", ticket.name, e)
-            # Send assignment email
+            # Send assignment email (01 TASK REGISTRATION)
             if template:
                 try:
                     email_values = {
@@ -382,8 +400,107 @@ class TicketMonitoring(models.Model):
                         "⚠️ <b>Email Notification Failed</b>: %s"
                     ) % str(e))
 
+    def _notify_status_change(self, old_state_label='Assigned', new_state_label='WIP', remarks=None, resume_date=None, progress_pct=None):
+        """Send 02 TASK STATUS UPDATE email to assigned owner and requester."""
+        template = self.env.ref('custom_ticket_monitoring.email_template_ticket_status_update', raise_if_not_found=False)
+        if not template:
+            return
+        for ticket in self:
+            recipients = []
+            if ticket.owner_id:
+                em = ticket.owner_id.email or ticket.owner_id.partner_id.email
+                if em and em not in recipients:
+                    recipients.append(em)
+            if ticket.user_id:
+                em = ticket.user_id.email or ticket.user_id.partner_id.email
+                if em and em not in recipients:
+                    recipients.append(em)
+            if not recipients:
+                continue
+
+            email_to_str = ','.join(recipients)
+            now_str = fields.Datetime.now().strftime('%d-%m-%Y %H:%M')
+            pct = progress_pct or (f"{ticket.progress}%" if ticket.progress else ('50%' if new_state_label == 'WIP' else '25%'))
+            rem = remarks or ticket.hold_reason or ticket.escalation_reason or 'Status updated as per operational workflow'
+            res_date = resume_date or (ticket.resume_date.strftime('%d-%m-%Y') if ticket.resume_date else 'N/A')
+
+            ctx = {
+                'updated_date': now_str,
+                'updated_by': self.env.user.name or 'System',
+                'old_status': old_state_label,
+                'new_status': new_state_label,
+                'progress_pct': pct,
+                'remarks': rem,
+                'resume_date': res_date,
+            }
+            try:
+                email_values = {
+                    'email_from': '"Photokina Chemicals Pvt. Ltd." <mis@photokinachem.com>',
+                    'reply_to': 'mis@photokinachem.com',
+                    'email_to': email_to_str,
+                    'auto_delete': False,
+                }
+                template.sudo().with_context(**ctx).send_mail(
+                    ticket.id,
+                    force_send=True,
+                    raise_exception=True,
+                    email_values=email_values,
+                )
+                ticket.message_post(body=_(
+                    "📧 <b>Status Update Email Sent</b> [02 TASK STATUS UPDATE: %s &rarr; %s] to <b>%s</b>."
+                ) % (old_state_label, new_state_label, email_to_str))
+            except Exception as e:
+                _logger.error("Could not send status update email for ticket %s: %s", ticket.name, e)
+                ticket.message_post(body=_(
+                    "⚠️ <b>Status Email Notification Failed</b>: %s"
+                ) % str(e))
+
+    def _notify_completed(self, remarks=None):
+        """Send 03 TASK COMPLETED email to assigned owner and requester."""
+        template = self.env.ref('custom_ticket_monitoring.email_template_ticket_completed', raise_if_not_found=False)
+        if not template:
+            return
+        for ticket in self:
+            recipients = []
+            if ticket.owner_id:
+                em = ticket.owner_id.email or ticket.owner_id.partner_id.email
+                if em and em not in recipients:
+                    recipients.append(em)
+            if ticket.user_id:
+                em = ticket.user_id.email or ticket.user_id.partner_id.email
+                if em and em not in recipients:
+                    recipients.append(em)
+            if not recipients:
+                continue
+
+            email_to_str = ','.join(recipients)
+            ctx = {
+                'remarks': remarks or ticket.requester_feedback or ticket.action_taken or 'Task successfully completed',
+            }
+            try:
+                email_values = {
+                    'email_from': '"Photokina Chemicals Pvt. Ltd." <mis@photokinachem.com>',
+                    'reply_to': 'mis@photokinachem.com',
+                    'email_to': email_to_str,
+                    'auto_delete': False,
+                }
+                template.sudo().with_context(**ctx).send_mail(
+                    ticket.id,
+                    force_send=True,
+                    raise_exception=True,
+                    email_values=email_values,
+                )
+                ticket.message_post(body=_(
+                    "📧 <b>Task Completed Email Sent</b> [03 TASK COMPLETED] to <b>%s</b>."
+                ) % email_to_str)
+            except Exception as e:
+                _logger.error("Could not send completed email for ticket %s: %s", ticket.name, e)
+                ticket.message_post(body=_(
+                    "⚠️ <b>Completion Email Failed</b>: %s"
+                ) % str(e))
+
     def action_send_email_manual(self):
-        """Manual button to trigger and test sending the assignment email."""
+        """Manual button to trigger and test sending the assignment email (01 TASK REGISTRATION)."""
         self.ensure_one()
         if not self.owner_id:
             raise UserError(_("Please assign an Owner before sending email notification."))
@@ -395,8 +512,25 @@ class TicketMonitoring(models.Model):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _("Email Dispatched"),
-                'message': _("Notification email dispatched to %s (%s). Check Chatter.") % (self.owner_id.name, owner_email),
+                'title': _("Registration Email Dispatched"),
+                'message': _("Task Registration Email (01) dispatched to %s (%s). Check Chatter.") % (self.owner_id.name, owner_email),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
+    def action_send_status_email_manual(self):
+        """Manual button to trigger and test sending the status update email (02 TASK STATUS UPDATE)."""
+        self.ensure_one()
+        current_state = dict(self._fields['state'].selection).get(self.state, self.state)
+        new_label = 'WIP' if self.state == 'in_progress' else ('ON HOLD' if self.state == 'on_hold' else current_state)
+        self._notify_status_change(old_state_label='Assigned', new_state_label=new_label, remarks=self.hold_reason or 'Manual Status Update Test')
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Status Email Dispatched"),
+                'message': _("Status Update (02 TASK STATUS UPDATE) notification email dispatched. Check Chatter."),
                 'type': 'success',
                 'sticky': False,
             }
@@ -416,11 +550,15 @@ class TicketMonitoring(models.Model):
     def action_accept(self):
         """Step 3: Owner formally acknowledges responsibility within First Response SLA."""
         for ticket in self:
+            old_label = 'Draft' if ticket.state == 'draft' else 'Assigned'
             vals = {'state': 'in_progress'}
             if not ticket.first_response_date:
                 vals['first_response_date'] = fields.Datetime.now()
-            ticket.write(vals)
+            if not ticket.progress:
+                vals['progress'] = 25
+            ticket.with_context(skip_status_email=True).write(vals)
             ticket.message_post(body=_("Ticket accepted by %s. Work in progress.") % self.env.user.name)
+            ticket._notify_status_change(old_state_label=old_label, new_state_label='WIP', remarks='Task accepted. Work in progress.', progress_pct=f"{ticket.progress}%")
 
     def action_start(self):
         """Start work / in progress."""
@@ -428,38 +566,47 @@ class TicketMonitoring(models.Model):
 
     def action_hold(self):
         for ticket in self:
-            ticket.state = 'on_hold'
+            ticket.with_context(skip_status_email=True).write({'state': 'on_hold'})
             ticket.message_post(body=_("Ticket placed on hold by %s.") % self.env.user.name)
+            ticket._notify_status_change(old_state_label='In Progress', new_state_label='ON HOLD', remarks=ticket.hold_reason or 'Ticket placed on hold awaiting dependencies.')
 
     def action_resume(self):
         for ticket in self:
-            ticket.state = 'in_progress'
+            vals = {'state': 'in_progress'}
+            if not ticket.progress or ticket.progress < 50:
+                vals['progress'] = 50
+            ticket.with_context(skip_status_email=True).write(vals)
             ticket.message_post(body=_("Ticket resumed to In Progress by %s.") % self.env.user.name)
+            ticket._notify_status_change(old_state_label='ON HOLD', new_state_label='WIP', remarks='Task resumed to In Progress.', progress_pct=f"{ticket.progress}%")
 
     def action_resolve(self):
         """Step 6: Owner documents action taken and marks resolved for requester verification."""
         for ticket in self:
             if not ticket.action_taken:
                 raise UserError(_("Please document the 'Action & Corrective Steps Taken' before marking as Resolved."))
-            ticket.write({
+            ticket.with_context(skip_status_email=True).write({
                 'state': 'resolved',
                 'resolved_date': fields.Datetime.now(),
+                'progress': 100,
             })
             ticket.message_post(
                 body=_("Ticket marked as Resolved by %s. Awaiting requester verification and closure.") % self.env.user.name
             )
+            ticket._notify_completed(remarks=ticket.action_taken or 'Task marked as Resolved.')
 
     def action_verify_close(self):
         """Step 7 & 8: Requester confirms resolution and closes ticket with feedback."""
         for ticket in self:
-            ticket.write({
+            ticket.with_context(skip_status_email=True).write({
                 'state': 'closed',
                 'closed_date': fields.Datetime.now(),
+                'progress': 100,
             })
             score_text = dict(self._fields['satisfaction_score'].selection).get(ticket.satisfaction_score, 'Not Rated')
             ticket.message_post(
                 body=_("Ticket verified and formally Closed by requester %s. Rating: %s") % (self.env.user.name, score_text)
             )
+            ticket._notify_completed(remarks=f"Formally Closed. Rating: {score_text}")
 
     def action_reopen(self):
         """Requester reopens ticket if issue was not resolved adequately."""

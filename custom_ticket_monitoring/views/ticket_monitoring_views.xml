@@ -34,6 +34,8 @@
                     <!-- Manual Notification Test Buttons -->
                     <button name="action_send_email_manual" string="Send Email Alert" type="object"
                             class="btn-outline-primary" invisible="not owner_id" icon="fa-envelope"/>
+                    <button name="action_send_status_email_manual" string="Send Status Email Alert" type="object"
+                            class="btn-outline-secondary" invisible="not owner_id" icon="fa-bell"/>
 
                     <!-- Statusbar Widget -->
                     <field name="state" widget="statusbar" statusbar_visible="draft,assigned,in_progress,resolved,closed"/>
@@ -121,6 +123,16 @@
 
                         <!-- Tab 2: Action & Resolution (Owner) -->
                         <page string="Action Taken &amp; CAPA" name="resolution_page">
+                            <group string="Task Progress &amp; Hold Status">
+                                <group>
+                                    <field name="progress" widget="progressbar"/>
+                                    <field name="pending_from" placeholder="e.g. Vendor, Store Dept, Client"/>
+                                </group>
+                                <group>
+                                    <field name="hold_reason" placeholder="Reason if on hold or delayed"/>
+                                    <field name="resume_date"/>
+                                </group>
+                            </group>
                             <group string="Action &amp; Corrective Steps Taken">
                                 <field name="action_taken" nolabel="1" placeholder="Describe the step-by-step actions taken to resolve this issue..." style="min-height: 100px; width: 100%;"/>
                             </group>
