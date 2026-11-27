@@ -246,17 +246,17 @@
             </field>
         </record>
 
-        <!-- Template 03: Ticket Completion Notification (03 TASK COMPLETED) -->
+        <!-- Template 03: Ticket Completion Notification (03 TASK COMPLETION) -->
         <record id="email_template_ticket_completed" model="mail.template">
-            <field name="name">Ticket: 03 Task Completed Notification</field>
+            <field name="name">Ticket: 03 Task Completion Notification</field>
             <field name="model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
             <field name="mail_server_id" ref="custom_ticket_monitoring.mail_server_photokina_gmail"/>
             <field name="auto_delete" eval="False"/>
-            <field name="subject">Task Completed | {{ object.name }} | {{ object.subject }}</field>
+            <field name="subject">Task Completed | {{ object.name }} | Verification Required</field>
             <field name="email_from">"Photokina Chemicals Pvt. Ltd." &lt;mis@photokinachem.com&gt;</field>
             <field name="reply_to">"Photokina Chemicals Pvt. Ltd." &lt;mis@photokinachem.com&gt;</field>
-            <field name="email_to">{{ object.owner_id.email or object.owner_id.partner_id.email }}</field>
-            <field name="description">Automatic email notification sent when ticket is marked as resolved or closed</field>
+            <field name="email_to">{{ object.user_id.email or object.user_id.partner_id.email or object.owner_id.email }}</field>
+            <field name="description">Automatic email notification sent when ticket is completed and submitted for verification</field>
             <field name="body_html" type="html">
 <table border="0" cellpadding="0" cellspacing="0" style="padding: 20px 0; background-color: #F0F4F8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #102A43; width: 100%;">
     <tr>
@@ -276,48 +276,68 @@
                     <tr>
                         <td style="padding: 28px 30px;">
                             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border: 1px solid #CBD5E1; border-radius: 8px; overflow: hidden;">
-                                <!-- GREEN BANNER: 03 TASK COMPLETED -->
+                                <!-- NAVY BANNER: 03 TASK COMPLETION -->
                                 <tr>
-                                    <td style="background-color: #1E4D45; color: #FFFFFF; padding: 12px 20px; font-size: 15px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;">
-                                        03 &#160;TASK COMPLETED
+                                    <td style="background-color: #102A43; color: #FFFFFF; padding: 12px 20px; font-size: 15px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;">
+                                        03 &#160;TASK COMPLETION
                                     </td>
                                 </tr>
 
                                 <!-- CARD BODY DETAILS -->
                                 <tr>
                                     <td style="padding: 22px 20px; background-color: #FFFFFF; font-size: 14px; line-height: 24px; color: #1E293B;">
-                                        <p style="margin: 6px 0;">
-                                            <strong>Task ID / Title:</strong> <span style="color: #0F172A; font-weight: 600;"><t t-out="object.name or ''"/></span> / <t t-out="object.subject or ''"/>
-                                        </p>
+                                        <div style="margin-bottom: 14px; font-size: 14px;">
+                                            Dear <strong><t t-out="object.user_id.name or 'Requester'"/></strong>, the task is submitted for verification.
+                                        </div>
 
-                                        <p style="margin: 6px 0;">
-                                            <strong>Completed by:</strong> <t t-out="object.owner_id.name or (object.write_uid.name or 'System')"/>
-                                            &#160;|&#160;
-                                            <strong>From / To:</strong> <t t-out="object.origin_department_id.name or 'N/A'"/> / <t t-out="object.assigned_department_id.name or 'N/A'"/>
-                                        </p>
+                                        <div style="border-top: 1px solid #E2E8F0; padding-top: 12px; margin-top: 12px;">
+                                            <p style="margin: 6px 0;">
+                                                <strong>Task ID / Title:</strong> <span style="color: #0F172A; font-weight: 600;"><t t-out="object.name or ''"/></span> / <t t-out="object.subject or ''"/>
+                                                &#160;|&#160;
+                                                <strong>Completed by:</strong> <t t-out="ctx.get('completed_by') or (object.owner_id.name or 'Assignee')"/>
+                                            </p>
 
-                                        <p style="margin: 6px 0;">
-                                            <strong>Actual start:</strong> <t t-out="object.first_response_date.strftime('%d-%m-%Y %H:%M') if object.first_response_date else (object.create_date.strftime('%d-%m-%Y %H:%M') if object.create_date else 'N/A')"/>
-                                            &#160;|&#160;
-                                            <strong>Actual finish:</strong> <t t-out="object.resolved_date.strftime('%d-%m-%Y %H:%M') if object.resolved_date else (object.closed_date.strftime('%d-%m-%Y %H:%M') if object.closed_date else 'N/A')"/>
-                                        </p>
+                                            <p style="margin: 6px 0;">
+                                                <strong>From / To:</strong> <t t-out="object.origin_department_id.name or 'N/A'"/> / <t t-out="object.assigned_department_id.name or 'N/A'"/>
+                                            </p>
 
-                                        <p style="margin: 6px 0;">
-                                            <strong>Target completion:</strong> <t t-out="object.resolution_deadline.strftime('%d-%m-%Y %H:%M') if object.resolution_deadline else 'As per SLA'"/>
-                                            &#160;|&#160;
-                                            <strong>Time taken:</strong> <span style="color: #047857; font-weight: 700;"><t t-out="'%.1f Hours' % object.resolution_duration_hours if object.resolution_duration_hours else 'On schedule'"/></span>
-                                        </p>
+                                            <p style="margin: 6px 0;">
+                                                <strong>Actual start:</strong> <t t-out="ctx.get('actual_start') or (object.first_response_date.strftime('%d-%m-%Y %H:%M') if object.first_response_date else (object.create_date.strftime('%d-%m-%Y %H:%M') if object.create_date else 'N/A'))"/>
+                                                &#160;|&#160;
+                                                <strong>Actual finish:</strong> <t t-out="ctx.get('actual_finish') or (object.resolved_date.strftime('%d-%m-%Y %H:%M') if object.resolved_date else (object.closed_date.strftime('%d-%m-%Y %H:%M') if object.closed_date else 'N/A'))"/>
+                                            </p>
 
-                                        <p style="margin: 6px 0;">
-                                            <strong>Solution / Action taken:</strong> <t t-out="object.action_taken or 'Resolution verified and implemented'"/>
-                                        </p>
+                                            <p style="margin: 6px 0;">
+                                                <strong>Target:</strong> <t t-out="object.resolution_deadline.strftime('%d-%m-%Y %H:%M') if object.resolution_deadline else 'As per SLA'"/>
+                                                &#160;|&#160;
+                                                <strong>Time taken:</strong> <span style="color: #047857; font-weight: 700;"><t t-out="ctx.get('time_taken') or ('%.1f Hours' % object.resolution_duration_hours if object.resolution_duration_hours else 'On schedule')"/></span>
+                                            </p>
 
-                                        <p style="margin: 6px 0;">
-                                            <strong>Delay reason / Final remarks:</strong> <t t-out="object.requester_feedback or ctx.get('remarks') or 'Task successfully completed within SLA'"/>
-                                        </p>
+                                            <p style="margin: 6px 0;">
+                                                <strong>Hold / Delay:</strong> <t t-out="ctx.get('hold_delay') or 'None (0h)'"/>
+                                                &#160;|&#160;
+                                                <strong>Performance:</strong>
+                                                <t t-if="ctx.get('performance') == 'Delayed' or object.sla_status == 'breached'">
+                                                    <span style="color: #DC2626; font-weight: bold;">Delayed</span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span style="color: #047857; font-weight: bold;">On time</span>
+                                                </t>
+                                            </p>
+
+                                            <p style="margin: 6px 0;">
+                                                <strong>Solution:</strong> <t t-out="object.action_taken or ctx.get('solution') or 'Resolution implemented'"/>
+                                                &#160;|&#160;
+                                                <strong>Delay reason / Final remarks:</strong> <t t-out="ctx.get('delay_reason') or object.root_cause or object.capa_action or object.requester_feedback or 'Task completed within SLA'"/>
+                                            </p>
+
+                                            <p style="margin: 6px 0;">
+                                                <strong>Status:</strong> <span style="background-color: #D1FAE5; color: #065F46; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 12px;">COMPLETED - Pending verification</span>
+                                            </p>
+                                        </div>
 
                                         <div style="margin-top: 16px; color: #475569; font-style: italic;">
-                                            Task has been marked as completed. Kindly review and verify in the ERP portal.
+                                            Please accept and close, or reopen with reasons.
                                         </div>
                                     </td>
                                 </tr>
@@ -329,6 +349,12 @@
                                    style="background-color: #102A43; color: #FFFFFF; font-size: 14px; font-weight: bold; text-decoration: none; padding: 12px 28px; border-radius: 6px; display: inline-block;">
                                     View &amp; Verify Task in ERP
                                 </a>
+                            </div>
+
+                            <!-- CONTROLS & FOOTER NOTE -->
+                            <div style="margin-top: 24px; padding-top: 14px; border-top: 1px dashed #CBD5E1; font-size: 11px; color: #64748B; line-height: 18px;">
+                                <strong>Common email footer:</strong> <a t-attf-href="{{ object.get_base_url() }}/web#id={{ object.id }}&amp;model=ticket.monitoring&amp;view_type=form" style="color: #2563EB; font-weight: 600;">[Task Link]</a> &#160;|&#160; Regards, PCPL Task Management System.<br/>
+                                <strong>Controls:</strong> Unique ID and automatic timestamps; mandatory status remarks; preserve original target; approve revised dates; verify before closure.
                             </div>
                         </td>
                     </tr>

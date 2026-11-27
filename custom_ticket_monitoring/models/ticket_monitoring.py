@@ -456,26 +456,57 @@ class TicketMonitoring(models.Model):
                 ) % str(e))
 
     def _notify_completed(self, remarks=None):
-        """Send 03 TASK COMPLETED email to assigned owner and requester."""
+        """Send 03 TASK COMPLETION email to requester and assigned owner."""
         template = self.env.ref('custom_ticket_monitoring.email_template_ticket_completed', raise_if_not_found=False)
         if not template:
             return
         for ticket in self:
             recipients = []
-            if ticket.owner_id:
-                em = ticket.owner_id.email or ticket.owner_id.partner_id.email
-                if em and em not in recipients:
-                    recipients.append(em)
             if ticket.user_id:
                 em = ticket.user_id.email or ticket.user_id.partner_id.email
+                if em and em not in recipients:
+                    recipients.append(em)
+            if ticket.owner_id:
+                em = ticket.owner_id.email or ticket.owner_id.partner_id.email
                 if em and em not in recipients:
                     recipients.append(em)
             if not recipients:
                 continue
 
             email_to_str = ','.join(recipients)
+            now = fields.Datetime.now()
+            start_dt = ticket.first_response_date or ticket.create_date or now
+            finish_dt = ticket.resolved_date or ticket.closed_date or now
+
+            # Time taken calculation
+            diff = finish_dt - start_dt
+            hours = max(0.1, round(diff.total_seconds() / 3600.0, 1))
+            days = round(hours / 24.0, 1)
+            time_taken_str = f"{days} Days ({hours} Hours)" if hours >= 24 else f"{hours} Hours"
+
+            # Hold / Delay & Performance
+            if ticket.resolution_deadline and finish_dt > ticket.resolution_deadline:
+                delay_diff = finish_dt - ticket.resolution_deadline
+                delay_hours = round(delay_diff.total_seconds() / 3600.0, 1)
+                hold_delay_str = f"{delay_hours} Hours delay"
+                perf_str = "Delayed"
+            else:
+                hold_delay_str = "None (0h)"
+                perf_str = "On time"
+
+            solution_str = ticket.action_taken or remarks or 'Resolution verified and implemented'
+            delay_reason_str = ticket.requester_feedback or ticket.hold_reason or ticket.root_cause or remarks or 'Task completed within SLA'
+
             ctx = {
-                'remarks': remarks or ticket.requester_feedback or ticket.action_taken or 'Task successfully completed',
+                'completed_by': ticket.env.user.name or ticket.owner_id.name or 'Assignee',
+                'actual_start': start_dt.strftime('%d-%m-%Y %H:%M'),
+                'actual_finish': finish_dt.strftime('%d-%m-%Y %H:%M'),
+                'time_taken': time_taken_str,
+                'hold_delay': hold_delay_str,
+                'performance': perf_str,
+                'solution': solution_str,
+                'delay_reason': delay_reason_str,
+                'remarks': delay_reason_str,
             }
             try:
                 email_values = {
@@ -491,7 +522,7 @@ class TicketMonitoring(models.Model):
                     email_values=email_values,
                 )
                 ticket.message_post(body=_(
-                    "📧 <b>Task Completed Email Sent</b> [03 TASK COMPLETED] to <b>%s</b>."
+                    "📧 <b>Task Completion Email Sent</b> [03 TASK COMPLETION] to <b>%s</b>."
                 ) % email_to_str)
             except Exception as e:
                 _logger.error("Could not send completed email for ticket %s: %s", ticket.name, e)
@@ -531,6 +562,21 @@ class TicketMonitoring(models.Model):
             'params': {
                 'title': _("Status Email Dispatched"),
                 'message': _("Status Update (02 TASK STATUS UPDATE) notification email dispatched. Check Chatter."),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
+    def action_send_completion_email_manual(self):
+        """Manual button to trigger and test sending the completion email (03 TASK COMPLETION)."""
+        self.ensure_one()
+        self._notify_completed(remarks=self.action_taken or 'Manual Task Completion Test')
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Completion Email Dispatched"),
+                'message': _("Task Completion (03 TASK COMPLETION) email dispatched to Requester and Owner. Check Chatter."),
                 'type': 'success',
                 'sticky': False,
             }
@@ -583,7 +629,7 @@ class TicketMonitoring(models.Model):
         """Step 6: Owner documents action taken and marks resolved for requester verification."""
         for ticket in self:
             if not ticket.action_taken:
-                raise UserError(_("Please document the 'Action & Corrective Steps Taken' before marking as Resolved."))
+                ticket.action_taken = _('Task completed and submitted for requester verification.')
             ticket.with_context(skip_status_email=True).write({
                 'state': 'resolved',
                 'resolved_date': fields.Datetime.now(),
@@ -592,7 +638,7 @@ class TicketMonitoring(models.Model):
             ticket.message_post(
                 body=_("Ticket marked as Resolved by %s. Awaiting requester verification and closure.") % self.env.user.name
             )
-            ticket._notify_completed(remarks=ticket.action_taken or 'Task marked as Resolved.')
+            ticket._notify_completed(remarks=ticket.action_taken)
 
     def action_verify_close(self):
         """Step 7 & 8: Requester confirms resolution and closes ticket with feedback."""

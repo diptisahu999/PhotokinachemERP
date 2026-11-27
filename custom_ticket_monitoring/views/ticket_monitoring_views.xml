@@ -31,12 +31,6 @@
                     <button name="action_reopen" string="Reopen Ticket" type="object"
                             class="btn-outline-danger" invisible="state not in ('resolved', 'closed')" icon="fa-repeat"/>
 
-                    <!-- Manual Notification Test Buttons -->
-                    <button name="action_send_email_manual" string="Send Email Alert" type="object"
-                            class="btn-outline-primary" invisible="not owner_id" icon="fa-envelope"/>
-                    <button name="action_send_status_email_manual" string="Send Status Email Alert" type="object"
-                            class="btn-outline-secondary" invisible="not owner_id" icon="fa-bell"/>
-
                     <!-- Statusbar Widget -->
                     <field name="state" widget="statusbar" statusbar_visible="draft,assigned,in_progress,resolved,closed"/>
                 </header>
@@ -378,5 +372,42 @@
         <field name="res_model">ticket.monitoring</field>
         <field name="view_mode">kanban,list,form,pivot</field>
         <field name="domain">[('assigned_department_id.code', '=', 'MIS')]</field>
+    </record>
+
+    <!-- System / Action Menu Items (Inside the ⚙ Gear / Actions Dropdown) -->
+    <record id="action_server_ticket_send_email" model="ir.actions.server">
+        <field name="name">Send Email Alert</field>
+        <field name="model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
+        <field name="binding_model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+for r in records:
+    action = r.action_send_email_manual()
+        </field>
+    </record>
+
+    <record id="action_server_ticket_send_status_email" model="ir.actions.server">
+        <field name="name">Send Status Email Alert</field>
+        <field name="model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
+        <field name="binding_model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+for r in records:
+    action = r.action_send_status_email_manual()
+        </field>
+    </record>
+
+    <record id="action_server_ticket_send_completion_email" model="ir.actions.server">
+        <field name="name">Send Completion Email Alert</field>
+        <field name="model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
+        <field name="binding_model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+for r in records:
+    action = r.action_send_completion_email_manual()
+        </field>
     </record>
 </odoo>
