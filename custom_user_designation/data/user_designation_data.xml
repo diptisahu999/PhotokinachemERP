@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Pre-populated Designations from PCPL Framework -->
+    <record id="designation_director" model="user.designation">
+        <field name="name">Director</field>
+        <field name="code">DIR</field>
+    </record>
+    <record id="designation_manager" model="user.designation">
+        <field name="name">Manager</field>
+        <field name="code">MGR</field>
+    </record>
+    <record id="designation_assistant" model="user.designation">
+        <field name="name">Assistant</field>
+        <field name="code">AST</field>
+    </record>
+    <record id="designation_executive" model="user.designation">
+        <field name="name">Executive</field>
+        <field name="code">EXEC</field>
+    </record>
+    <record id="designation_computer_operator" model="user.designation">
+        <field name="name">Computer Operator</field>
+        <field name="code">CO</field>
+    </record>
+    <record id="designation_supervisor" model="user.designation">
+        <field name="name">Supervisor</field>
+        <field name="code">SUP</field>
+    </record>
+    <record id="designation_coordinator" model="user.designation">
+        <field name="name">Co-ordinator</field>
+        <field name="code">COORD</field>
+    </record>
+    <record id="designation_mis" model="user.designation">
+        <field name="name">MIS</field>
+        <field name="code">MIS</field>
+    </record>
+
+    <!-- Pre-populated Sub Departments from PCPL Framework -->
+    <record id="dept_management" model="user.sub_department">
+        <field name="name">Management</field>
+        <field name="code">MGMT</field>
+    </record>
+    <record id="dept_accounts" model="user.sub_department">
+        <field name="name">Accounts</field>
+        <field name="code">ACC</field>
+    </record>
+    <record id="dept_dispatch" model="user.sub_department">
+        <field name="name">Dispatch</field>
+        <field name="code">DISP</field>
+    </record>
+    <record id="dept_admin_hr" model="user.sub_department">
+        <field name="name">Admin- HR</field>
+        <field name="code">HR</field>
+    </record>
+    <record id="dept_production" model="user.sub_department">
+        <field name="name">Production</field>
+        <field name="code">PROD</field>
+    </record>
+    <record id="dept_production_lab" model="user.sub_department">
+        <field name="name">Production- Lab</field>
+        <field name="code">LAB</field>
+    </record>
+    <record id="dept_production_packing" model="user.sub_department">
+        <field name="name">Production- Packing</field>
+        <field name="code">PACK</field>
+    </record>
+    <record id="dept_maintenance" model="user.sub_department">
+        <field name="name">Maintenance</field>
+        <field name="code">MAINT</field>
+    </record>
+    <record id="dept_purchase" model="user.sub_department">
+        <field name="name">Purchase</field>
+        <field name="code">PURCH</field>
+    </record>
+    <record id="dept_sales" model="user.sub_department">
+        <field name="name">Sales</field>
+        <field name="code">SALE</field>
+    </record>
+    <record id="dept_sales_central" model="user.sub_department">
+        <field name="name">Sales - CENTRAL</field>
+        <field name="code">SALE-C</field>
+    </record>
+    <record id="dept_sales_north" model="user.sub_department">
+        <field name="name">Sales - NORTH</field>
+        <field name="code">SALE-N</field>
+    </record>
+    <record id="dept_sales_west" model="user.sub_department">
+        <field name="name">Sales - WEST</field>
+        <field name="code">SALE-W</field>
+    </record>
+    <record id="dept_bmp" model="user.sub_department">
+        <field name="name">BMP</field>
+        <field name="code">BMP</field>
+    </record>
+</odoo>

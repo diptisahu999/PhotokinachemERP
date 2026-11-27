@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_user_designation_user,user.designation.user,model_user_designation,base.group_user,1,0,0,0
+access_user_designation_system,user.designation.system,model_user_designation,base.group_system,1,1,1,1
+access_user_sub_department_user,user.sub_department.user,model_user_sub_department,base.group_user,1,0,0,0
+access_user_sub_department_system,user.sub_department.system,model_user_sub_department,base.group_system,1,1,1,1

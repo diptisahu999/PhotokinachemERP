@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Full User Form View (Settings -> Users & Companies -> Users) -->
+    <record id="view_users_form_inherit_designation" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.designation</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="priority" eval="25"/>
+        <field name="arch" type="xml">
+            <!-- Designation & Sub Department in Main Form Body before Notebook -->
+            <xpath expr="//notebook" position="before">
+                <group name="user_job_designation_group" string="Designation &amp; Department">
+                    <group>
+                        <field name="designation_id" placeholder="Select or type to create Designation..."/>
+                    </group>
+                    <group>
+                        <field name="sub_department_id" placeholder="Select or type to create Sub Department..."/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Simplified Form View (Quick Create New User Dialog) -->
+    <record id="view_users_simple_form_inherit_designation" model="ir.ui.view">
+        <field name="name">res.users.simple.form.inherit.designation</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_simple_form"/>
+        <field name="priority" eval="25"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[field[@name='phone']]" position="after">
+                <div class="d-flex align-items-baseline w-100">
+                    <i class="fa fa-fw me-1 fa-id-badge text-primary" title="Designation"/>
+                    <field name="designation_id" class="w-100" placeholder="Designation"/>
+                </div>
+                <div class="d-flex align-items-baseline w-100">
+                    <i class="fa fa-fw me-1 fa-sitemap text-primary" title="Sub Department"/>
+                    <field name="sub_department_id" class="w-100" placeholder="Sub Department"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- User Profile / Preferences Form View -->
+    <record id="view_users_form_simple_modif_inherit_designation" model="ir.ui.view">
+        <field name="name">res.users.preferences.form.inherit.designation</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+        <field name="priority" eval="25"/>
+        <field name="arch" type="xml">
+            <xpath expr="//h5[@name='h5_phone']" position="after">
+                <h5 name="h5_designation" class="d-flex align-items-baseline mb-0">
+                    <i class="fa fa-fw fa-id-badge me-1 text-primary" title="Designation"/>
+                    <field name="designation_id" placeholder="Designation" class="w-75" readonly="1"/>
+                </h5>
+                <h5 name="h5_sub_department" class="d-flex align-items-baseline mb-0">
+                    <i class="fa fa-fw fa-sitemap me-1 text-primary" title="Sub Department"/>
+                    <field name="sub_department_id" placeholder="Sub Department" class="w-75" readonly="1"/>
+                </h5>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- User List / Tree View -->
+    <record id="view_users_tree_inherit_designation" model="ir.ui.view">
+        <field name="name">res.users.list.inherit.designation</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='login']" position="after">
+                <field name="designation_id" optional="show"/>
+                <field name="sub_department_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- User Search & Group By View -->
+    <record id="view_users_search_inherit_designation" model="ir.ui.view">
+        <field name="name">res.users.search.inherit.designation</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='share']" position="after">
+                <field name="designation_id"/>
+                <field name="sub_department_id"/>
+            </xpath>
+            <xpath expr="//filter[@name='Inactive']" position="after">
+                <separator/>
+                <filter string="Designation" name="group_by_designation" domain="[]" context="{'group_by': 'designation_id'}"/>
+                <filter string="Sub Department" name="group_by_sub_department" domain="[]" context="{'group_by': 'sub_department_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- User Kanban View -->
+    <record id="view_res_users_kanban_inherit_designation" model="ir.ui.view">
+        <field name="name">res.users.kanban.inherit.designation</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_res_users_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='login_date']" position="after">
+                <field name="designation_id"/>
+                <field name="sub_department_id"/>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <div t-if="record.designation_id.raw_value" class="text-muted small">
+                    <i class="fa fa-id-badge me-1"/>
+                    <field name="designation_id"/>
+                </div>
+                <div t-if="record.sub_department_id.raw_value" class="text-muted small">
+                    <i class="fa fa-sitemap me-1"/>
+                    <field name="sub_department_id"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== USER DESIGNATION ==================== -->
+    <record id="view_user_designation_tree" model="ir.ui.view">
+        <field name="name">user.designation.list</field>
+        <field name="model">user.designation</field>
+        <field name="arch" type="xml">
+            <list string="Designations">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="user_count" string="Assigned Users"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_user_designation_form" model="ir.ui.view">
+        <field name="name">user.designation.form</field>
+        <field name="model">user.designation</field>
+        <field name="arch" type="xml">
+            <form string="Designation">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" string="Designation Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Manager, Executive, Supervisor" required="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="e.g. MGR, EXEC"/>
+                        </group>
+                        <group>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="users" string="Assigned Users">
+                            <field name="user_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="login"/>
+                                    <field name="sub_department_id"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="description" string="Description">
+                            <field name="description" placeholder="Notes or responsibilities regarding this designation..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_user_designation_search" model="ir.ui.view">
+        <field name="name">user.designation.search</field>
+        <field name="model">user.designation</field>
+        <field name="arch" type="xml">
+            <search string="Designations">
+                <field name="name"/>
+                <field name="code"/>
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_user_designation" model="ir.actions.act_window">
+        <field name="name">Designations</field>
+        <field name="res_model">user.designation</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new user designation!
+            </p>
+            <p>
+                Define designations (e.g. Manager, Executive, Assistant) that can be assigned to users.
+            </p>
+        </field>
+    </record>
+
+    <!-- ==================== USER SUB DEPARTMENT ==================== -->
+    <record id="view_user_sub_department_tree" model="ir.ui.view">
+        <field name="name">user.sub_department.list</field>
+        <field name="model">user.sub_department</field>
+        <field name="arch" type="xml">
+            <list string="Sub Departments">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="user_count" string="Assigned Users"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_user_sub_department_form" model="ir.ui.view">
+        <field name="name">user.sub_department.form</field>
+        <field name="model">user.sub_department</field>
+        <field name="arch" type="xml">
+            <form string="Sub Department">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" string="Sub Department Name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Accounts, Sales, Production" required="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="e.g. ACC, SALE"/>
+                        </group>
+                        <group>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="users" string="Assigned Users">
+                            <field name="user_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="login"/>
+                                    <field name="designation_id"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="description" string="Description">
+                            <field name="description" placeholder="Notes regarding this sub department..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_user_sub_department_search" model="ir.ui.view">
+        <field name="name">user.sub_department.search</field>
+        <field name="model">user.sub_department</field>
+        <field name="arch" type="xml">
+            <search string="Sub Departments">
+                <field name="name"/>
+                <field name="code"/>
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_user_sub_department" model="ir.actions.act_window">
+        <field name="name">Sub Departments</field>
+        <field name="res_model">user.sub_department</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new sub department!
+            </p>
+            <p>
+                Define sub departments (e.g. Accounts, Sales, Production) that can be assigned to users.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menus under Settings -> Users & Companies -->
+    <menuitem id="menu_user_designation"
+              name="Designations"
+              parent="base.menu_users"
+              action="action_user_designation"
+              sequence="10"/>
+
+    <menuitem id="menu_user_sub_department"
+              name="Sub Departments"
+              parent="base.menu_users"
+              action="action_user_sub_department"
+              sequence="11"/>
+</odoo>
