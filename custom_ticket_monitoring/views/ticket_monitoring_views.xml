@@ -31,6 +31,10 @@
                     <button name="action_reopen" string="Reopen Ticket" type="object"
                             class="btn-outline-danger" invisible="state not in ('resolved', 'closed')" icon="fa-repeat"/>
 
+                    <!-- Manual Notification Test Buttons -->
+                    <button name="action_send_email_manual" string="Send Email Alert" type="object"
+                            class="btn-outline-primary" invisible="not owner_id" icon="fa-envelope"/>
+
                     <!-- Statusbar Widget -->
                     <field name="state" widget="statusbar" statusbar_visible="draft,assigned,in_progress,resolved,closed"/>
                 </header>

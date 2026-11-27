@@ -349,7 +349,8 @@ class TicketMonitoring(models.Model):
     def _notify_assigned_owner(self):
         template = self.env.ref('custom_ticket_monitoring.email_template_ticket_assigned', raise_if_not_found=False)
         for ticket in self:
-            if not ticket.owner_id or not ticket.owner_id.email:
+            owner_email = ticket.owner_id.email or ticket.owner_id.partner_id.email
+            if not ticket.owner_id or not owner_email:
                 continue
             # Ensure assigned owner is added as a follower in chatter
             if ticket.owner_id.partner_id:
@@ -360,9 +361,46 @@ class TicketMonitoring(models.Model):
             # Send assignment email
             if template:
                 try:
-                    template.send_mail(ticket.id, force_send=True)
+                    email_values = {
+                        'email_from': '"Photokina Chemicals Pvt. Ltd." <mis@photokinachem.com>',
+                        'reply_to': 'mis@photokinachem.com',
+                        'email_to': owner_email,
+                        'auto_delete': False,
+                    }
+                    mail_id = template.sudo().send_mail(
+                        ticket.id,
+                        force_send=True,
+                        raise_exception=True,
+                        email_values=email_values,
+                    )
+                    ticket.message_post(body=_(
+                        "📧 <b>Assignment Email Sent</b> to <b>%s</b> &lt;%s&gt;."
+                    ) % (ticket.owner_id.name, owner_email))
                 except Exception as e:
-                    _logger.warning("Could not send assignment email for ticket %s: %s", ticket.name, e)
+                    _logger.error("Could not send assignment email for ticket %s: %s", ticket.name, e)
+                    ticket.message_post(body=_(
+                        "⚠️ <b>Email Notification Failed</b>: %s"
+                    ) % str(e))
+
+    def action_send_email_manual(self):
+        """Manual button to trigger and test sending the assignment email."""
+        self.ensure_one()
+        if not self.owner_id:
+            raise UserError(_("Please assign an Owner before sending email notification."))
+        owner_email = self.owner_id.email or self.owner_id.partner_id.email
+        if not owner_email:
+            raise UserError(_("Assigned Owner %s does not have an email address configured in Users / Contacts.") % self.owner_id.name)
+        self._notify_assigned_owner()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Email Dispatched"),
+                'message': _("Notification email dispatched to %s (%s). Check Chatter.") % (self.owner_id.name, owner_email),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
 
     # ---------------------------------------------------------
     # LIFECYCLE ACTION METHODS
