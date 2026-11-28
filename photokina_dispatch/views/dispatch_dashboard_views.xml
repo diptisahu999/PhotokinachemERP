@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Client Action: Analytics & Insights -->
+        <record id="action_photokina_dispatch_analytics" model="ir.actions.client">
+            <field name="name">Analytics &amp; Insights</field>
+            <field name="tag">photokina_dispatch.DispatchDashboard</field>
+            <field name="target">main</field>
+            <field name="context">{'default_page': 'analytics'}</field>
+        </record>
+
+        <!-- Client Action: On-Time Delivery -->
+        <record id="action_photokina_dispatch_ontime" model="ir.actions.client">
+            <field name="name">On-Time Delivery</field>
+            <field name="tag">photokina_dispatch.DispatchDashboard</field>
+            <field name="target">main</field>
+            <field name="context">{'default_page': 'delivery'}</field>
+        </record>
+
+        <!-- Default Client Action (fallback) -->
+        <record id="action_photokina_dispatch_dashboard" model="ir.actions.client">
+            <field name="name">Dispatch Dashboard</field>
+            <field name="tag">photokina_dispatch.DispatchDashboard</field>
+            <field name="target">main</field>
+            <field name="context">{'default_page': 'analytics'}</field>
+        </record>
+
+        <!-- Root App Menu (shows in app switcher) -->
+        <menuitem
+            id="menu_photokina_dispatch_root"
+            name="Dispatch Dashboard"
+            sequence="90"
+            web_icon="photokina_dispatch,static/description/icon.png"
+        />
+
+        <!-- Top Nav Menu 1: Analytics & Insights -->
+        <menuitem
+            id="menu_photokina_dispatch_analytics"
+            name="Analytics &amp; Insights"
+            parent="menu_photokina_dispatch_root"
+            action="action_photokina_dispatch_analytics"
+            sequence="1"
+        />
+
+        <!-- Top Nav Menu 2: On-Time Delivery -->
+        <menuitem
+            id="menu_photokina_dispatch_ontime"
+            name="On-Time Delivery"
+            parent="menu_photokina_dispatch_root"
+            action="action_photokina_dispatch_ontime"
+            sequence="2"
+        />
+    </data>
+</odoo>
