@@ -74,11 +74,15 @@ class TicketMonitoring(models.Model):
 
     # 5. Priority & SLAs
     priority = fields.Selection([
-        ('p1', 'P1 – Critical (2h Resolution)'),
-        ('p2', 'P2 – High (4h Resolution)'),
-        ('p3', 'P3 – Medium (24h Resolution)'),
-        ('p4', 'P4 – Low (48h Resolution)'),
-    ], string='Priority', default='p3', required=True, tracking=True, index=True)
+        ('0', '0 stars — None'),
+        ('1', '1 star — Low: Minor issue; no immediate operational interruption'),
+        ('2', '2 stars — Normal: Operational issue requiring timely action; manageable impact'),
+        ('3', '3 stars — High: Major disruption, quality risk, urgent customer impact or critical dependency'),
+    ], string='Priority', default='1', required=True, tracking=True, index=True,
+       help="Recommended priority guide — subject to PCPL approval:\n\n"
+            "• 1 star — Low: Minor issue; no immediate operational interruption.\n\n"
+            "• 2 stars — Normal: Operational issue requiring timely action; manageable impact.\n\n"
+            "• 3 stars — High: Major disruption, quality risk, urgent customer impact or critical dependency.")
 
     response_deadline = fields.Datetime(
         string='First Response Deadline',
@@ -220,16 +224,34 @@ class TicketMonitoring(models.Model):
     def _compute_sla_deadlines(self):
         # SLA Matrix Configuration (in hours)
         sla_matrix = {
-            'p1': {'response_hours': 0.25, 'resolution_hours': 2.0},    # 15m / 2h
-            'p2': {'response_hours': 0.50, 'resolution_hours': 4.0},    # 30m / 4h
-            'p3': {'response_hours': 2.00, 'resolution_hours': 24.0},   # 2h / 24h
-            'p4': {'response_hours': 4.00, 'resolution_hours': 48.0},   # 4h / 48h
+            '0': {'response_hours': 4.00, 'resolution_hours': 48.0},
+            '1': {'response_hours': 4.00, 'resolution_hours': 48.0},   # 1 star — Low (48h)
+            '2': {'response_hours': 2.00, 'resolution_hours': 24.0},   # 2 stars — Normal (24h)
+            '3': {'response_hours': 0.50, 'resolution_hours': 4.0},    # 3 stars — High (4h)
+            'p1': {'response_hours': 0.50, 'resolution_hours': 4.0},
+            'p2': {'response_hours': 2.00, 'resolution_hours': 24.0},
+            'p3': {'response_hours': 2.00, 'resolution_hours': 24.0},
+            'p4': {'response_hours': 4.00, 'resolution_hours': 48.0},
         }
         for ticket in self:
             base_time = ticket.create_date or fields.Datetime.now()
-            config = sla_matrix.get(ticket.priority, sla_matrix['p3'])
+            config = sla_matrix.get(ticket.priority, sla_matrix['1'])
             ticket.response_deadline = base_time + datetime.timedelta(hours=config['response_hours'])
             ticket.resolution_deadline = base_time + datetime.timedelta(hours=config['resolution_hours'])
+
+    def init(self):
+        super().init()
+        try:
+            self.env.cr.execute("""
+                UPDATE ticket_monitoring SET priority = '3' WHERE priority = 'p1';
+                UPDATE ticket_monitoring SET priority = '2' WHERE priority IN ('p2', 'p3');
+                UPDATE ticket_monitoring SET priority = '1' WHERE priority = 'p4';
+                UPDATE ticket_category SET default_priority = '3' WHERE default_priority = 'p1';
+                UPDATE ticket_category SET default_priority = '2' WHERE default_priority IN ('p2', 'p3');
+                UPDATE ticket_category SET default_priority = '1' WHERE default_priority = 'p4';
+            """)
+        except Exception:
+            pass
 
     @api.depends('create_date', 'closed_date', 'resolved_date')
     def _compute_duration(self):
@@ -699,8 +721,8 @@ class TicketMonitoring(models.Model):
                 else:
                     ticket.sla_status = 'within_sla'
 
-            # P1 Critical immediate L4 escalation check if open for more than 1 hour
-            if ticket.priority == 'p1' and ticket.create_date:
+            # High / 3 Stars Critical immediate L4 escalation check if open for more than 1 hour
+            if ticket.priority in ('3', 'p1') and ticket.create_date:
                 age_hours = (now - ticket.create_date).total_seconds() / 3600.0
                 if age_hours > 1.0 and ticket.escalation_level != 'l4':
                     ticket.escalation_level = 'l4'
@@ -726,10 +748,10 @@ class TicketMonitoring(models.Model):
         active_unresolved = all_tickets.filtered(lambda t: t.state not in ('closed', 'resolved'))
 
         # Priorities
-        p1_tickets = open_tickets.filtered(lambda t: t.priority == 'p1')
-        p2_tickets = open_tickets.filtered(lambda t: t.priority == 'p2')
-        p3_tickets = open_tickets.filtered(lambda t: t.priority == 'p3')
-        p4_tickets = open_tickets.filtered(lambda t: t.priority == 'p4')
+        p1_tickets = open_tickets.filtered(lambda t: t.priority in ('3', 'p1'))
+        p2_tickets = open_tickets.filtered(lambda t: t.priority in ('2', 'p2'))
+        p3_tickets = open_tickets.filtered(lambda t: t.priority in ('1', 'p3', 'p4'))
+        p4_tickets = open_tickets.filtered(lambda t: t.priority in ('1', 'p4'))
 
         # SLA Statuses
         breached_tickets = open_tickets.filtered(lambda t: t.sla_status == 'breached' or t.is_resolution_breached)
