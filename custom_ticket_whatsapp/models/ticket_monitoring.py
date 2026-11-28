@@ -126,17 +126,25 @@ class TicketMonitoringWhatsapp(models.Model):
             now_str = fields.Datetime.now().strftime('%d-%m-%Y %H:%M')
             from_to_str = f"{ticket.origin_department_id.name or 'N/A'} / {ticket.assigned_department_id.name or 'N/A'}"
             status_flow = f"{old_status} to {new_status}"
+            progress_str = f"{ticket.progress}%" if ticket.progress else ('50%' if 'WIP' in str(new_status).upper() else '25%')
             action_str = ticket.action_taken or remarks or 'Work in progress'
-            reason_str = remarks or ticket.escalation_reason or 'Status updated as per workflow'
+            reason_str = remarks or ticket.hold_reason or ticket.escalation_reason or 'Status updated as per operational workflow'
+            pending_str = ticket.pending_from or 'N/A'
+            resume_str = ticket.resume_date.strftime('%d-%m-%Y %H:%M') if ticket.resume_date else 'N/A'
+            target_str = ticket.resolution_deadline.strftime('%d-%m-%Y %H:%M') if ticket.resolution_deadline else 'As per SLA'
 
             params = [
                 f"{ticket.name} / {ticket.subject or 'Task'}",       # {{1}} Task ID / Title
-                now_str,                                             # {{2}} Updated: Date & Time
-                from_to_str,                                         # {{3}} From / To: Requesting Dept. / Responsible Dept.
-                ticket.env.user.name or 'System',                    # {{4}} Updated by: Name
-                status_flow,                                         # {{5}} Status: Previous to WIP / ON HOLD
-                action_str,                                          # {{6}} Action taken: Details
-                reason_str,                                          # {{7}} Reason / Remarks: Mandatory
+                now_str,                                             # {{2}} Updated (Date & Time)
+                from_to_str,                                         # {{3}} From / To (Dept. / Dept.)
+                ticket.env.user.name or 'System',                    # {{4}} Updated by (Name)
+                status_flow,                                         # {{5}} Status (Previous to New)
+                progress_str,                                        # {{6}} Progress (%)
+                action_str,                                          # {{7}} Action taken (Details)
+                reason_str,                                          # {{8}} Reason / Remarks
+                pending_str,                                         # {{9}} Pending from
+                resume_str,                                          # {{10}} Resume date
+                target_str,                                          # {{11}} Target / Revised date
             ]
 
             for mob in recipients:
