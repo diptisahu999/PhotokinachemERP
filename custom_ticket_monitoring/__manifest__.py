@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'PCPL Ticket Monitoring System',
-    'version': '19.0.1.0.0',
+    'name': 'PCPL Task Delegation System',
+    'version': '19.0.1.0.1',
     'category': 'Operations/Helpdesk',
     'summary': 'Centralized operational issue tracking, SLA monitoring, L1-L4 escalation, and management dashboard across 13 departments for PCPL',
     'description': """

@@ -2,7 +2,7 @@
 <odoo>
     <!-- Top-Level App Menu -->
     <menuitem id="menu_ticket_monitoring_root"
-              name="Ticket Monitoring"
+              name="Task Delegation"
               sequence="28"
               web_icon="custom_ticket_monitoring,static/description/icon.png"/>
 
