@@ -2,13 +2,13 @@
 <odoo>
     <data>
         <record id="module_category_ticket_monitoring" model="ir.module.category">
-            <field name="name">Ticket Monitoring System</field>
-            <field name="description">Operational Excellence &amp; Issue Tracking for Photokina Chemicals</field>
+            <field name="name">Task Delegation System</field>
+            <field name="description">Operational Task Delegation &amp; Issue Tracking for Photokina Chemicals</field>
             <field name="sequence">28</field>
         </record>
 
         <record model="res.groups.privilege" id="res_groups_privilege_ticket_monitoring">
-            <field name="name">Ticket Monitoring</field>
+            <field name="name">Task Delegation</field>
             <field name="sequence">10</field>
             <field name="category_id" ref="module_category_ticket_monitoring"/>
         </record>
@@ -66,7 +66,7 @@
 
         <!-- 6. System Administrator -->
         <record id="group_ticket_manager" model="res.groups">
-            <field name="name">Ticket Administrator</field>
+            <field name="name">Task Delegation Administrator</field>
             <field name="sequence">60</field>
             <field name="privilege_id" ref="res_groups_privilege_ticket_monitoring"/>
             <field name="implied_ids" eval="[(4, ref('group_ticket_director')), (4, ref('group_ticket_dashboard'))]"/>

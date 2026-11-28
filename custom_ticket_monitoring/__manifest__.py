@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'PCPL Ticket Monitoring System',
+    'name': 'PCPL Task Delegation System',
     'version': '19.0.1.0.0',
-    'category': 'Operations/Helpdesk',
-    'summary': 'Centralized operational issue tracking, SLA monitoring, L1-L4 escalation, and management dashboard across 13 departments for PCPL',
+    'category': 'Operations/Task Delegation',
+    'summary': 'Centralized operational task delegation, issue tracking, SLA monitoring, L1-L4 escalation, and management dashboard across 13 departments for PCPL',
     'description': """
-PCPL Ticket Monitoring System
-=============================
-Department-wise parameters, service levels, and management dashboard for Photokina Chemicals Pvt. Ltd.
+PCPL Task Delegation System
+===========================
+Department-wise task delegation, service levels, and management dashboard for Photokina Chemicals Pvt. Ltd.
 
 Key Capabilities:
 -----------------

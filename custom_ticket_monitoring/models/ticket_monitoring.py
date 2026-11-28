@@ -72,13 +72,13 @@ class TicketMonitoring(models.Model):
     subject = fields.Char(string='Subject / Short Title', required=True, tracking=True)
     description = fields.Text(string='Detailed Description & Business Impact', required=True)
 
-    # 5. Priority & SLAs
+    # 5. Priority & SLAs (3-Star Rating: 1 Star Low, 2 Stars Normal, 3 Stars High)
     priority = fields.Selection([
-        ('p1', 'P1 – Critical (2h Resolution)'),
-        ('p2', 'P2 – High (4h Resolution)'),
-        ('p3', 'P3 – Medium (24h Resolution)'),
-        ('p4', 'P4 – Low (48h Resolution)'),
-    ], string='Priority', default='p3', required=True, tracking=True, index=True)
+        ('0', 'Low – Minor issue; no immediate operational interruption'),
+        ('1', 'Low – Minor issue; no immediate operational interruption'),
+        ('2', 'Normal – Operational issue requiring timely action; manageable impact'),
+        ('3', 'High – Major disruption, quality risk, urgent customer impact or critical dependency'),
+    ], string='Priority', default='1', required=True, tracking=True, index=True)
 
     response_deadline = fields.Datetime(
         string='First Response Deadline',
@@ -220,14 +220,19 @@ class TicketMonitoring(models.Model):
     def _compute_sla_deadlines(self):
         # SLA Matrix Configuration (in hours)
         sla_matrix = {
-            'p1': {'response_hours': 0.25, 'resolution_hours': 2.0},    # 15m / 2h
-            'p2': {'response_hours': 0.50, 'resolution_hours': 4.0},    # 30m / 4h
-            'p3': {'response_hours': 2.00, 'resolution_hours': 24.0},   # 2h / 24h
-            'p4': {'response_hours': 4.00, 'resolution_hours': 48.0},   # 4h / 48h
+            '3': {'response_hours': 0.50, 'resolution_hours': 4.0},    # 3 Stars: High (30m / 4h)
+            '2': {'response_hours': 2.00, 'resolution_hours': 24.0},   # 2 Stars: Normal (2h / 24h)
+            '1': {'response_hours': 4.00, 'resolution_hours': 48.0},   # 1 Star: Low (4h / 48h)
+            '0': {'response_hours': 4.00, 'resolution_hours': 48.0},   # 0 Stars: Low (4h / 48h)
+            # Backward-compatibility mappings
+            'p1': {'response_hours': 0.50, 'resolution_hours': 4.0},
+            'p2': {'response_hours': 0.50, 'resolution_hours': 4.0},
+            'p3': {'response_hours': 2.00, 'resolution_hours': 24.0},
+            'p4': {'response_hours': 4.00, 'resolution_hours': 48.0},
         }
         for ticket in self:
             base_time = ticket.create_date or fields.Datetime.now()
-            config = sla_matrix.get(ticket.priority, sla_matrix['p3'])
+            config = sla_matrix.get(ticket.priority, sla_matrix['1'])
             ticket.response_deadline = base_time + datetime.timedelta(hours=config['response_hours'])
             ticket.resolution_deadline = base_time + datetime.timedelta(hours=config['resolution_hours'])
 
@@ -699,12 +704,12 @@ class TicketMonitoring(models.Model):
                 else:
                     ticket.sla_status = 'within_sla'
 
-            # P1 Critical immediate L4 escalation check if open for more than 1 hour
-            if ticket.priority == 'p1' and ticket.create_date:
+            # High priority (3 stars) immediate L4 escalation check if open for more than 1 hour
+            if ticket.priority in ('3', 'p1') and ticket.create_date:
                 age_hours = (now - ticket.create_date).total_seconds() / 3600.0
                 if age_hours > 1.0 and ticket.escalation_level != 'l4':
                     ticket.escalation_level = 'l4'
-                    msg = _("🔥 Critical P1 issue unresolved for over 1 hour! Escalated to Level 4 (CEO / MD).")
+                    msg = _("🔥 High Priority (3 Stars) task unresolved for over 1 hour! Escalated to Level 4 (CEO / MD).")
                     ticket.message_post(body=msg)
 
     # -------------------------------------------------------------------------
@@ -725,11 +730,11 @@ class TicketMonitoring(models.Model):
         open_tickets = all_tickets.filtered(lambda t: t.state not in ('closed',))
         active_unresolved = all_tickets.filtered(lambda t: t.state not in ('closed', 'resolved'))
 
-        # Priorities
-        p1_tickets = open_tickets.filtered(lambda t: t.priority == 'p1')
-        p2_tickets = open_tickets.filtered(lambda t: t.priority == 'p2')
-        p3_tickets = open_tickets.filtered(lambda t: t.priority == 'p3')
-        p4_tickets = open_tickets.filtered(lambda t: t.priority == 'p4')
+        # Priorities (3: High, 2: Normal, 1/0: Low)
+        p1_tickets = open_tickets.filtered(lambda t: t.priority in ('3', 'p1'))
+        p2_tickets = open_tickets.filtered(lambda t: t.priority in ('2', 'p2'))
+        p3_tickets = open_tickets.filtered(lambda t: t.priority in ('1', '0', 'p3', 'p4'))
+        p4_tickets = open_tickets.filtered(lambda t: t.priority in ('0', 'p4'))
 
         # SLA Statuses
         breached_tickets = open_tickets.filtered(lambda t: t.sla_status == 'breached' or t.is_resolution_breached)
