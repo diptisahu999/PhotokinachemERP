@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+<t t-name="photokina_dispatch.DispatchDashboard">
+    <div class="o_dispatch_wrapper">
+
+        <!-- ===================================================
+             MAIN CONTENT (FULL WIDTH)
+             =================================================== -->
+        <div class="o_dispatch_main">
+
+            <!-- Header bar with Navigation Tabs -->
+            <div class="o_dispatch_header">
+                <div class="header-left">
+                    <div class="header-title-box">
+                        <h2 t-if="state.currentPage === 'analytics'">Analytics &amp; Insights</h2>
+                        <h2 t-else="">On-Time Delivery</h2>
+                        <p class="header-subtitle" t-if="state.currentPage === 'analytics'">
+                            Charts and visual insights for dispatch performance
+                        </p>
+                        <p class="header-subtitle" t-else="">
+                            Detailed order-level dispatch records with filters
+                        </p>
+                    </div>
+
+                    <!-- Clean In-Dashboard Tabs -->
+                    <div class="dispatch-header-tabs">
+                        <button type="button"
+                                t-attf-class="dispatch-tab-btn {{ state.currentPage === 'analytics' ? 'active' : '' }}"
+                                t-on-click="() => this.switchPage('analytics')">
+                            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/>
+                                <rect x="17" y="4" width="4" height="17"/>
+                            </svg>
+                            Analytics &amp; Insights
+                        </button>
+                        <button type="button"
+                                t-attf-class="dispatch-tab-btn {{ state.currentPage === 'delivery' ? 'active' : '' }}"
+                                t-on-click="() => this.switchPage('delivery')">
+                            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="1" y="3" width="15" height="13" rx="1"/>
+                                <path d="M16 8h4l3 4v4h-7V8z"/>
+                                <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                            </svg>
+                            On-Time Delivery
+                        </button>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <span class="dispatch-status-dot">Ready</span>
+                    <span class="dispatch-current-date">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        <t t-out="state.currentDate"/>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Scrollable body -->
+            <div class="o_dispatch_body">
+
+                <!-- KPI Cards Row (Clickable) -->
+                <div class="dispatch-kpi-row">
+                    <!-- Total Orders -->
+                    <div class="dispatch-kpi-card" t-on-click="() => this.switchPage('delivery')" title="Click to view delivery records">
+                        <div class="kpi-label">
+                            Total Orders
+                            <div class="kpi-icon kpi-icon-blue">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                    <rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/>
+                                    <rect x="17" y="4" width="4" height="17"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="kpi-value" t-out="state.kpi.total"/>
+                        <div class="kpi-sub">All dispatches analysed</div>
+                    </div>
+                    <!-- On-Time Deliveries -->
+                    <div class="dispatch-kpi-card" t-on-click="() => this.switchPage('delivery')" title="Click to view delivery records">
+                        <div class="kpi-label">
+                            On-Time Deliveries
+                            <div class="kpi-icon kpi-icon-green">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                    <polyline points="22 4 12 14.01 9 11.01"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="kpi-value" t-out="state.kpi.on_time"/>
+                        <div class="kpi-sub">Delivered as per schedule</div>
+                    </div>
+                    <!-- Late Deliveries -->
+                    <div class="dispatch-kpi-card" t-on-click="() => this.switchPage('delivery')" title="Click to view delayed deliveries">
+                        <div class="kpi-label">
+                            Late Deliveries
+                            <div class="kpi-icon kpi-icon-red">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="12"/>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="kpi-value" t-out="state.kpi.late"/>
+                        <div class="kpi-sub">Delayed dispatches</div>
+                    </div>
+                    <!-- On-Time % -->
+                    <div class="dispatch-kpi-card" t-on-click="() => this.switchPage('analytics')" title="Click to view analytics charts">
+                        <div class="kpi-label">
+                            On-Time Percentage
+                            <div class="kpi-icon kpi-icon-purple">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                                    <polyline points="17 6 23 6 23 12"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="kpi-value"><t t-out="state.kpi.on_time_pct"/>%</div>
+                        <div class="kpi-sub">On-time performance rate</div>
+                    </div>
+                    <!-- Late % -->
+                    <div class="dispatch-kpi-card" t-on-click="() => this.switchPage('analytics')" title="Click to view analytics charts">
+                        <div class="kpi-label">
+                            Late Percentage
+                            <div class="kpi-icon kpi-icon-pink">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                                    <polyline points="17 18 23 18 23 12"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="kpi-value"><t t-out="state.kpi.late_pct"/>%</div>
+                        <div class="kpi-sub">Delayed dispatch rate</div>
+                    </div>
+                </div>
+
+                <!-- Info Banner -->
+                <div class="dispatch-refresh-banner">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    <span>
+                        Data loaded successfully! 
+                        Total Orders: <strong t-out="state.kpi.total"/> | 
+                        On-Time Rate: <strong><t t-out="state.kpi.on_time_pct"/>%</strong>
+                        <span t-if="state.lastRefresh"> | Last loaded: <t t-out="state.lastRefresh"/></span>
+                    </span>
+                </div>
+
+                <!-- Loading indicator -->
+                <div t-if="state.loading" class="dispatch-loading">
+                    <div class="spinner"/>
+                    Loading data...
+                </div>
+
+                <!-- =====================================================
+                     PAGE 1: ANALYTICS & INSIGHTS
+                     ===================================================== -->
+                <t t-if="state.currentPage === 'analytics' and !state.loading">
+
+                    <!-- Filter & Manual Refresh Card -->
+                    <div class="dispatch-section-card" style="padding:14px 20px; margin-bottom:18px;">
+                        <div class="dispatch-section-header" style="margin-bottom:0;">
+                            <div>
+                                <div class="dispatch-section-title">Analytics &amp; Insights</div>
+                                <div class="dispatch-section-subtitle">Charts based on filtered dispatch data</div>
+                            </div>
+                            <div class="dispatch-controls">
+                                <label style="font-size:12px;color:#6b7280;font-weight:500;">Overall Time Period</label>
+                                <select class="dispatch-select" t-model="state.period" t-on-change="onPeriodChange">
+                                    <option value="all">All</option>
+                                    <option value="today">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
+                                    <option value="year">This Year</option>
+                                </select>
+                                <button type="button" class="dispatch-btn dispatch-btn-primary" t-on-click="loadData">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <polyline points="23 4 23 10 17 10"/>
+                                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                                    </svg>
+                                    Refresh Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="dispatch-charts-row">
+                        <!-- Delivery Performance donut -->
+                        <div class="dispatch-section-card">
+                            <div class="dispatch-section-header">
+                                <div>
+                                    <div class="dispatch-section-title">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2.5" style="margin-right:5px;vertical-align:middle;">
+                                            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                                        </svg>
+                                        Delivery Performance
+                                    </div>
+                                </div>
+                                <div class="dispatch-controls">
+                                    <label style="font-size:12px;color:#6b7280;">Filter</label>
+                                    <select class="dispatch-select" t-model="state.period" t-on-change="onPeriodChange">
+                                        <option value="all">All</option>
+                                        <option value="today">Today</option>
+                                        <option value="week">This Week</option>
+                                        <option value="month">This Month</option>
+                                        <option value="year">This Year</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="dispatch-chart-canvas-wrap">
+                                <canvas t-ref="donutChart"/>
+                            </div>
+                            <!-- Legend -->
+                            <div style="display:flex;justify-content:center;gap:20px;margin-top:10px;font-size:12px;">
+                                <span style="display:flex;align-items:center;gap:5px;">
+                                    <span style="width:12px;height:12px;border-radius:50%;background:#22c55e;display:inline-block;"/>
+                                    On-Time
+                                </span>
+                                <span style="display:flex;align-items:center;gap:5px;">
+                                    <span style="width:12px;height:12px;border-radius:50%;background:#ef4444;display:inline-block;"/>
+                                    Late
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Delay Buckets bar chart -->
+                        <div class="dispatch-section-card">
+                            <div class="dispatch-section-header">
+                                <div>
+                                    <div class="dispatch-section-title">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2.5" style="margin-right:5px;vertical-align:middle;">
+                                            <rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/>
+                                            <rect x="17" y="4" width="4" height="17"/>
+                                        </svg>
+                                        Delay Buckets
+                                    </div>
+                                </div>
+                                <div class="dispatch-controls">
+                                    <label style="font-size:12px;color:#6b7280;">View</label>
+                                    <select class="dispatch-select" t-model="state.period" t-on-change="onPeriodChange">
+                                        <option value="all">All Orders</option>
+                                        <option value="today">Today</option>
+                                        <option value="week">This Week</option>
+                                        <option value="month">This Month</option>
+                                        <option value="year">This Year</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="dispatch-chart-canvas-wrap">
+                                <canvas t-ref="barChart"/>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- =====================================================
+                     PAGE 2: ON-TIME DELIVERY TABLE
+                     ===================================================== -->
+                <t t-if="state.currentPage === 'delivery' and !state.loading">
+
+                    <!-- Filter banner -->
+                    <div class="dispatch-filter-banner">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        Filter applied: <strong t-out="state.period === 'all' ? 'All' : state.period"/> | 
+                        Showing <strong t-out="state.tableData.length"/> orders | 
+                        On-Time Rate: <strong><t t-out="state.kpi.on_time_pct"/>%</strong>
+                    </div>
+
+                    <!-- Table card -->
+                    <div class="dispatch-section-card">
+                        <div class="dispatch-section-header">
+                            <div>
+                                <div class="dispatch-section-title">On-Time Delivery</div>
+                                <div class="dispatch-section-subtitle">Detailed order-level dispatch records with filters</div>
+                            </div>
+                            <div class="dispatch-controls">
+                                <label style="font-size:12px;color:#6b7280;font-weight:500;">Time Period</label>
+                                <select class="dispatch-select" t-model="state.period" t-on-change="onPeriodChange">
+                                    <option value="all">All</option>
+                                    <option value="today">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
+                                    <option value="year">This Year</option>
+                                </select>
+                                <input class="dispatch-search-input"
+                                       type="text"
+                                       placeholder="Order or company..."
+                                       t-model="state.search"
+                                       t-on-input="onSearchChange"/>
+                                <button type="button" class="dispatch-btn dispatch-btn-primary" t-on-click="loadData">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <polyline points="23 4 23 10 17 10"/>
+                                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                                    </svg>
+                                    Refresh
+                                </button>
+                                <button type="button" class="dispatch-btn dispatch-btn-dark" t-on-click="exportCSV">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="7 10 12 15 17 10"/>
+                                        <line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                    Export
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="dispatch-table-wrap">
+                            <table class="dispatch-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Order No</th>
+                                        <th>Company Name</th>
+                                        <th>Proposed Date</th>
+                                        <th>Actual Dispatch Date</th>
+                                        <th>No. of Days Delay</th>
+                                        <th>Is the Delivery Late</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-if="state.tableData.length === 0">
+                                        <tr>
+                                            <td colspan="7" class="dispatch-empty">
+                                                <div>
+                                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                        <circle cx="12" cy="12" r="10"/>
+                                                        <line x1="12" y1="8" x2="12" y2="12"/>
+                                                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                                    </svg>
+                                                    <div>No dispatch records found for the selected period.</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-foreach="state.tableData" t-as="row" t-key="row_index">
+                                        <tr t-attf-class="{{ row.is_late ? 'late-row' : '' }}">
+                                            <td t-out="row_index + 1"/>
+                                            <td><strong t-out="row.order_no"/></td>
+                                            <td t-out="row.company"/>
+                                            <td t-out="row.proposed_date"/>
+                                            <td>
+                                                <t t-if="row.state === 'done'">
+                                                    <t t-out="row.actual_date"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="badge badge-yellow"><t t-out="row.actual_date"/></span>
+                                                </t>
+                                            </td>
+                                            <td>
+                                                <t t-if="row.days_delay === 0">
+                                                    <span class="badge badge-green">0 Days</span>
+                                                </t>
+                                                <t t-elif="row.days_delay &lt;= 3">
+                                                    <span class="badge badge-yellow"><t t-out="row.days_delay"/> Days</span>
+                                                </t>
+                                                <t t-elif="row.days_delay &lt;= 7">
+                                                    <span class="badge badge-blue"><t t-out="row.days_delay"/> Days</span>
+                                                </t>
+                                                <t t-elif="row.days_delay &lt;= 14">
+                                                    <span class="badge badge-orange"><t t-out="row.days_delay"/> Days</span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="badge badge-red"><t t-out="row.days_delay"/> Days</span>
+                                                </t>
+                                            </td>
+                                            <td>
+                                                <span t-if="row.is_late" class="badge badge-red">Yes</span>
+                                                <span t-else="" class="badge badge-green">No</span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </t>
+
+            </div><!-- /o_dispatch_body -->
+        </div><!-- /o_dispatch_main -->
+    </div><!-- /o_dispatch_wrapper -->
+</t>
+
+</templates>
