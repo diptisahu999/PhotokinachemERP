@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit User Form View -->
+    <record id="view_users_form_inherit_send_credentials" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.send.credentials</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="priority" eval="30"/>
+        <field name="arch" type="xml">
+            <!-- Header Send Mail buttons -->
+            <xpath expr="//header" position="inside">
+                <button name="action_open_send_credentials_wizard"
+                        string="Send Mail"
+                        type="object"
+                        class="btn-primary"
+                        icon="fa-envelope"
+                        invisible="not id"/>
+                <button name="action_send_credentials_direct"
+                        string="Quick Send Mail"
+                        type="object"
+                        class="btn-secondary"
+                        icon="fa-paper-plane"
+                        invisible="not id"
+                        confirm="This will generate a new temporary password and email the Project URL, Login, and Password directly to this user. Are you sure you want to proceed?"/>
+            </xpath>
+
+            <!-- Security Tab Integration -->
+            <xpath expr="//page[@name='page_security']" position="inside">
+                <div name="credentials_mailer_info" class="d-md-flex mt-3 border-top pt-3">
+                    <div class="col-md-6 col-lg-3 d-flex flex-column">
+                        <span class="o_form_label">
+                            Login Credentials Email
+                        </span>
+                        <span class="text-muted">
+                            Email Project URL, Login, and Password.
+                        </span>
+                    </div>
+                    <div class="w-md-50 w-lg-75 d-flex flex-column my-auto">
+                        <div class="d-flex align-items-center gap-2">
+                            <button name="action_open_send_credentials_wizard"
+                                    string="Send Mail (With Preview)"
+                                    type="object"
+                                    class="btn btn-primary"
+                                    icon="fa-envelope"/>
+                            <button name="action_send_credentials_direct"
+                                    string="Quick Send"
+                                    type="object"
+                                    class="btn btn-outline-secondary"
+                                    icon="fa-paper-plane"
+                                    confirm="This will generate a new password and email the Project URL, Login, and Password directly to this user. Are you sure you want to proceed?"/>
+                        </div>
+                        <div class="mt-2 text-muted" invisible="not last_credentials_sent_date">
+                            <small>
+                                <i class="fa fa-clock-o me-1"/> Credentials last sent on <field name="last_credentials_sent_date" class="d-inline fw-bold" readonly="1"/> by <field name="last_credentials_sent_by" class="d-inline fw-bold" readonly="1"/>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- User List View Inheritance -->
+    <record id="view_users_tree_inherit_send_credentials" model="ir.ui.view">
+        <field name="name">res.users.list.inherit.send.credentials</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='login']" position="after">
+                <field name="last_credentials_sent_date" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Server Action in the 'Action' dropdown on Users -->
+    <record id="action_send_user_credentials_server" model="ir.actions.server">
+        <field name="name">Send Login Credentials (Email)</field>
+        <field name="model_id" ref="base.model_res_users"/>
+        <field name="binding_model_id" ref="base.model_res_users"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+action = record.action_open_send_credentials_wizard()
+        </field>
+    </record>
+</odoo>

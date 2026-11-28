@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Mail Template: User Login Credentials -->
+        <record id="email_template_user_credentials" model="mail.template">
+            <field name="name">User: Login Credentials Email</field>
+            <field name="model_id" ref="base.model_res_users"/>
+            <field name="subject">Your ERP Login Details | {{ ctx.get('company_name') or object.company_id.name or 'Photokina Chemicals' }}</field>
+            <field name="email_to">{{ ctx.get('login_email') or object.email or object.login }}</field>
+            <field name="auto_delete" eval="False"/>
+            <field name="description">Email sent to users with their Project URL, Login Email, and Password</field>
+            <field name="body_html" type="html">
+<table border="0" cellpadding="0" cellspacing="0" style="padding: 24px 0; background-color: #F0F4F8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #102A43; width: 100%;">
+    <tr>
+        <td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" width="620" style="background-color: #FFFFFF; border-collapse: separate; box-shadow: 0 4px 14px rgba(0,0,0,0.08); border-radius: 8px; overflow: hidden;">
+                <tbody>
+                    <!-- TOP BRANDING HEADER -->
+                    <tr>
+                        <td style="background-color: #102A43; padding: 26px 32px; border-left: 8px solid #DD6B20;">
+                            <div style="font-size: 13px; font-weight: 700; color: #9FB3C8; text-transform: uppercase; letter-spacing: 1.2px;">
+                                <t t-out="ctx.get('company_name') or object.company_id.name or 'PHOTOKINA CHEMICALS PVT. LTD.'"/>
+                            </div>
+                            <div style="font-size: 24px; font-weight: 800; color: #FFFFFF; margin: 6px 0 2px 0; letter-spacing: 0.5px;">
+                                ERP Account Login Credentials
+                            </div>
+                            <div style="font-size: 13px; color: #BCCCDC;">
+                                Welcome to our enterprise portal. Please find your login credentials below.
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- MAIN BODY -->
+                    <tr>
+                        <td style="padding: 30px 32px; font-size: 14px; line-height: 24px; color: #1E293B;">
+                            <div style="margin-bottom: 18px; font-size: 15px;">
+                                Dear <strong><t t-out="ctx.get('user_name') or object.name or 'User'"/></strong>,
+                            </div>
+                            <p style="margin: 0 0 18px 0; color: #475569;">
+                                Your user account for the ERP system is ready. You can now log in using the project URL, email address, and temporary password provided below:
+                            </p>
+
+                            <!-- CREDENTIALS HIGHLIGHT BOX -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; margin-bottom: 24px;">
+                                <tr>
+                                    <td style="padding: 18px 22px;">
+                                        <!-- PROJECT URL -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 12px;">
+                                            <tr>
+                                                <td width="130" style="font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: top; padding: 4px 0;">
+                                                    Project URL:
+                                                </td>
+                                                <td style="vertical-align: top; padding: 4px 0;">
+                                                    <a t-att-href="ctx.get('project_url')" target="_blank" style="color: #0284C7; font-weight: 600; text-decoration: underline; word-break: break-all;">
+                                                        <t t-out="ctx.get('project_url')"/>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        <!-- EMAIL / LOGIN -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 12px; border-top: 1px dashed #E2E8F0; padding-top: 10px;">
+                                            <tr>
+                                                <td width="130" style="font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: top; padding: 4px 0;">
+                                                    Login / Email:
+                                                </td>
+                                                <td style="vertical-align: top; padding: 4px 0; color: #0F172A; font-weight: 600;">
+                                                    <t t-out="ctx.get('login_email') or object.email or object.login"/>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        <!-- PASSWORD -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top: 1px dashed #E2E8F0; padding-top: 10px;">
+                                            <tr>
+                                                <td width="130" style="font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: top; padding: 4px 0;">
+                                                    Password:
+                                                </td>
+                                                <td style="vertical-align: top; padding: 4px 0;">
+                                                    <span style="display: inline-block; background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; font-family: 'Courier New', Courier, monospace; font-size: 16px; font-weight: 800; padding: 3px 12px; border-radius: 4px; letter-spacing: 1px;">
+                                                        <t t-out="ctx.get('user_password')"/>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- ACTION BUTTON -->
+                            <div style="text-align: center; margin: 26px 0;">
+                                <a t-att-href="ctx.get('project_url')" target="_blank"
+                                   style="display: inline-block; background-color: #DD6B20; color: #FFFFFF; font-size: 15px; font-weight: 700; text-decoration: none; padding: 12px 28px; border-radius: 6px; box-shadow: 0 2px 6px rgba(221, 107, 32, 0.35); letter-spacing: 0.5px;">
+                                    &#128279; Log In to ERP Portal
+                                </a>
+                            </div>
+
+                            <!-- SECURITY RECOMMENDATIONS -->
+                            <div style="background-color: #EFF6FF; border-left: 4px solid #3B82F6; padding: 12px 16px; border-radius: 4px; margin-top: 20px;">
+                                <p style="margin: 0; font-size: 13px; line-height: 20px; color: #1E40AF;">
+                                    <strong>Security Notice:</strong> For your security, we recommend that you change your password immediately after logging in for the first time. Please do not share these credentials with anyone.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="background-color: #F8FAFC; border-top: 1px solid #E2E8F0; padding: 18px 32px; font-size: 12px; color: #64748B;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td>
+                                        <strong><t t-out="ctx.get('company_name') or object.company_id.name or 'Photokina Chemicals Pvt. Ltd.'"/></strong><br/>
+                                        This is an automated system email. If you have any questions, please contact your ERP Administrator.
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+</table>
+            </field>
+        </record>
+    </data>
+</odoo>
