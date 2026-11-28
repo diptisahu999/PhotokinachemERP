@@ -227,32 +227,12 @@ class TicketMonitoringWhatsapp(models.Model):
                 new_state = vals['state']
                 old_state_label = dict(t._fields['state'].selection).get(old_states.get(t.id), 'Assigned')
                 if new_state == 'in_progress':
-                    t._whatsapp_notify_status_change('WIP (In Progress)', vals.get('action_taken') or 'Work started by owner', old_status=old_state_label)
+                    t._whatsapp_notify_status_change('WIP (In Progress)', vals.get('action_taken') or t.action_taken or 'Work started by owner', old_status=old_state_label)
                 elif new_state == 'on_hold':
-                    t._whatsapp_notify_status_change('ON HOLD', t.escalation_reason or vals.get('escalation_reason') or 'Task placed on hold', old_status=old_state_label)
+                    t._whatsapp_notify_status_change('ON HOLD', vals.get('escalation_reason') or t.escalation_reason or t.hold_reason or 'Task placed on hold', old_status=old_state_label)
                 elif new_state in ('resolved', 'closed'):
-                    t._whatsapp_notify_completed(t.action_taken or vals.get('action_taken') or 'Task completed and verified')
+                    t._whatsapp_notify_completed(vals.get('action_taken') or t.action_taken or vals.get('requester_feedback') or t.requester_feedback or 'Task completed and verified')
         return res
-
-    def action_assign_owner(self):
-        super().action_assign_owner()
-        self._whatsapp_notify_registered()
-
-    def action_accept(self):
-        super().action_accept()
-        self._whatsapp_notify_status_change('WIP (In Progress)', 'Owner formally accepted responsibility')
-
-    def action_hold(self):
-        super().action_hold()
-        self._whatsapp_notify_status_change('ON HOLD', self.escalation_reason or 'Task suspended on hold')
-
-    def action_resolve(self):
-        super().action_resolve()
-        self._whatsapp_notify_completed(self.action_taken or 'Resolution submitted for requester verification')
-
-    def action_close(self):
-        super().action_close()
-        self._whatsapp_notify_completed(self.requester_feedback or 'Task verified and formally closed')
 
     def action_send_whatsapp_manual(self):
         """Manual trigger button to send WhatsApp assignment alert."""

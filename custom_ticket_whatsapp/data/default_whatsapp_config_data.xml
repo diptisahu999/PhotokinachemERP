@@ -6,7 +6,7 @@
         <field name="api_key">isk_live_kuE6dyNqjfFcrM4UNCfUUfF4zFDotlTod3bVwyhbvD0</field>
         <field name="is_enabled">True</field>
         <field name="template_registered">ticket_registered</field>
-        <field name="template_status">ticket_status_update</field>
-        <field name="template_completed">ticket_completed</field>
+        <field name="template_status">ticket_task_status_update_v1</field>
+        <field name="template_completed">pcpl_task_completed</field>
     </record>
 </odoo>

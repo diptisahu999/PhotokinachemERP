@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'PCPL Ticket WhatsApp Notifications (InfiQ)',
-    'version': '19.0.1.0.4',
+    'version': '19.0.1.0.7',
     'category': 'Operations/Helpdesk',
     'summary': 'Automated 3-tier WhatsApp notifications via InfiQ API: Task Registration, WIP/Hold State Updates, and Completion',
     'description': """

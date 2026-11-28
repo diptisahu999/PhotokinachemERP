@@ -40,13 +40,13 @@ class TicketWhatsappConfig(models.Model):
     )
     template_status = fields.Char(
         string='2) State Change Template Name (WIP / On Hold)',
-        default='ticket_status_update',
+        default='ticket_task_status_update_v1',
         required=True,
         help="Meta-approved template name in InfiQ for status updates (WIP, On Hold)."
     )
     template_completed = fields.Char(
         string='3) Completion Template Name',
-        default='ticket_completed',
+        default='pcpl_task_completed',
         required=True,
         help="Meta-approved template name in InfiQ for task resolution & closure."
     )
@@ -62,8 +62,14 @@ class TicketWhatsappConfig(models.Model):
         try:
             self.env.cr.execute("""
                 UPDATE ticket_whatsapp_config 
-                SET api_key = 'isk_live_kuE6dyNqjfFcrM4UNCfUUfF4zFDotlTod3bVwyhbvD0'
-                WHERE api_key IS NULL OR api_key = '';
+                SET api_key = 'isk_live_kuE6dyNqjfFcrM4UNCfUUfF4zFDotlTod3bVwyhbvD0',
+                    template_status = 'ticket_task_status_update',
+                    template_completed = 'pcpl_task_completed'
+                WHERE template_status = 'ticket_status_update' 
+                   OR template_status IS NULL 
+                   OR template_completed = 'ticket_completed'
+                   OR api_key IS NULL 
+                   OR api_key = '';
             """)
         except Exception:
             pass
