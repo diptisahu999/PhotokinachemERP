@@ -8,7 +8,7 @@
         <field name="priority" eval="55"/>
         <field name="arch" type="xml">
             <xpath expr="//page[@name='access_rights']" position="inside">
-                <group string="Ticket Monitoring Special Permissions" name="group_ticket_monitoring_permissions">
+                <group string="Task Delegation Special Permissions" name="group_ticket_monitoring_permissions">
                     <field name="has_ticket_dashboard_access" widget="boolean_toggle"
                            help="If enabled, this user is granted executive access to view and analyze the 15 Core KPIs Management Dashboard."/>
                 </group>

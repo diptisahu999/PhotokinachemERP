@@ -93,8 +93,8 @@ export class TicketKpiDashboard extends Component {
     }
 
     openP1Tickets() {
-        return this.openAction("Critical (P1) Tickets", [
-            ["priority", "=", "p1"],
+        return this.openAction("High Priority Tasks (3 Stars)", [
+            ["priority", "in", ["3", "p1"]],
             ["state", "!=", "closed"],
         ]);
     }

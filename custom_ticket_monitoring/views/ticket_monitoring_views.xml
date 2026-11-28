@@ -52,11 +52,11 @@
                     </div>
                 </div>
 
-                <div class="alert alert-danger d-flex align-items-center mb-0" role="alert" invisible="priority != 'p1' or state in ('closed')">
-                    <i class="fa fa-fire fa-2x me-3 text-danger" title="Critical Priority Alert"/>
+                <div class="alert alert-danger d-flex align-items-center mb-0" role="alert" invisible="priority not in ('3', 'p1') or state in ('closed')">
+                    <i class="fa fa-fire fa-2x me-3 text-danger" title="High Priority Alert"/>
                     <div>
-                        <h5 class="alert-heading mb-0 fw-bold">🔥 P1 - CRITICAL OPERATIONAL ISSUE</h5>
-                        <div>Requires immediate action! Target resolution within <b>2 hours</b>.</div>
+                        <h5 class="alert-heading mb-0 fw-bold">🔥 3 STARS - HIGH PRIORITY OPERATIONAL ISSUE</h5>
+                        <div>Major disruption, quality risk, urgent customer impact or critical dependency! Requires immediate action (Target: <b>4 hours</b>).</div>
                     </div>
                 </div>
 
@@ -245,8 +245,8 @@
         <field name="name">ticket.monitoring.list</field>
         <field name="model">ticket.monitoring</field>
         <field name="arch" type="xml">
-            <list string="Operational Tickets"
-                  decoration-danger="sla_status == 'breached' or priority == 'p1'"
+            <list string="Operational Tasks"
+                  decoration-danger="sla_status == 'breached' or priority in ('3', 'p1')"
                   decoration-warning="sla_status == 'risk'"
                   decoration-muted="state == 'closed'"
                   sample="1">
@@ -302,7 +302,9 @@
                 <filter string="Under Review / On Hold" name="filter_on_hold" domain="[('state', '=', 'on_hold')]"/>
                 <filter string="Pending Verification" name="filter_pending_verify" domain="[('state', '=', 'resolved')]"/>
                 <separator/>
-                <filter string="🔥 P1 Critical Tickets" name="filter_p1" domain="[('priority', '=', 'p1')]"/>
+                <filter string="🔥 High Priority (3 Stars)" name="filter_p1" domain="[('priority', 'in', ('3', 'p1'))]"/>
+                <filter string="Normal Priority (2 Stars)" name="filter_normal" domain="[('priority', 'in', ('2', 'p2'))]"/>
+                <filter string="Low Priority (1 Star)" name="filter_low" domain="[('priority', 'in', ('0', '1', 'p3', 'p4'))]"/>
                 <filter string="🚨 SLA Breached" name="filter_sla_breached" domain="[('sla_status', '=', 'breached')]"/>
                 <filter string="⚠️ SLA at Risk (&gt;75%)" name="filter_sla_risk" domain="[('sla_status', '=', 'risk')]"/>
                 <filter string="Escalated (L2 / L3 / L4)" name="filter_escalated" domain="[('escalation_level', 'in', ('l2', 'l3', 'l4'))]"/>
@@ -328,22 +330,22 @@
     <!-- ============================================== -->
     <!-- 5. WINDOW ACTIONS                              -->
     <!-- ============================================== -->
-    <!-- All Tickets Action -->
+    <!-- All Tasks Action -->
     <record id="action_ticket_monitoring_all" model="ir.actions.act_window">
-        <field name="name">All Operational Tickets</field>
+        <field name="name">All Operational Tasks</field>
         <field name="res_model">ticket.monitoring</field>
         <field name="view_mode">kanban,list,form,pivot,graph</field>
         <field name="context">{'search_default_open_tickets': 1}</field>
         <field name="search_view_id" ref="view_ticket_monitoring_search"/>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Create your first operational issue ticket!</p>
-            <p>Track, resolve, and escalate operational issues across all departments.</p>
+            <p class="o_view_nocontent_smiling_face">Create your first operational task!</p>
+            <p>Delegate, track, resolve, and escalate operational tasks across all departments.</p>
         </field>
     </record>
 
-    <!-- My Tickets Action -->
+    <!-- My Tasks Action -->
     <record id="action_ticket_monitoring_my" model="ir.actions.act_window">
-        <field name="name">My Tickets</field>
+        <field name="name">My Delegated Tasks</field>
         <field name="res_model">ticket.monitoring</field>
         <field name="view_mode">kanban,list,form</field>
         <field name="domain">['|', ('user_id', '=', uid), ('owner_id', '=', uid)]</field>
@@ -352,23 +354,23 @@
 
     <!-- Overdue / SLA Breached Action -->
     <record id="action_ticket_monitoring_overdue" model="ir.actions.act_window">
-        <field name="name">Overdue / SLA Breached Tickets</field>
+        <field name="name">Overdue / SLA Breached Tasks</field>
         <field name="res_model">ticket.monitoring</field>
         <field name="view_mode">list,kanban,form,pivot</field>
         <field name="domain">[('sla_status', '=', 'breached'), ('state', 'not in', ('closed', 'resolved'))]</field>
     </record>
 
-    <!-- Critical P1 Tickets Action -->
+    <!-- High Priority (3 Stars) Action -->
     <record id="action_ticket_monitoring_p1" model="ir.actions.act_window">
-        <field name="name">Critical (P1) Tickets</field>
+        <field name="name">High Priority Tasks (3 Stars)</field>
         <field name="res_model">ticket.monitoring</field>
         <field name="view_mode">list,kanban,form</field>
-        <field name="domain">[('priority', '=', 'p1'), ('state', 'not in', ('closed',))]</field>
+        <field name="domain">[('priority', 'in', ('3', 'p1')), ('state', 'not in', ('closed',))]</field>
     </record>
 
     <!-- MIS Department Action -->
     <record id="action_ticket_monitoring_mis" model="ir.actions.act_window">
-        <field name="name">MIS Department Tickets</field>
+        <field name="name">MIS Department Tasks</field>
         <field name="res_model">ticket.monitoring</field>
         <field name="view_mode">kanban,list,form,pivot</field>
         <field name="domain">[('assigned_department_id.code', '=', 'MIS')]</field>

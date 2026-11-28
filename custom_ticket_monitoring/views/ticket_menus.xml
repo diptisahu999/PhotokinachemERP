@@ -2,30 +2,30 @@
 <odoo>
     <!-- Top-Level App Menu -->
     <menuitem id="menu_ticket_monitoring_root"
-              name="Ticket Monitoring"
+              name="Task Delegation"
               sequence="28"
               web_icon="custom_ticket_monitoring,static/description/icon.png"/>
 
     <!-- 1. Operations Menu -->
     <menuitem id="menu_ticket_operations"
-              name="Tickets"
+              name="Tasks"
               parent="menu_ticket_monitoring_root"
               sequence="10"/>
 
     <menuitem id="menu_ticket_all"
-              name="All Operational Tickets"
+              name="All Operational Tasks"
               parent="menu_ticket_operations"
               action="action_ticket_monitoring_all"
               sequence="10"/>
 
     <menuitem id="menu_ticket_my"
-              name="My Tickets"
+              name="My Tasks"
               parent="menu_ticket_operations"
               action="action_ticket_monitoring_my"
               sequence="20"/>
 
     <menuitem id="menu_ticket_p1"
-              name="🔥 Critical (P1) Tickets"
+              name="🔥 High Priority (3 Stars)"
               parent="menu_ticket_operations"
               action="action_ticket_monitoring_p1"
               sequence="30"/>
