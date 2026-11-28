@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_hidden_app_menus" model="res.groups">
+        <field name="name">Hidden Apps &amp; Menus</field>
+        <field name="comment">Internal system group used to hide unused applications (Project, Link Tracker) from the user interface.</field>
+    </record>
+</odoo>
