@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="0">
+        <!-- Default Project URL for Login Emails -->
+        <record id="param_custom_project_url" model="ir.config_parameter">
+            <field name="key">custom_user_credentials.project_url</field>
+            <field name="value">https://photokinachem.techvizor.in</field>
+        </record>
+
         <!-- Mail Template: User Login Credentials -->
         <record id="email_template_user_credentials" model="mail.template">
             <field name="name">User: Login Credentials Email</field>

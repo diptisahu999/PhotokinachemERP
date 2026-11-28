@@ -60,9 +60,7 @@ class SendUserCredentialsWizard(models.TransientModel):
                 res['email'] = (user.email or user.login or '').strip()
         
         # Determine Project / ERP URL
-        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url', '').strip()
-        if not base_url:
-            base_url = 'http://localhost:9904'
+        base_url = self.env['res.users']._get_default_project_url()
         res['project_url'] = base_url
 
         # Generate a strong, secure temporary password

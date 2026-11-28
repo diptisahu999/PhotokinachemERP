@@ -45,6 +45,16 @@ class ResUsers(models.Model):
         help="Administrator who last emailed login credentials to this user."
     )
 
+    @api.model
+    def _get_default_project_url(self):
+        """Get the public project URL for emails."""
+        param_url = self.env['ir.config_parameter'].sudo().get_param('custom_user_credentials.project_url', '').strip()
+        if not param_url:
+            param_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url', '').strip()
+        if not param_url or 'localhost' in param_url or '127.0.0.1' in param_url:
+            param_url = 'https://photokinachem.techvizor.in'
+        return param_url
+
     def action_open_send_credentials_wizard(self):
         """Open the Send Login Credentials dialog for this user."""
         self.ensure_one()
@@ -68,9 +78,7 @@ class ResUsers(models.Model):
             raise UserError(_("User '%s' does not have an email address or login configured.") % user.name)
 
         # 1. Project URL
-        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url', '').strip()
-        if not base_url:
-            base_url = 'http://localhost:9904'
+        base_url = self._get_default_project_url()
 
         # 2. Generate temporary password & set in Odoo
         temp_password = generate_secure_password(10)
