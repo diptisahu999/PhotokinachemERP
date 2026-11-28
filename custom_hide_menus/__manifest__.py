@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Hide Unwanted Menus & App Module Access Control',
-    'version': '19.0.1.0.2',
+    'version': '19.0.1.0.3',
     'category': 'Extra Tools',
     'summary': 'Hides Project, Link Tracker, Surveys, and adds Apps Module Access control toggle/button on User form',
     'description': """

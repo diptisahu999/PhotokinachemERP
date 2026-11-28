@@ -18,11 +18,11 @@
         <field name="group_ids" eval="[(6, 0, [ref('group_hidden_app_menus')])]"/>
     </record>
 
-    <!-- Restrict Apps Menu to Authorized Users & System Administrators -->
+    <!-- Restrict Apps Menu strictly to users with Apps Module Access -->
     <record id="base.menu_management" model="ir.ui.menu">
-        <field name="group_ids" eval="[(6, 0, [ref('group_apps_access'), ref('base.group_system')])]"/>
+        <field name="group_ids" eval="[(6, 0, [ref('group_apps_access')])]"/>
     </record>
     <record id="base.menu_apps" model="ir.ui.menu">
-        <field name="group_ids" eval="[(6, 0, [ref('group_apps_access'), ref('base.group_system')])]"/>
+        <field name="group_ids" eval="[(6, 0, [ref('group_apps_access')])]"/>
     </record>
 </odoo>
