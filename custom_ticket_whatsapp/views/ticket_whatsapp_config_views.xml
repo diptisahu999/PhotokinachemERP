@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ticket_whatsapp_config_form" model="ir.ui.view">
+        <field name="name">ticket.whatsapp.config.form</field>
+        <field name="model">ticket.whatsapp.config</field>
+        <field name="arch" type="xml">
+            <form string="InfiQ WhatsApp Gateway Configuration">
+                <header>
+                    <button name="action_test_connection"
+                            string="Test Connection &amp; Send Sample"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-paper-plane"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Gateway Name"/>
+                        <h1>
+                            <field name="name" required="1"/>
+                        </h1>
+                    </div>
+
+                    <group string="InfiQ API Credentials">
+                        <group>
+                            <field name="api_url" placeholder="https://api.infiq.in/v1/messages"/>
+                            <field name="api_key" password="True" placeholder="Paste X-INFIQ-API-KEY here (from app.infiq.in)"/>
+                        </group>
+                        <group>
+                            <field name="is_enabled" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+
+                    <group string="Meta-Approved WhatsApp Templates (Configured in InfiQ)">
+                        <group>
+                            <field name="template_registered" placeholder="e.g. ticket_registered"/>
+                            <field name="template_status" placeholder="e.g. ticket_status_update"/>
+                        </group>
+                        <group>
+                            <field name="template_completed" placeholder="e.g. ticket_completed"/>
+                        </group>
+                    </group>
+
+                    <group string="Test WhatsApp Dispatch">
+                        <group>
+                            <field name="test_mobile" placeholder="e.g. 9377730103"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page name="help" string="InfiQ Setup Guide">
+                            <div class="alert alert-info" role="alert">
+                                <h4>3 Automated WhatsApp Notifications Configured:</h4>
+                                <ol>
+                                    <li><b>1) Registration:</b> Sent on ticket creation/assignment with Task ID, Owner, Problem, From Dept, To Dept, Priority, and SLA Deadline.</li>
+                                    <li><b>2) State Changes:</b> Sent when ticket transitions to <b>WIP</b> or <b>ON HOLD</b> with latest remarks and updater.</li>
+                                    <li><b>3) Completion:</b> Sent on <b>Resolved</b> / <b>Closed</b> with timeframe (From Date to To Date) and action/CAPA remarks.</li>
+                                </ol>
+                                <p>Generate your API Key at: <a href="https://app.infiq.in/" target="_blank">https://app.infiq.in/</a> (Developers / API Keys).</p>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ticket_whatsapp_config" model="ir.actions.act_window">
+        <field name="name">WhatsApp (InfiQ) Settings</field>
+        <field name="res_model">ticket.whatsapp.config</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="res_id" ref="default_ticket_whatsapp_config"/>
+    </record>
+
+    <menuitem id="menu_ticket_whatsapp_config"
+              name="WhatsApp (InfiQ) Settings"
+              parent="custom_ticket_monitoring.menu_ticket_config"
+              action="action_ticket_whatsapp_config"
+              sequence="40"/>
+</odoo>

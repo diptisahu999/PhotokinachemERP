@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- System / Action Menu Items (Inside the ⚙ Gear / Actions Dropdown) -->
+    <record id="action_server_ticket_send_whatsapp" model="ir.actions.server">
+        <field name="name">Send WhatsApp Alert</field>
+        <field name="model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
+        <field name="binding_model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
+        <field name="binding_view_types">form</field>
+        <field name="sequence">15</field>
+        <field name="state">code</field>
+        <field name="code">
+for r in records:
+    action = r.action_send_whatsapp_manual()
+        </field>
+    </record>
+
+    <record id="action_server_ticket_send_status_whatsapp" model="ir.actions.server">
+        <field name="name">Send Status WhatsApp Alert</field>
+        <field name="model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
+        <field name="binding_model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
+        <field name="binding_view_types">form</field>
+        <field name="sequence">16</field>
+        <field name="state">code</field>
+        <field name="code">
+for r in records:
+    action = r.action_send_whatsapp_status_manual()
+        </field>
+    </record>
+
+    <record id="action_server_ticket_send_completion_whatsapp" model="ir.actions.server">
+        <field name="name">Send Completion WhatsApp Alert</field>
+        <field name="model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
+        <field name="binding_model_id" ref="custom_ticket_monitoring.model_ticket_monitoring"/>
+        <field name="binding_view_types">form</field>
+        <field name="sequence">17</field>
+        <field name="state">code</field>
+        <field name="code">
+for r in records:
+    action = r.action_send_whatsapp_completion_manual()
+        </field>
+    </record>
+</odoo>

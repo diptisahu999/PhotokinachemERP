@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+    <record id="default_ticket_whatsapp_config" model="ticket.whatsapp.config">
+        <field name="name">InfiQ WhatsApp Gateway (PCPL)</field>
+        <field name="api_url">https://api.infiq.in/v1/messages</field>
+        <field name="api_key">isk_live_kuE6dyNqjfFcrM4UNCfUUfF4zFDotlTod3bVwyhbvD0</field>
+        <field name="is_enabled">True</field>
+        <field name="template_registered">ticket_registered</field>
+        <field name="template_status">ticket_status_update</field>
+        <field name="template_completed">ticket_completed</field>
+    </record>
+</odoo>

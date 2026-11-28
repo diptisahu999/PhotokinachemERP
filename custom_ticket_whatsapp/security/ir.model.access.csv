@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ticket_whatsapp_config_user,ticket.whatsapp.config.user,model_ticket_whatsapp_config,base.group_user,1,0,0,0
+access_ticket_whatsapp_config_manager,ticket.whatsapp.config.manager,model_ticket_whatsapp_config,custom_ticket_monitoring.group_ticket_manager,1,1,1,1
+access_ticket_whatsapp_config_admin,ticket.whatsapp.config.admin,model_ticket_whatsapp_config,base.group_system,1,1,1,1
