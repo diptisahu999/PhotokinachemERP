@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add Apps Module Access Controls to User Form View -->
+    <record id="view_users_form_inherit_hide_menus" model="ir.ui.view">
+        <field name="name">res.users.form.inherit.hide.menus</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="priority" eval="70"/>
+        <field name="arch" type="xml">
+            <!-- Header Button to quickly toggle Apps Access -->
+            <xpath expr="//header" position="inside">
+                <button name="action_toggle_apps_access"
+                        string="Toggle Apps Access"
+                        type="object"
+                        class="btn-secondary"
+                        groups="base.group_system"/>
+            </xpath>
+
+            <!-- Toggle switch placed in the exact green circled spot next to Ticket Monitoring permissions -->
+            <xpath expr="//group[@name='group_ticket_monitoring_permissions']" position="after">
+                <group string="App Module Access" name="group_app_module_access">
+                    <field name="has_apps_access" widget="boolean_toggle" string="Apps Module Access"
+                           help="If enabled, this user is permitted to see and access the Apps module from the left navigation sidebar."/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add Apps Access Column to User List View -->
+    <record id="view_users_tree_inherit_hide_menus" model="ir.ui.view">
+        <field name="name">res.users.tree.inherit.hide.menus</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='role']" position="after">
+                <field name="has_apps_access" widget="boolean" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

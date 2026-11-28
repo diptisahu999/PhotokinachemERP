@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Hide Unwanted Menus (Project, Link Tracker, Surveys)',
-    'version': '19.0.1.0.1',
+    'name': 'Hide Unwanted Menus & App Module Access Control',
+    'version': '19.0.1.0.2',
     'category': 'Extra Tools',
-    'summary': 'Hides Project, Link Tracker, and Surveys apps from the left sidebar and navigation menu',
+    'summary': 'Hides Project, Link Tracker, Surveys, and adds Apps Module Access control toggle/button on User form',
     'description': """
-Hide Unwanted Menus (Project, Link Tracker, Surveys)
-====================================================
-This module hides the **Project**, **Link Tracker**, and **Surveys** applications from the left sidebar
-and navigation menu in Photokina Chemicals ERP:
+Hide Unwanted Menus & App Module Access Control
+================================================
+This module customizes navigation and application visibility for Photokina Chemicals ERP:
 
-- Hides **Project** (`project.menu_main_pm`)
-- Hides **Link Tracker** (`utm.menu_link_tracker_root`)
-- Hides **Surveys** (`survey.menu_surveys`)
+1. **Hide Unused Modules from Sidebar/Navigation**:
+   - Hides **Project** (`project.menu_main_pm`)
+   - Hides **Link Tracker** (`utm.menu_link_tracker_root`)
+   - Hides **Surveys** (`survey.menu_surveys`)
 
-All menus are deactivated and restricted to a dedicated internal hidden group.
-All backend data, records, and Python APIs remain 100% intact.
+2. **Per-User Apps Module Access Control**:
+   - Adds **Apps Module Access** toggle (`has_apps_access`) under **Access Rights** tab on the User form (`res.users`).
+   - Adds a **Toggle Apps Access** action button in the User form header.
+   - Hides the **Apps** icon from the sidebar for standard users unless granted access.
+   - System Administrators retain full Apps access by default.
     """,
     'author': 'Photokina Chemicals Pvt. Ltd.',
     'website': 'https://www.photokinachem.com',
@@ -25,10 +28,12 @@ All backend data, records, and Python APIs remain 100% intact.
         'project',
         'utm',
         'survey',
+        'custom_ticket_monitoring',
     ],
     'data': [
         'security/security.xml',
         'views/hide_menus.xml',
+        'views/res_users_views.xml',
     ],
     'post_init_hook': 'post_init_hook',
     'uninstall_hook': 'uninstall_hook',

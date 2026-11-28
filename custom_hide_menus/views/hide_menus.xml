@@ -17,4 +17,12 @@
         <field name="active" eval="False"/>
         <field name="group_ids" eval="[(6, 0, [ref('group_hidden_app_menus')])]"/>
     </record>
+
+    <!-- Restrict Apps Menu to Authorized Users & System Administrators -->
+    <record id="base.menu_management" model="ir.ui.menu">
+        <field name="group_ids" eval="[(6, 0, [ref('group_apps_access'), ref('base.group_system')])]"/>
+    </record>
+    <record id="base.menu_apps" model="ir.ui.menu">
+        <field name="group_ids" eval="[(6, 0, [ref('group_apps_access'), ref('base.group_system')])]"/>
+    </record>
 </odoo>
